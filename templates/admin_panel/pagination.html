@@ -1,0 +1,123 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="page-link">« اولین</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">قبلی</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="page-link current">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="page-link">بعدی</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">آخرین »</a>
+    {% endif %}
+</div>
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        padding: 0.5rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 1rem;
+        background: #2a2a2a;
+        color: #e0e0e0;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    body.light-mode .page-link {
+        background: #f1f1f1;
+        color: #1f2a44;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-link:hover {
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .current {
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #fff;
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    body.light-mode .current {
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .pagination {
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .page-link {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .pagination {
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .page-link {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>

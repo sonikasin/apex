@@ -1,0 +1,79 @@
+<!-- templates/admin_panel/discount_code_form.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{% if form_type == 'add' %}افزودن کد تخفیف{% else %}ویرایش کد تخفیف{% endif %}{% endblock %}
+
+{% block header_title %}{% if form_type == 'add' %}افزودن کد تخفیف{% else %}ویرایش کد تخفیف{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{{ form_type|title }} کد تخفیف</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>کد تخفیف:</label>
+        <input type="text" name="code" placeholder="کد منحصر به فرد را وارد کنید" value="{{ discount_code.code|default:'' }}">
+
+        <label>نوع تخفیف:</label>
+        <select name="discount_type">
+            <option value="">انتخاب کنید</option>
+            {% for value, display in discount_code.DISCOUNT_TYPES %}
+                <option value="{{ value }}" {% if discount_code.discount_type == value %}selected{% endif %}>{{ display }}</option>
+            {% endfor %}
+        </select>
+
+        <label>مقدار تخفیف:</label>
+        <input type="number" name="discount_value" placeholder="مقدار تخفیف (درصد یا دلار)" value="{{ discount_code.discount_value|default:'' }}">
+
+        <label>حداکثر استفاده:</label>
+        <input type="number" name="max_uses" placeholder="تعداد دفعات مجاز استفاده" value="{{ discount_code.max_uses|default:'' }}">
+
+        <label>ایمیل معرف:</label>
+        <input type="email" name="affiliate_email" placeholder="اختیاری: ایمیل معرف" value="{{ discount_code.affiliate_email|default:'' }}">
+
+        <label>درصد معرف:</label>
+        <input type="number" name="affiliate_percentage" placeholder="اختیاری: درصد برای معرف" value="{{ discount_code.affiliate_percentage|default:'' }}">
+
+        <label>تاریخ انقضا:</label>
+        <input type="date" name="expiration_date" placeholder="اختیاری: تاریخ انقضای کد" value="{{ discount_code.expiration_date|date:'Y-m-d'|default:'' }}">
+
+        <label>پلن‌های مجاز:</label>
+        <select name="plans" multiple>
+            <option value="">انتخاب کنید</option>
+            {% for plan in plans %}
+                <option value="{{ plan.id }}" {% if plan in discount_code.plans.all %}selected{% endif %}>{{ plan.get_name_display }} ({{ plan.account_size }} دلار)</option>
+            {% endfor %}
+        </select>
+
+        <p>پلن‌های انتخاب شده:</p>
+        <ul>
+            {% if form_type == 'edit' and discount_code.pk %}
+                {% for plan in discount_code.plans.all %}
+                    <li>{{ plan.get_name_display }} - {{ plan.account_size }} دلار</li>
+                {% empty %}
+                    <li>هیچ پلنی انتخاب نشده</li>
+                {% endfor %}
+            {% else %}
+                <li>هیچ پلنی انتخاب نشده</li>
+            {% endif %}
+        </ul>
+
+        <label>کاربران مجاز:</label>
+        <select name="users" multiple>
+            <option value="">انتخاب کنید</option>
+            {% for user in users %}
+                <option value="{{ user.id }}" {% if user in discount_code.users.all %}selected{% endif %}>{{ user.email }}</option>
+            {% endfor %}
+        </select>
+
+        <label>فعال بودن محدودیت استفاده:</label>
+        <input type="checkbox" name="max_uses_active" {% if discount_code.max_uses_active %}checked{% endif %}>
+
+        <label>فقط برای خرید اول:</label>
+        <input type="checkbox" name="first_purchase_only" {% if discount_code.first_purchase_only %}checked{% endif %}>
+
+        <label>فعال:</label>
+        <input type="checkbox" name="active" {% if discount_code.active %}checked{% endif %}>
+
+        <button type="submit">ذخیره</button>
+        <a href="{% url 'admin_panel:discount_code_list' %}">لغو</a>
+    </form>
+{% endblock %}

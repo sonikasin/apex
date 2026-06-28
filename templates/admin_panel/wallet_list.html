@@ -1,0 +1,100 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>{% extends 'admin_panel/base.html' %}
+{% block title %}لیست کیف پول‌ها{% endblock %}
+{% block header_title %}لیست کیف پول‌ها{% endblock %}
+{% block content %}
+<div class="container mx-auto">
+    <h1 class="text-2xl font-bold mb-4">لیست کیف پول‌ها</h1>
+    
+    <!-- Search Form -->
+    <form method="GET" class="mb-4">
+        <div class="flex items-center">
+            <input type="text" name="search" value="{{ search_term }}" placeholder="جستجو بر اساس ایمیل یا موجودی" class="border rounded px-3 py-2 w-full max-w-md">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">جستجو</button>
+        </div>
+    </form>
+
+    <!-- Bulk Update Button -->
+    <div class="mb-4">
+        <a href="{% url 'admin_panel:bulk_update_wallets' %}" class="bg-green-500 text-white px-4 py-2 rounded">افزایش گروهی موجودی</a>
+    </div>
+
+    <!-- Wallets Table -->
+    <table class="w-full border-collapse border border-gray-300">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="border border-gray-300 px-4 py-2">ایمیل کاربر</th>
+                <th class="border border-gray-300 px-4 py-2">موجودی (دلار)</th>
+                <th class="border border-gray-300 px-4 py-2">عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for wallet in page_obj %}
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">{{ wallet.user.email }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ wallet.balance_usd }}</td>
+                <td class="border border-gray-300 px-4 py-2">
+                    <a href="{% url 'admin_panel:wallet_edit' wallet.id %}" class="text-blue-500 hover:underline">ویرایش</a>
+                    <a href="{% url 'admin_panel:wallet_transactions' wallet.id %}" class="text-blue-500 hover:underline mr-2">تراکنش‌ها</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="border border-gray-300 px-4 py-2 text-center">هیچ کیف پولی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="px-2 py-1 bg-gray-200 rounded">« اولین</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-2 py-1 bg-gray-200 rounded">قبلی</a>
+        {% endif %}
+        <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-2 py-1 bg-gray-200 rounded">بعدی</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-2 py-1 bg-gray-200 rounded">آخرین »</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

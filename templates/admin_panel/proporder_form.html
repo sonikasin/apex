@@ -1,0 +1,42 @@
+<!-- templates/admin_panel/proporder_form.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{% if form_type == 'add' %}افزودن سفارش{% else %}ویرایش سفارش{% endif %}{% endblock %}
+
+{% block header_title %}{% if form_type == 'add' %}افزودن سفارش{% else %}ویرایش سفارش{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if form_type == 'add' %}افزودن سفارش جدید{% else %}ویرایش سفارش{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>شماره سفارش:</label>
+        <input type="text" name="order_number" value="{{ order.order_number|default:'' }}">
+
+        <label>پلن:</label>
+        <select name="plan_type">
+            <option value="">انتخاب پلن</option>
+            {% for plan in plans %}
+                <option value="{{ plan.id }}" {% if order.plan.id == plan.id %}selected{% endif %}>{{ plan.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label>تاریخ خرید:</label>
+        <input type="date" name="purchase_date" value="{{ order.purchase_date|date:'Y-m-d'|default:'' }}">
+
+        <label>وضعیت:</label>
+        <select name="status">
+            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>در حال انتظار</option>
+            <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>تکمیل شده</option>
+        </select>
+
+        <label>کاربر:</label>
+        <select name="user">
+            <option value="">بدون کاربر</option>
+            {% for u in users %}
+                <option value="{{ u.id }}" {% if order.user.id == u.id %}selected{% endif %}>{{ u.email }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">{% if form_type == 'add' %}ایجاد{% else %}ذخیره{% endif %}</button>
+    </form>
+{% endblock %}

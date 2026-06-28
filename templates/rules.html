@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}قوانین و مقررات{% endblock %}
+{% block content %}
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: 'Vazirmatn', Arial, sans-serif;
+        direction: rtl;
+    }
+
+    #rules-section {
+        padding: 5rem 2rem;
+        background: linear-gradient(145deg, #121212 20%, #003f2d 80%);
+        position: relative;
+        text-align: center;
+        min-height: 100vh;
+    }
+
+    body.light-mode #rules-section {
+        background: linear-gradient(145deg, #f9fafb 20%, #d1fae5 80%);
+    }
+
+    #rules-content {
+        max-width: 1000px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    #rules-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    body.light-mode #rules-title {
+        color: #059669;
+    }
+
+    #rules-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 2px;
+        background: #10b981;
+        border-radius: 2px;
+    }
+
+    #rules-content > p {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: #b0b0b0;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    body.light-mode #rules-content > p {
+        color: #4b5563;
+    }
+
+    .rule-item {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        transition: background 0.3s ease;
+    }
+
+    body.light-mode .rule-item {
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+    }
+
+    .rule-item:hover {
+        background: #2a2a2a;
+    }
+
+    body.light-mode .rule-item:hover {
+        background: #f0f0f0;
+    }
+
+    .rule-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #10b981;
+        padding: 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    body.light-mode .rule-title {
+        color: #059669;
+    }
+
+    .rule-title:hover {
+        color: #059669;
+    }
+
+    .rule-title::after {
+        content: '\f078'; /* fa-chevron-down */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1rem;
+        color: #10b981;
+        transition: transform 0.3s ease;
+    }
+
+    body.light-mode .rule-title::after {
+        color: #059669;
+    }
+
+    .rule-item.active .rule-title::after {
+        content: '\f077'; /* fa-chevron-up */
+        transform: rotate(180deg);
+    }
+
+    .rule-text {
+        font-size: 0.95rem;
+        font-weight: 300;
+        color: #b0b0b0;
+        line-height: 1.6;
+        padding: 0 1.2rem;
+        max-height: 0;
+        overflow: hidden;
+        display: none;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    body.light-mode .rule-text {
+        color: #4b5563;
+    }
+
+    .rule-item.active .rule-text {
+        display: block;
+        max-height: 500px; /* Adjusted for content length */
+        padding: 1rem 1.2rem 1.2rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        #rules-section {
+            padding: 4rem 1.5rem;
+        }
+
+        #rules-title {
+            font-size: 2.2rem;
+        }
+
+        .rule-title {
+            font-size: 1.4rem;
+        }
+
+        .rule-text {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        #rules-section {
+            padding: 3.5rem 1.2rem;
+        }
+
+        #rules-title {
+            font-size: 2rem;
+        }
+
+        .rule-item {
+            margin-bottom: 0.8rem;
+        }
+
+        .rule-title {
+            font-size: 1.3rem;
+            padding: 1rem;
+        }
+
+        .rule-title::after {
+            font-size: 0.9rem;
+        }
+
+        .rule-text {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #rules-section {
+            padding: 3rem 1rem;
+        }
+
+        #rules-title {
+            font-size: 1.8rem;
+        }
+
+        #rules-content > p {
+            font-size: 1rem;
+        }
+
+        .rule-item {
+            margin-bottom: 0.7rem;
+        }
+
+        .rule-title {
+            font-size: 1.2rem;
+            padding: 0.8rem;
+        }
+
+        .rule-title::after {
+            font-size: 0.8rem;
+        }
+
+        .rule-text {
+            font-size: 0.8rem;
+        }
+
+        .rule-item.active .rule-text {
+            max-height: 600px; /* Adjusted for mobile */
+        }
+    }
+
+    @media (max-width: 480px) {
+        #rules-section {
+            padding: 2.5rem 0.8rem;
+        }
+
+        #rules-title {
+            font-size: 1.6rem;
+        }
+
+        #rules-content > p {
+            font-size: 0.9rem;
+        }
+
+        .rule-title {
+            font-size: 1.1rem;
+            padding: 0.7rem;
+        }
+
+        .rule-title::after {
+            font-size: 0.7rem;
+        }
+
+        .rule-text {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<section id="rules-section">
+    <h2 id="rules-title">قوانین و مقررات</h2>
+    <div id="rules-content">
+        {% for rule in rules %}
+        <div class="rule-item">
+            <h3 class="rule-title">{{ rule.order }}. {{ rule.title }}</h3>
+            <p class="rule-text">{{ rule.description }}</p>
+        </div>
+        {% empty %}
+        <p>هیچ قانونی تعریف نشده است.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ruleItems = document.querySelectorAll('.rule-item');
+
+        ruleItems.forEach(item => {
+            const title = item.querySelector('.rule-title');
+            title.addEventListener('click', () => {
+                // Close all other open items
+                ruleItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                        const otherText = otherItem.querySelector('.rule-text');
+                        otherText.style.maxHeight = '0';
+                        otherText.style.display = 'none';
+                    }
+                });
+
+                // Toggle the clicked item
+                item.classList.toggle('active');
+                const text = item.querySelector('.rule-text');
+                if (item.classList.contains('active')) {
+                    text.style.display = 'block';
+                    text.style.maxHeight = text.scrollHeight + 'px';
+                } else {
+                    text.style.maxHeight = '0';
+                    text.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

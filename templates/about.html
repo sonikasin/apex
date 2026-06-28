@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}درباره ما{% endblock %}
+{% block content %}
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: 'Vazirmatn', Arial, sans-serif;
+        direction: rtl;
+    }
+
+    #about-section {
+        padding: 6rem 3rem;
+        background: linear-gradient(145deg, #121212 20%, #003f2d 80%);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        min-height: 100vh;
+    }
+
+    body.light-mode #about-section {
+        background: linear-gradient(145deg, #f9fafb 20%, #d1fae5 80%);
+    }
+
+    #about-content {
+        max-width: 1300px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    #about-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #10b981;
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeInUp 1s ease-out;
+    }
+
+    body.light-mode #about-title {
+        color: #059669;
+        text-shadow: none;
+    }
+
+    #about-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #10b981, #059669);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+    }
+
+    #about-title:hover::after {
+        width: 120px;
+    }
+
+    #about-intro {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: #b0b0b0;
+        line-height: 1.7;
+        max-width: 900px;
+        margin: 0 auto 4rem;
+        animation: fadeInUp 1.2s ease-out;
+    }
+
+    body.light-mode #about-intro {
+        color: #4b5563;
+    }
+
+    #about-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    #about-card-1, #about-card-2, #about-card-3 {
+        background: rgba(26, 26, 26, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        animation: fadeInUp 1.4s ease-out;
+    }
+
+    body.light-mode #about-card-1, body.light-mode #about-card-2, body.light-mode #about-card-3 {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    #about-card-1:hover, #about-card-2:hover, #about-card-3:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    #about-vision-title, #about-team-title, #about-values-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #10b981;
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+    }
+
+    body.light-mode #about-vision-title, body.light-mode #about-team-title, body.light-mode #about-values-title {
+        color: #059669;
+    }
+
+    #about-vision-title::before {
+        content: '\f06e'; /* fa-eye */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #10b981;
+        transition: transform 0.3s ease;
+    }
+
+    #about-team-title::before {
+        content: '\f0c0'; /* fa-users */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #10b981;
+        transition: transform 0.3s ease;
+    }
+
+    #about-values-title::before {
+        content: '\f3a5'; /* fa-gem */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #10b981;
+        transition: transform 0.3s ease;
+    }
+
+    #about-card-1:hover #about-vision-title::before,
+    #about-card-2:hover #about-team-title::before,
+    #about-card-3:hover #about-values-title::before {
+        transform: scale(1.2);
+    }
+
+    body.light-mode #about-vision-title::before,
+    body.light-mode #about-team-title::before,
+    body.light-mode #about-values-title::before {
+        color: #059669;
+    }
+
+    #about-vision-text, #about-team-text, #about-values-text {
+        font-size: 1rem;
+        font-weight: 300;
+        color: #b0b0b0;
+        line-height: 1.7;
+    }
+
+    body.light-mode #about-vision-text, body.light-mode #about-team-text, body.light-mode #about-values-text {
+        color: #4b5563;
+    }
+
+    #about-contact {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: #b0b0b0;
+    }
+
+    body.light-mode #about-contact {
+        color: #4b5563;
+    }
+
+    #about-contact a {
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.6rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    }
+
+    body.light-mode #about-contact a {
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #ffffff;
+    }
+
+    #about-contact a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        #about-section {
+            padding: 5rem 2rem;
+        }
+
+        #about-title {
+            font-size: 2.5rem;
+        }
+
+        #about-intro {
+            font-size: 1.1rem;
+            max-width: 800px;
+        }
+
+        #about-details {
+            gap: 1.5rem;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        #about-section {
+            padding: 4rem 1.5rem;
+        }
+
+        #about-title {
+            font-size: 2.2rem;
+        }
+
+        #about-details {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+
+        #about-vision-title, #about-team-title, #about-values-title {
+            font-size: 1.5rem;
+        }
+
+        #about-vision-title::before, #about-team-title::before, #about-values-title::before {
+            font-size: 1.6rem;
+        }
+
+        #about-vision-text, #about-team-text, #about-values-text {
+            font-size: 0.95rem;
+        }
+
+        #about-contact {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #about-section {
+            padding: 3rem 1rem;
+        }
+
+        #about-title {
+            font-size: 1.8rem;
+        }
+
+        #about-intro {
+            font-size: 0.9rem;
+            max-width: 90%;
+        }
+
+        #about-details {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        #about-card-1, #about-card-2, #about-card-3 {
+            padding: 2rem;
+        }
+
+        #about-contact {
+            font-size: 0.9rem;
+        }
+
+        #about-contact a {
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #about-section {
+            padding: 2.5rem 1rem;
+        }
+
+        #about-title {
+            font-size: 1.6rem;
+        }
+
+        #about-intro {
+            font-size: 0.85rem;
+        }
+
+        #about-vision-title, #about-team-title, #about-values-title {
+            font-size: 1.4rem;
+        }
+
+        #about-vision-title::before, #about-team-title::before, #about-values-title::before {
+            font-size: 1.4rem;
+        }
+
+        #about-vision-text, #about-team-text, #about-values-text {
+            font-size: 0.9rem;
+        }
+
+        #about-contact {
+            font-size: 0.85rem;
+        }
+
+        #about-contact a {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<section id="about-section">
+    <h2 id="about-title">درباره ما</h2>
+    <div id="about-content">
+        <p id="about-intro">ما در Apex Fx با هدف ارائه بهترین خدمات پراپ تریدینگ و پشتیبانی حرفه‌ای از معامله‌گران تأسیس شده‌ایم. مأموریت ما ایجاد محیطی امن و شفاف برای معامله‌گران است تا بتوانند با خیال راحت به فعالیت‌های معاملاتی خود بپردازند.</p>
+        <div id="about-details">
+            <div id="about-card-1">
+                <h3 id="about-vision-title">چشم‌انداز ما</h3>
+                <p id="about-vision-text">ما می‌خواهیم به یکی از پیشروترین پلتفرم‌های پراپ تریدینگ در جهان تبدیل شویم و به معامله‌گران در سراسر جهان کمک کنیم تا به اهداف مالی خود برسند.</p>
+            </div>
+            <div id="about-card-2">
+                <h3 id="about-team-title">تیم ما</h3>
+                <p id="about-team-text">تیم ما از کارشناسان با تجربه در زمینه معاملات مالی و فناوری تشکیل شده است که با تعهد به موفقیت شما کار می‌کنند.</p>
+            </div>
+            <div id="about-card-3">
+                <h3 id="about-values-title">ارزش‌های ما</h3>
+                <p id="about-values-text">شفافیت، اعتماد، و نوآوری سه اصل اساسی ما در ارائه خدمات به مشتریان است.</p>
+            </div>
+        </div>
+        <p id="about-contact">برای اطلاعات بیشتر یا همکاری با ما، می‌توانید از طریق <a href="{% url 'contact' %}">صفحه تماس</a> با ما در ارتباط باشید.</p>
+    </div>
+</section>
+{% endblock %}
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>

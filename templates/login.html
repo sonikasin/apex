@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}لاگین{% endblock %}
+{% block content %}
+<div class="login-container">
+    <h2 class="login-title">لاگین</h2>
+    <form method="post" class="login-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_email">ایمیل</label>
+            <input type="email" name="email" id="id_email" required>
+        </div>
+        <div class="form-group">
+            <label for="id_password">رمز عبور</label>
+            <input type="password" name="password" id="id_password" required>
+        </div>
+        <button type="submit" class="login-btn">لاگین</button>
+    </form>
+    <p class="forgot-link">      <a href="{% url 'password_reset_request' %}">رمز عبور خود را فراموش کرده‌اید؟</a></p>
+
+    <p class="register-link">حساب ندارید؟ <a href="{% url 'register' %}">ثبت‌نام کنید</a></p>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+<style>
+    .login-container {
+        padding: 2rem;
+        max-width: 500px;
+        margin: 0 auto;
+        min-height: calc(100vh - 120px);
+    }
+
+    .login-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    body.light-mode .login-form {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+        color: #e0e0e0;
+        margin-bottom: 0.5rem;
+    }
+
+    body.light-mode .form-group label {
+        color: #1f2a44;
+    }
+
+    .form-group input {
+        padding: 0.8rem;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #2a2a2a;
+        color: #e0e0e0;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    body.light-mode .form-group input {
+        border-color: #d1d5db;
+        background: #f9fafb;
+        color: #1f2a44;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .login-btn {
+        padding: 0.8rem 1.5rem;
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #121212;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        align-self: flex-end;
+        width: fit-content;
+    }
+
+    body.light-mode .login-btn {
+        color: #ffffff;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+
+    .forgot-link {
+        text-align: center;
+        font-size: 1rem;
+        color: #b0b0b0;
+        margin-top: 1rem;
+    }
+
+    body.light-mode .forgot-link {
+        color: #4b5563;
+    }
+
+    .forgot-link a {
+        color: #10b981;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    body.light-mode .forgot-link a {
+        color: #059669;
+    }
+
+    .forgot-link a:hover {
+        text-decoration: underline;
+    }
+
+    .register-link {
+        text-align: center;
+        font-size: 1rem;
+        color: #b0b0b0;
+        margin-top: 0.5rem;
+    }
+
+    body.light-mode .register-link {
+        color: #4b5563;
+    }
+
+    .register-link a {
+        color: #10b981;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    body.light-mode .register-link a {
+        color: #059669;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    .messages {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .messages p {
+        font-size: 1rem;
+        color: #e74c3c;
+        padding: 0.5rem;
+    }
+
+    body.light-mode .messages p {
+        color: #c0392b;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) { /* گوشی */
+        .login-container {
+            padding: 1rem;
+        }
+
+        .login-title {
+            font-size: 1.2rem;
+        }
+
+        .login-form {
+            padding: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .login-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .forgot-link, .register-link {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (min-width: 481px) and (max-width: 768px) { /* تبلت */
+        .login-container {
+            padding: 1.5rem;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+        }
+
+        .login-form {
+            padding: 1.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            padding: 0.7rem;
+            font-size: 0.9rem;
+        }
+
+        .login-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .forgot-link, .register-link {
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1200px) { /* لپ‌تاپ */
+        .login-container {
+            padding: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.7rem;
+        }
+
+        .login-form {
+            padding: 1.8rem;
+        }
+
+        .form-group label {
+            font-size: 1rem;
+        }
+
+        .form-group input {
+            padding: 0.8rem;
+        }
+
+        .login-btn {
+            padding: 0.7rem 1.3rem;
+        }
+    }
+
+    @media (min-width: 1201px) { /* مانیتور بزرگ */
+        .login-container {
+            padding: 2.5rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+        }
+
+        .login-form {
+            padding: 2rem;
+        }
+
+        .form-group label {
+            font-size: 1.1rem;
+        }
+
+        .form-group input {
+            padding: 0.9rem;
+            font-size: 1.1rem;
+        }
+
+        .login-btn {
+            padding: 0.9rem 1.7rem;
+        }
+    }
+</style>
+{% endblock %}

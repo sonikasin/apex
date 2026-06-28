@@ -1,0 +1,85 @@
+<!-- templates/admin_panel/ticket_list.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}لیست تیکت‌ها{% endblock %}
+
+{% block header_title %}لیست تیکت‌ها{% endblock %}
+
+{% block content %}
+    <h2>لیست تیکت‌ها</h2>
+    <form method="get">
+        <input type="text" name="search" value="{{ search_term }}" placeholder="جستجو...">
+        <select name="status">
+            <option value="">همه وضعیت‌ها</option>
+            <!-- گزینه‌های وضعیت بر اساس مدل Ticket -->
+            <option value="open" {% if status_filter == 'open' %}selected{% endif %}>باز</option>
+            <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>بسته</option>
+            <!-- گزینه‌های دیگر -->
+        </select>
+        <select name="department">
+            <option value="">همه دپارتمان‌ها</option>
+            <!-- گزینه‌های دپارتمان بر اساس مدل -->
+            <option value="support" {% if department_filter == 'support' %}selected{% endif %}>پشتیبانی</option>
+            <option value="finance" {% if department_filter == 'finance' %}selected{% endif %}>مالی</option>
+            <!-- گزینه‌های دیگر -->
+        </select>
+        <button type="submit">جستجو</button>
+    </form>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>شماره تیکت</th>
+                    <th>موضوع</th>
+                    <th>دپارتمان</th>
+                    <th>وضعیت</th>
+                    <th>کاربر</th>
+                    <th>شماره اکانت</th>
+                    <th>شماره سفارش</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in page_obj %}
+                    <tr>
+                        <td>{{ ticket.ticket_number }}</td>
+                        <td>{{ ticket.subject }}</td>
+                        <td>{{ ticket.department }}</td>
+                        <td>{{ ticket.get_status_display|default:ticket.status }}</td>
+                        <td>{{ ticket.user.email|default:'-' }}</td>
+                        <td>{{ ticket.account.account_number|default:'-' }}</td>
+                        <td>{{ ticket.account.order.id|default:'-' }}</td>
+                        <td>
+                            <a href="{% url 'admin_panel:ticket_edit' ticket.pk %}">ویرایش</a> |
+                            <a href="{% url 'admin_panel:ticket_reply' ticket.pk %}">پاسخ</a> |
+                            <a href="{% url 'admin_panel:ticket_delete' ticket.pk %}" onclick="return confirm('حذف شود؟');">حذف</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">هیچ تیکتی یافت نشد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+    {% if page_obj.number > 1 %}
+        <a href="?page=1&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">اولین</a>
+    {% endif %}
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">قبلی</a>
+    {% endif %}
+
+    <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">بعدی</a>
+    {% endif %}
+
+    {% if page_obj.number < page_obj.paginator.num_pages %}
+        <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">آخرین</a>
+    {% endif %}
+</div>
+
+    <a href="{% url 'admin_panel:ticket_add' %}">افزودن تیکت جدید</a>
+{% endblock %}

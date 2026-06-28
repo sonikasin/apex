@@ -1,0 +1,255 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}ساخت تیکت جدید{% endblock %}
+{% block content %}
+<div class="create-ticket-container">
+    <h2 class="create-ticket-title">ساخت تیکت جدید</h2>
+    <form method="post" class="ticket-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="department">دپارتمان</label>
+            <select name="department" id="department" required>
+                <option value="" disabled selected>انتخاب دپارتمان</option>
+                <option value="technical">پشتیبانی فنی</option>
+                <option value="financial">پشتیبانی مالی</option>
+                <option value="general">پشتیبانی عمومی</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="account">حساب پراپ</label>
+            <select name="account" id="account">
+                <option value="" selected>بدون حساب (اختیاری)</option>
+                {% for account in user.prop_accounts.all %}
+                    <option value="{{ account.id }}">{{ account.account_number }} - {{ account.plan.get_name_display }} ({{ account.get_level_display }})</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">حسابی که مربوط به این تیکت هست انتخاب کنید تا روند پاسخگویی به تیکت شما سریعتر انجام بشه</small>
+
+        </div>
+        <div class="form-group">
+            <label for="subject">موضوع</label>
+            <input type="text" name="subject" id="subject" placeholder="موضوع تیکت" required>
+        </div>
+        <div class="form-group">
+            <label for="message">پیام</label>
+            <textarea name="message" id="message" placeholder="متن پیام خود را وارد کنید..." required></textarea>
+        </div>
+        <button type="submit" class="submit-ticket-btn">ارسال تیکت</button>
+    </form>
+</div>
+<style>
+    .create-ticket-container {
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+        min-height: calc(100vh - 120px);
+    }
+
+    .create-ticket-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .ticket-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    body.light-mode .ticket-form {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+        color: #e0e0e0;
+        margin-bottom: 0.5rem;
+    }
+
+    body.light-mode .form-group label {
+        color: #1f2a44;
+    }
+
+    .form-group select, .form-group input, .form-group textarea {
+        padding: 0.8rem;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #2a2a2a;
+        color: #e0e0e0;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    body.light-mode .form-group select, body.light-mode .form-group input, body.light-mode .form-group textarea {
+        border-color: #d1d5db;
+        background: #f9fafb;
+        color: #1f2a44;
+    }
+
+    .form-group select:focus, .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .form-group textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-text {
+        color: #9ca3af;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+    }
+
+    body.light-mode .form-text {
+        color: #6b7280;
+    }
+
+    .submit-ticket-btn {
+        padding: 0.8rem 1.5rem;
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #121212;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        align-self: flex-end;
+        width: fit-content;
+    }
+
+    body.light-mode .submit-ticket-btn {
+        color: #ffffff;
+    }
+
+    .submit-ticket-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) { /* گوشی */
+        .create-ticket-container {
+            padding: 1rem;
+        }
+
+        .create-ticket-title {
+            font-size: 1.2rem;
+        }
+
+        .ticket-form {
+            padding: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+        }
+
+        .form-group select, .form-group input, .form-group textarea {
+            padding: 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .submit-ticket-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (min-width: 481px) and (max-width: 768px) { /* تبلت */
+        .create-ticket-container {
+            padding: 1.5rem;
+        }
+
+        .create-ticket-title {
+            font-size: 1.5rem;
+        }
+
+        .ticket-form {
+            padding: 1.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.95rem;
+        }
+
+        .form-group select, .form-group input, .form-group textarea {
+            padding: 0.7rem;
+            font-size: 0.9rem;
+        }
+
+        .submit-ticket-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1200px) { /* لپ‌تاپ */
+        .create-ticket-container {
+            padding: 2rem;
+        }
+
+        .create-ticket-title {
+            font-size: 1.7rem;
+        }
+
+        .ticket-form {
+            padding: 1.8rem;
+        }
+
+        .form-group label {
+            font-size: 1rem;
+        }
+
+        .form-group select, .form-group input, .form-group textarea {
+            padding: 0.8rem;
+        }
+
+        .submit-ticket-btn {
+            padding: 0.7rem 1.3rem;
+        }
+    }
+
+    @media (min-width: 1201px) { /* مانیتور بزرگ */
+        .create-ticket-container {
+            padding: 2.5rem;
+        }
+
+        .create-ticket-title {
+            font-size: 2rem;
+        }
+
+        .ticket-form {
+            padding: 2rem;
+        }
+
+        .form-group label {
+            font-size: 1.1rem;
+        }
+
+        .form-group select, .form-group input, .form-group textarea {
+            padding: 0.9rem;
+            font-size: 1.1rem;
+        }
+
+        .submit-ticket-btn {
+            padding: 0.9rem 1.7rem;
+        }
+    }
+</style>
+{% endblock %}

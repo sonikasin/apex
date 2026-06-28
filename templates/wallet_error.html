@@ -1,0 +1,23 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}خطا در واریز{% endblock %}
+
+{% block content %}
+<div class="payment-error-section">
+    <div class="payment-error-container">
+        <div class="error-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </div>
+        <h2>خطا در واریز</h2>
+        <p>{{ message }}</p>
+        <p>موجودی فعلی کیف پول: <span>{{ wallet.balance_usd|floatformat:2 }} دلار</span></p>
+        <div class="error-actions">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">بازگشت به داشبورد</a>
+            <a href="{% url 'wallet_deposit' %}" class="btn btn-secondary">تلاش مجدد</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

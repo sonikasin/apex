@@ -1,0 +1,78 @@
+# trading/admin_panel/urls.py
+from django.urls import path
+from . import views
+
+app_name = 'admin_panel'
+
+urlpatterns = [
+    path('', views.dashboard, name='dashboard'),
+    path('users/', views.customuser_list, name='customuser_list'),
+    path('users/add/', views.customuser_add, name='customuser_add'),
+    path('users/edit/<int:pk>/', views.customuser_edit, name='customuser_edit'),
+    path('users/delete/<int:pk>/', views.customuser_delete, name='customuser_delete'),
+    path('propaccounts/', views.propaccount_list, name='propaccount_list'),
+    path('propaccounts/add/', views.propaccount_add, name='propaccount_add'),
+    path('propaccounts/edit/<int:pk>/', views.propaccount_edit, name='propaccount_edit'),
+    path('propaccounts/delete/<int:pk>/', views.propaccount_delete, name='propaccount_delete'),
+    path('proporders/', views.proporder_list, name='proporder_list'),
+    path('proporders/add/', views.proporder_add, name='proporder_add'),
+    path('proporders/edit/<int:pk>/', views.proporder_edit, name='proporder_edit'),
+    path('proporders/delete/<int:pk>/', views.proporder_delete, name='proporder_delete'),
+    path('tickets/', views.ticket_list, name='ticket_list'),
+    path('tickets/add/', views.ticket_add, name='ticket_add'),
+    path('tickets/edit/<int:pk>/', views.ticket_edit, name='ticket_edit'),
+    path('tickets/reply/<int:pk>/', views.ticket_reply, name='ticket_reply'),
+    path('tickets/delete/<int:pk>/', views.ticket_delete, name='ticket_delete'),
+    path('employees/', views.employee_list, name='employee_list'),
+    path('employees/add/', views.employee_add, name='employee_add'),
+    path('employees/edit/<int:pk>/', views.employee_edit, name='employee_edit'),
+    path('employees/delete/<int:pk>/', views.employee_delete, name='employee_delete'),
+    path('verifications/', views.identity_verification_list, name='identity_verification_list'),
+    path('verifications/review/<int:pk>/', views.identity_verification_review, name='identity_verification_review'),
+    path('propplans/', views.propplan_list, name='propplan_list'),
+    path('propplans/add/', views.propplan_add, name='propplan_add'),
+    path('propplans/edit/<int:pk>/', views.propplan_edit, name='propplan_edit'),
+    path('propplans/delete/<int:pk>/', views.propplan_delete, name='propplan_delete'),
+    path('rules/', views.rule_list, name='rule_list'),
+    path('rules/add/', views.rule_add, name='rule_add'),
+    path('rules/edit/<int:pk>/', views.rule_edit, name='rule_edit'),
+    path('rules/delete/<int:pk>/', views.rule_delete, name='rule_delete'),
+    path('discounts/', views.discount_code_list, name='discount_code_list'),
+    path('discounts/add/', views.discount_code_add, name='discount_code_add'),
+    path('discounts/edit/<int:pk>/', views.discount_code_edit, name='discount_code_edit'),
+    path('discounts/delete/<int:pk>/', views.discount_code_delete, name='discount_code_delete'),
+    path('propaccount/assign/<int:pk>/', views.propaccount_assign, name='propaccount_assign'),
+    path('user_search/', views.user_search, name='user_search'),
+    path('propaccount/review/', views.propaccount_review, name='propaccount_review'),
+    path('accounts/empty/', views.empty_accounts_list, name='empty_accounts_list'),
+    path('referrals/', views.referral_list, name='referral_list'),
+    path('referrals/edit/<int:pk>/', views.referral_edit, name='referral_edit'),
+    path('accounts/bulk-assign/', views.bulk_assign_accounts, name='bulk_assign_accounts'),  
+    path('submission/', views.user_submission_form, name='user_submission_form'),
+    path('submissions/', views.user_submission_list, name='user_submission_list'),
+    path('submissions/approve/<int:pk>/', views.user_submission_approve, name='user_submission_approve'),
+    path('submissions/delete/<int:pk>/', views.user_submission_delete, name='user_submission_delete'),
+    path('wallets/', views.wallet_list, name='wallet_list'),
+    path('wallets/transactions/<int:wallet_id>/', views.wallet_transactions, name='wallet_transactions'),
+    path('wallets/edit/<int:pk>/', views.wallet_edit, name='wallet_edit'),
+    path('wallets/bulk-update/', views.bulk_update_wallets, name='bulk_update_wallets'),
+    path('send-gift-email/', views.send_gift_email, name='send_gift_email'),
+    
+    path('blogs/', views.blog_list, name='blog_list_admin'),
+    path('blogs/add/', views.blog_add, name='blog_add'),
+    path('blogs/edit/<int:pk>/', views.blog_edit, name='blog_edit'),
+    path('blogs/delete/<int:pk>/', views.blog_delete, name='blog_delete'),
+    path('password-generator/', views.password_generator, name='password_generator'),
+    
+    path('referrals/add/', views.referral_add, name='referral_add'),
+    path('referrals/delete/<int:pk>/', views.referral_delete, name='referral_delete'),
+    path('free-account-quotas/', views.free_account_quota_list, name='free_account_quota_list'),
+    path('free-account-quotas/add/', views.free_account_quota_add, name='free_account_quota_add'),
+    path('free-account-quotas/edit/<int:pk>/', views.free_account_quota_edit, name='free_account_quota_edit'),
+    path('user-search/', views.user_search, name='user_search'),
+    path('accounts/create-via-api/', views.create_account_via_api, name='create_account_via_api'),
+
+
+    
+
+]

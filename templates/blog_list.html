@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}وبلاگ{% endblock %}
+{% block content %}
+<section id="blog-section">
+    <h2 id="blog-title">وبلاگ</h2>
+    <div id="blog-list">
+        {% for blog in blogs %}
+        <div id="blog-item-{{ forloop.counter }}" class="blog-item">
+            <h3 id="blog-item-title-{{ forloop.counter }}"><a href="{% url 'blog_detail' slug=blog.slug %}">{{ blog.title }}</a></h3>
+            <p id="blog-item-date-{{ forloop.counter }}" class="blog-date">{{ blog.created_at|date:'Y/m/d' }}</p>
+            <p id="blog-item-excerpt-{{ forloop.counter }}" class="blog-excerpt">{{ blog.content|safe|truncatewords:20 }}</p>
+        </div>
+        {% empty %}
+        <p id="no-blogs" class="no-blogs">هیچ پستی یافت نشد.</p>
+        {% endfor %}
+    </div>
+</section>
+<style>
+    #blog-section {
+        padding: 4rem 2rem;
+        background: #121212;
+        min-height: calc(100vh - 70px);
+    }
+
+    body.light-mode #blog-section {
+        background: #f9fafb;
+    }
+
+    #blog-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #10b981;
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    #blog-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 2px;
+        background: #10b981;
+        border-radius: 2px;
+    }
+
+    #blog-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .blog-item {
+        background: #1a1a1a;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    body.light-mode .blog-item {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .blog-item h3 a {
+        color: #10b981;
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .blog-item h3 a:hover {
+        color: #059669;
+    }
+
+    .blog-date {
+        font-size: 0.9rem;
+        color: #b0b0b0;
+        margin: 0.5rem 0;
+    }
+
+    body.light-mode .blog-date {
+        color: #4b5563;
+    }
+
+    .blog-excerpt {
+        font-size: 1rem;
+        color: #b0b0b0;
+        line-height: 1.6;
+    }
+
+    body.light-mode .blog-excerpt {
+        color: #4b5563;
+    }
+
+    .no-blogs {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #b0b0b0;
+        padding: 2rem;
+    }
+
+    body.light-mode .no-blogs {
+        color: #4b5563;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        #blog-section {
+            padding: 3rem 1rem;
+        }
+
+        #blog-title {
+            font-size: 2rem;
+        }
+
+        #blog-list {
+            grid-template-columns: 1fr;
+        }
+
+        .blog-item {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #blog-title {
+            font-size: 1.8rem;
+        }
+
+        .blog-item h3 a {
+            font-size: 1.2rem;
+        }
+
+        .blog-date, .blog-excerpt {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

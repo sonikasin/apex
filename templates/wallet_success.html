@@ -1,0 +1,23 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}واریز موفق{% endblock %}
+
+{% block content %}
+<div class="payment-success-section">
+    <div class="payment-success-container">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <h2>واریز موفق</h2>
+        <p>{{ message }}</p>
+        <p>موجودی جدید کیف پول: <span>{{ wallet.balance_usd|floatformat:2 }} دلار</span></p>
+        <div class="success-actions">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">بازگشت به داشبورد</a>
+            <a href="{% url 'wallet_deposit' %}" class="btn btn-secondary">واریز مجدد</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

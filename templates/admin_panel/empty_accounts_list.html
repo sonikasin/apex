@@ -1,0 +1,85 @@
+{% extends 'admin_panel/base.html' %}
+{% block content %}
+
+    <h5>لیست حساب‌های خالی</h5>
+
+    <div class="filter-form">
+        <form method="get">
+            <div class="input-field">
+                <input type="text" name="search" value="{{ search_term }}" placeholder="جستجو بر اساس شماره حساب یا سرور">
+                <label>جستجو</label>
+            </div>
+            <div class="input-field">
+                <select name="server_filter">
+                    <option value="" {% if not server_filter %}selected{% endif %}>همه سرورها</option>
+                    <option value="FIBOGroup" {% if server_filter == 'FIBOGroup' %}selected{% endif %}>FIBOGroup</option>
+                    <option value="GlobalPrime-Demo" {% if server_filter == 'GlobalPrime-Demo' %}selected{% endif %}>GlobalPrime-Demo</option>
+                    <option value="LiteFinance" {% if server_filter == 'LiteFinance' %}selected{% endif %}>LiteFinance</option>
+                </select>
+                <label>فیلتر سرور</label>
+            </div>
+            <button type="submit" class="btn">فیلتر</button>
+        </form>
+    </div>
+
+    <a href="{% url 'admin_panel:propaccount_add' %}" class="btn">اضافه کردن حساب</a>
+    <table>
+        <thead>
+            <tr>
+                <th>شماره حساب</th>
+                <th>سرور</th>
+                <th>نوع پلن</th>
+                <th>موجودی</th>
+                <th>درصد ریسک روزانه</th>
+                <th>درصد ریسک کل</th>
+                <th>درصد ریسک شناور</th>
+                <th>کاربر</th>
+                <th>سفارش</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in page_obj %}
+            <tr>
+                <td>{{ account.account_number }}</td>
+                <td>{{ account.server }}</td>
+                <td>{{ account.plan.get_name_display|default_if_none:'-' }}</td>
+                <td>{{ account.balance }}</td>
+                <td>{{ account.daily_draw_percent|default_if_none:'-' }}</td>
+                <td>{{ account.total_draw_percent|default_if_none:'-' }}</td>
+                <td>{{ account.floating_risk_percent|default_if_none:'-' }}</td>
+                <td>{{ account.user.email|default_if_none:'-' }}</td>
+                <td>{{ account.order.order_number|default_if_none:'-' }}</td>
+                <td>
+                    <a href="{% url 'admin_panel:propaccount_edit' account.pk %}" class="btn-small">ویرایش</a>
+                    <a href="{% url 'admin_panel:propaccount_delete' account.pk %}" class="btn-small red">حذف</a>
+                    <a href="{% url 'admin_panel:propaccount_assign' account.pk %}" class="btn-small green">تحویل اکانت</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10">هیچ حسابی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_term %}&search={{ search_term }}{% endif %}{% if server_filter %}&server_filter={{ server_filter }}{% endif %}">« اولین</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_term %}&search={{ search_term }}{% endif %}{% if server_filter %}&server_filter={{ server_filter }}{% endif %}">قبلی</a>
+            {% endif %}
+            
+            <span class="current">
+                صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_term %}&search={{ search_term }}{% endif %}{% if server_filter %}&server_filter={{ server_filter }}{% endif %}">بعدی</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_term %}&search={{ search_term }}{% endif %}{% if server_filter %}&server_filter={{ server_filter }}{% endif %}">آخرین »</a>
+            {% endif %}
+        </span>
+    </div>
+
+{% endblock %}

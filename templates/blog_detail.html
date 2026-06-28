@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ blog.title }}{% endblock %}
+{% block content %}
+<section id="blog-detail-section">
+    <h2 id="blog-detail-title">{{ blog.title }}</h2>
+    <p id="blog-detail-date">{{ blog.created_at|date:'Y/m/d' }}</p>
+    <div id="blog-detail-content">
+        <p>{{ blog.content|safe }}</p>
+    </div>
+    <a id="blog-back-link" href="{% url 'blog_list' %}" class="back-link">بازگشت به لیست وبلاگ</a>
+</section>
+<style>
+    #blog-detail-section {
+        padding: 4rem 2rem;
+        background: #121212;
+        min-height: calc(100vh - 70px);
+    }
+
+    body.light-mode #blog-detail-section {
+        background: #f9fafb;
+    }
+
+    #blog-detail-title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #10b981;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    #blog-detail-date {
+        font-size: 1rem;
+        color: #b0b0b0;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    body.light-mode #blog-detail-date {
+        color: #4b5563;
+    }
+
+    #blog-detail-content {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    body.light-mode #blog-detail-content {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #blog-detail-content p {
+        font-size: 1.1rem;
+        color: #e0e0e0;
+        line-height: 1.8;
+    }
+
+    body.light-mode #blog-detail-content p {
+        color: #1f2a44;
+    }
+
+    #blog-detail-content p i {
+        font-style: italic;
+        color: #10b981;
+    }
+
+    #blog-detail-content p b {
+        font-weight: bold;
+        color: #e0e0e0;
+    }
+
+    body.light-mode #blog-detail-content p b {
+        color: #1f2a44;
+    }
+
+    #blog-detail-content p u {
+        text-decoration: underline;
+        color: #059669;
+    }
+
+    #blog-detail-content p sub {
+        font-size: 0.8em;
+        vertical-align: sub;
+        color: #b0b0b0;
+    }
+
+    body.light-mode #blog-detail-content p sub {
+        color: #4b5563;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 2rem;
+        padding: 0.7rem 1.5rem;
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #121212;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        text-align: center;
+    }
+
+    body.light-mode .back-link {
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #ffffff;
+    }
+
+    .back-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        #blog-detail-section {
+            padding: 3rem 1rem;
+        }
+
+        #blog-detail-title {
+            font-size: 2rem;
+        }
+
+        #blog-detail-content {
+            padding: 1.5rem;
+        }
+
+        #blog-detail-content p {
+            font-size: 1rem;
+        }
+
+        .back-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #blog-detail-title {
+            font-size: 1.8rem;
+        }
+
+        #blog-detail-content {
+            padding: 1rem;
+        }
+
+        #blog-detail-content p {
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}

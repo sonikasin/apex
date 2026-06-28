@@ -1,0 +1,404 @@
+/* custom_admin.css - Professional RTL Admin Panel Styles with Materialize CSS */
+
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #1976d2; /* آبی تیره Materialize */
+    --secondary-color: #6c757d; /* خاکستری */
+    --success-color: #2e7d32; /* سبز تیره */
+    --danger-color: #d32f2f; /* قرمز */
+    --warning-color: #ffb300; /* زرد */
+    --info-color: #0288d1; /* فیروزه‌ای */
+    --light-color: #f5f5f5; /* خاکستری روشن */
+    --dark-color: #212121; /* خاکستری تیره */
+    --white: #ffffff;
+    --black: #000000;
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --transition: all 0.3s ease;
+    --border-radius: 8px;
+    --font-family: 'Vazirmatn', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    direction: rtl;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    line-height: 1.6;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* اصلاح نوار ناوبری Materialize */
+nav {
+    background-color: var(--primary-color) !important;
+    box-shadow: var(--shadow-medium);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 64px; /* ارتفاع استاندارد Materialize */
+    line-height: 64px;
+}
+
+nav .nav-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav .brand-logo {
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--white) !important;
+    padding-right: 20px;
+}
+
+nav ul.left {
+    display: flex;
+    flex-wrap: nowrap; /* جلوگیری از دوسطری شدن */
+    margin: 0;
+    padding-right: 20px;
+}
+
+nav ul li {
+    list-style: none;
+}
+
+nav ul li a {
+    color: var(--white) !important;
+    font-weight: 500;
+    font-size: 14px; /* کاهش اندازه فونت برای جا شدن گزینه‌ها */
+    padding: 0 10px; /* کاهش فاصله برای فشرده‌تر شدن */
+    transition: var(--transition);
+    display: block;
+    line-height: 64px;
+    text-decoration: none;
+    opacity: 1 !important; /* اطمینان از نمایش متن */
+}
+
+nav ul li a:hover {
+    color: var(--warning-color) !important;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* منوی همبرگری برای نمایشگرهای کوچک */
+nav .sidenav-trigger {
+    display: none;
+}
+
+@media screen and (max-width: 992px) {
+    nav ul.left {
+        display: none; /* مخفی کردن منو در نمایشگرهای کوچک */
+    }
+
+    nav .sidenav-trigger {
+        display: block;
+        color: var(--white);
+        line-height: 64px;
+        padding: 0 10px;
+    }
+}
+
+/* استایل sidenav */
+.sidenav {
+    background-color: var(--primary-color);
+    width: 250px;
+}
+
+.sidenav li a {
+    color: var(--white) !important;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0 20px;
+    line-height: 48px;
+}
+
+.sidenav li a:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: var(--warning-color) !important;
+}
+
+/* کانتینر اصلی */
+.container {
+    max-width: 1280px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+}
+
+/* عناوین */
+h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 24px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+/* کارت‌ها */
+.card {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-3px);
+}
+
+/* پیام‌های اطلاع‌رسانی */
+.card-panel {
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.card-panel.success {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.card-panel.error {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.card-panel.warning {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+/* جدول‌ها */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+    background-color: var(--white);
+    box-shadow: var(--shadow-light);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+th, td {
+    padding: 15px;
+    text-align: right;
+    border-bottom: 1px solid var(--light-color);
+}
+
+th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 15px;
+}
+
+td {
+    font-size: 14px;
+}
+
+tr:hover {
+    background-color: #e3f2fd;
+    transition: var(--transition);
+}
+
+/* دکمه‌ها */
+.btn, .btn-small {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: var(--transition);
+    line-height: normal;
+    height: auto;
+    text-transform: none;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn:hover, .btn-small:hover {
+    background-color: #1565c0;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.btn.red, .btn-small.red {
+    background-color: var(--danger-color);
+}
+
+.btn.green, .btn-small.green {
+    background-color: var(--success-color);
+}
+
+/* فرم‌ها */
+.filter-form {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.input-field {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+}
+
+.input-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--secondary-color);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.input-field input,
+.input-field select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    direction: rtl;
+    font-size: 14px;
+    transition: var(--transition);
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+.input-field input:focus,
+.input-field select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(25, 118, 210, 0.3);
+    outline: none;
+}
+
+/* صفحه‌بندی */
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination .step-links a {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 8px 16px;
+    margin: 0 5px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.pagination .step-links a:hover {
+    background-color: #1565c0;
+}
+
+.pagination .current {
+    font-weight: 500;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+/* اسکرول‌بار */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #1565c0;
+}
+
+/* اصلاحات Materialize */
+.input-field input[type="text"],
+.input-field input[type="number"],
+.input-field input[type="email"],
+.input-field select {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    margin-bottom: 10px;
+}
+
+.input-field input:focus + label,
+.input-field select:focus + label {
+    color: var(--primary-color) !important;
+}
+
+.input-field .select-wrapper input.select-dropdown {
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    font-size: 14px;
+    height: 40px;
+}
+
+/* پاسخ‌گویی به صفحه‌نمایش‌های کوچک */
+@media screen and (max-width: 992px) {
+    .container {
+        padding: 15px;
+    }
+
+    nav .nav-wrapper {
+        padding: 0 10px;
+    }
+
+    nav .brand-logo {
+        font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    th, td {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    h5 {
+        font-size: 20px;
+    }
+}

@@ -1,0 +1,37 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}پاسخ به تیکت{% endblock %}
+
+{% block header_title %}پاسخ به تیکت{% endblock %}
+
+{% block content %}
+    <h2>پاسخ به تیکت {{ ticket.ticket_number }}</h2>
+    <p>موضوع: {{ ticket.subject }}</p>
+    <p>دپارتمان: {{ ticket.department }}</p>
+    <p>وضعیت: {{ ticket.get_status_display }}</p>
+    <p>کاربر: {{ ticket.user.email|default_if_none:'-' }}</p>
+    <div>
+        {% for message in ticket.messages %}
+            <div>
+                <p>{{ message.sender }}</p>
+                <p>{{ message.text|default_if_none:"" }}</p>
+                <p>{{ message.timestamp }}</p>
+            </div>
+        {% empty %}
+            <p>هنوز پیامی وجود ندارد.</p>
+        {% endfor %}
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <label>پاسخ:</label>
+        <textarea name="message" required></textarea>
+        <label>وضعیت:</label>
+        <select name="status">
+            <option value="">بدون تغییر</option>
+            <option value="open">باز</option>
+            <option value="closed">بسته</option>
+        </select>
+        <button type="submit">ارسال پاسخ</button>
+        <a href="{% url 'admin_panel:ticket_list' %}">لغو</a>
+    </form>
+{% endblock %}

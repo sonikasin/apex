@@ -1,0 +1,33 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}
+    {% if form_type == 'add' %}افزودن قانون جدید{% else %}ویرایش قانون{% endif %}
+{% endblock %}
+
+{% block header_title %}
+    {% if form_type == 'add' %}افزودن قانون جدید{% else %}ویرایش قانون: {{ rule.title }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label for="title">عنوان قانون:</label>
+        <input type="text" id="title" name="title" value="{{ rule.title }}" required>
+
+        <label for="description">توضیحات:</label>
+        <textarea id="description" name="description" rows="5" required>{{ rule.description }}</textarea>
+
+        <label for="order">ترتیب نمایش:</label>
+        <input type="number" id="order" name="order" value="{{ rule.order|default:'0' }}" required>
+
+        <div style="text-align: left; margin-top: 20px;">
+            <button type="submit">
+                {% if form_type == 'add' %}ایجاد قانون{% else %}ذخیره تغییرات{% endif %}
+            </button>
+            <a href="{% url 'admin_panel:rule_list' %}" style="margin-right: 15px; color: #7f8c8d; text-decoration: none;">انصراف</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+<!-- templates/admin_panel/customuser_list.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}لیست کاربران{% endblock %}
+
+{% block header_title %}لیست کاربران{% endblock %}
+
+{% block content %}
+    <h2>لیست کاربران</h2>
+    <form method="get">
+        <input type="text" name="search" value="{{ search_term }}" placeholder="جستجو...">
+        <select name="status">
+            <option value="" {% if status_filter == '' %}selected{% endif %}>همه وضعیت‌ها</option>
+            <option value="True" {% if status_filter == 'True' %}selected{% endif %}>فعال</option>
+            <option value="False" {% if status_filter == 'False' %}selected{% endif %}>غیرفعال</option>
+        </select>
+        <button type="submit">جستجو</button>
+    </form>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ایمیل</th>
+                    <th>نام</th>
+                    <th>نام خانوادگی</th>
+                    <th>شماره تلفن</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in page_obj %}
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.phone_number }}</td>
+                        <td>{{ user.is_active|yesno:"فعال,غیرفعال" }}</td>
+                        <td>
+                            <a href="{% url 'admin_panel:customuser_edit' user.pk %}">ویرایش</a> |
+                            <a href="{% url 'admin_panel:customuser_delete' user.pk %}" onclick="return confirm('آیا مطمئن هستید؟');">حذف</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">هیچ کاربری یافت نشد.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+    {% if page_obj.number > 1 %}
+        <a href="?page=1&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">اولین</a>
+    {% endif %}
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">قبلی</a>
+    {% endif %}
+
+    <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">بعدی</a>
+    {% endif %}
+
+    {% if page_obj.number < page_obj.paginator.num_pages %}
+        <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">آخرین</a>
+    {% endif %}
+</div>
+
+    <a href="{% url 'admin_panel:customuser_add' %}">افزودن کاربر جدید</a>
+{% endblock %}

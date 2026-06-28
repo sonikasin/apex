@@ -1,0 +1,62 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}افزایش گروهی موجودی کیف پول{% endblock %}
+{% block header_title %}افزایش گروهی موجودی کیف پول{% endblock %}
+{% block content %}
+<div class="container mx-auto">
+    <h1 class="text-2xl font-bold mb-4">افزایش گروهی موجودی کیف پول</h1>
+    
+    <form method="POST" class="max-w-md">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-gray-700">مقدار افزایش (دلار):</label>
+            <input type="number" step="0.01" name="amount_usd" value="{{ amount_usd|default_if_none:'' }}" class="border rounded px-3 py-2 w-full" required>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">انتخاب همه کاربران:</label>
+            <input type="checkbox" name="all_users" {% if all_users %}checked{% endif %} class="mr-2">
+            <span>همه کاربران</span>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700">کاربران:</label>
+            <select name="user_id" multiple class="border rounded px-3 py-2 w-full" size="5" {% if all_users %}disabled{% endif %}>
+                {% for user in users %}
+                <option value="{{ user.id }}" {% if user.id|stringformat:'s' in selected_user_ids %}selected{% endif %}>{{ user.email }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex space-x-2">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">اعمال</button>
+            <a href="{% url 'admin_panel:wallet_list' %}" class="bg-gray-500 text-white px-4 py-2 rounded">لغو</a>
+        </div>
+    </form>
+
+    {% if results %}
+    <div class="mt-6">
+        <h2 class="text-xl font-bold mb-2">نتایج:</h2>
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-gray-300 px-4 py-2">ایمیل</th>
+                    <th class="border border-gray-300 px-4 py-2">وضعیت</th>
+                    <th class="border border-gray-300 px-4 py-2">پیام</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">{{ result.email }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ result.status|yesno:"موفق,ناموفق" }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ result.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+<script>
+    document.querySelector('input[name="all_users"]').addEventListener('change', function() {
+        document.querySelector('select[name="user_id"]').disabled = this.checked;
+    });
+</script>
+{% endblock %}

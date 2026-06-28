@@ -1,0 +1,117 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>{% extends 'admin_panel/base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col s12">
+        <h4>لیست کدهای تخفیف</h4>
+        <div class="filter-form">
+            <form method="GET">
+                <div class="row">
+                    <div class="input-field col s12 m6">
+                        <input type="text" name="search" value="{{ search_term }}">
+                        <label>جستجو (کد یا ایمیل معرف)</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                        <select name="status">
+                            <option value="">همه</option>
+                            <option value="True" {% if status_filter == 'True' %}selected{% endif %}>فعال</option>
+                            <option value="False" {% if status_filter == 'False' %}selected{% endif %}>غیرفعال</option>
+                        </select>
+                        <label>وضعیت</label>
+                    </div>
+                    <div class="col s12">
+                        <button type="submit" class="btn blue">فیلتر</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <a href="{% url 'admin_panel:discount_code_add' %}" class="btn blue">اضافه کردن کد تخفیف</a>
+        <table class="highlight responsive-table">
+            <thead>
+                <tr>
+                    <th>کد</th>
+                    <th>نوع تخفیف</th>
+                    <th>مقدار تخفیف</th>
+                    <th>حداکثر استفاده</th>
+                    <th>فعال</th>
+                    <th>تاریخ انقضا</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for discount in page_obj %}
+                <tr>
+                    <td>{{ discount.code }}</td>
+                    <td>{{ discount.get_discount_type_display }}</td>
+                    <td>{{ discount.discount_value }} {% if discount.discount_type == 'percent' %}%{% else %}دلار{% endif %}</td>
+                    <td>{{ discount.max_uses }}</td>
+                    <td>{{ discount.active|yesno:"بله,خیر" }}</td>
+                    <td>{{ discount.expiration_date|default_if_none:'-' }}</td>
+                    <td>
+                        <a href="{% url 'admin_panel:discount_code_edit' discount.pk %}" class="btn blue">ویرایش</a>
+                        <a href="{% url 'admin_panel:discount_code_delete' discount.pk %}" class="btn red" onclick="return confirm('آیا مطمئن هستید؟')">حذف</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">هیچ کد تخفیفی یافت نشد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1&search={{ search_term }}&status={{ status_filter }}">« اولین</a>
+                    <a href="?page={{ page_obj.previous_page_number }}&search={{ search_term }}&status={{ status_filter }}">قبلی</a>
+                {% endif %}
+                <span class="current">
+                    صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&search={{ search_term }}&status={{ status_filter }}">بعدی</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_term }}&status={{ status_filter }}">آخرین »</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}حساب‌های پراپ{% endblock %}
+{% block content %}
+    <div class="announcement-box">
+        <div class="announcement-header">
+            <span>📢 راهنمای اتصال به متاتریدر</span>
+        </div>
+        <div class="announcement-content">
+            <p>
+                <strong>🎥 ویدیو آموزش اتصال به متاتریدر با نت ملی:</strong><br>
+                <a href="https://my.uupload.ir/p/VXw9AMAz" target="_blank" rel="noopener">
+                    https://my.uupload.ir/p/VXw9AMAz
+                </a>
+            </p>
+             <p>
+                <strong>⬇️ لینک دانلود فایل ویندوز  برنامه اتصال به متاتریدر:</strong><br>
+                <a href="https://s15.uupload.ir/files/sinakrg/ApexFx-MT5.zip" target="_blank" rel="noopener">
+                    https://s15.uupload.ir/files/sinakrg/ApexFx-MT5.zip
+                </a>
+            </p>
+
+            <p>
+                <strong>⬇️ لینک دانلود فایل  اندروید برنامه اتصال به متاتریدر:</strong><br>
+                <a href="https://s9.uupload.ir/files/sinakrg/ApexV_2.1.8-fdroid_universal.apk" target="_blank" rel="noopener">
+                    https://s9.uupload.ir/files/sinakrg/ApexV_2.1.8-fdroid_universal.apk
+                </a>
+            </p>
+
+             <p>
+                <strong>دانلود متاتریدر 5 ویندوز</strong><br>
+                <a href="https://s15.uupload.ir/files/sinakrg/mt5setup.exe" target="_blank" rel="noopener">
+                    https://s15.uupload.ir/files/sinakrg/mt5setup.exe
+                </a>
+            </p>
+
+            <p>
+                <strong>توجه مهم:</strong><br>
+                 <strong>در برنامه کانکت به متاتریدر، نام کاربری (Username) و رمز عبور (Password) شما هر دو دقیقاً برابر با شماره حساب متاتریدر شماست.</strong><br>
+            </p>
+        </div>
+    </div>
+    <div class="accounts-section">
+        <h2>لیست حساب‌های پراپ</h2>
+        <div class="accounts-grid">
+            {% for account in accounts %}
+            <div class="account-card">
+                <h3>حساب شماره: {{ account.account_number }}</h3>
+                <p>شماره حساب: <span>{{ account.account_number }}</span> <button class="copy-btn" data-copy="{{ account.account_number }}" title="کپی شماره حساب"><i class="fas fa-copy"></i> کپی</button></p>
+                <p>سرور: <span>{{ account.server }}</span></p>
+                <p>رمز اینوستور: <span>{{ account.investor_password }}</span> <button class="copy-btn" data-copy="{{ account.investor_password }}" title="کپی رمز اینوستور"><i class="fas fa-copy"></i> کپی</button></p>
+                <p>شماره سفارش: <span>{{ account.order.id }}</span></p>
+                <p>رمز اصلی: <span>{{ account.main_password }}</span> <button class="copy-btn" data-copy="{{ account.main_password }}" title="کپی رمز اصلی"><i class="fas fa-copy"></i> کپی</button></p>
+                <p>نوع پلن حساب: <span>{{ account.plan.get_name_display }}</span></p>
+                <p>بالانس حساب: <span>{{ account.balance }} دلار</span></p>
+            </div>
+            {% empty %}
+            <p>حسابی یافت نشد.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="copy-message" id="copy-message">کپی شد!</div>
+
+    <script>
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const textToCopy = button.getAttribute('data-copy');
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const message = document.getElementById('copy-message');
+                    message.classList.add('show');
+                    button.classList.add('copied');
+                    button.innerHTML = '<i class="fas fa-check"></i> کپی شد';
+                    setTimeout(() => {
+                        message.classList.remove('show');
+                        button.classList.remove('copied');
+                        button.innerHTML = '<i class="fas fa-copy"></i> کپی';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+        });
+    </script>
+
+{% endblock %}

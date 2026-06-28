@@ -1,0 +1,76 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}احراز هویت{% endblock %}
+
+{% block content %}
+<div class="identity-verification">
+    <h2>احراز هویت</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <p class="{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}">
+            {{ message }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="verification-guide">
+        <h3>راهنمای احراز هویت</h3>
+        <p>برای تکمیل فرآیند احراز هویت، لطفاً مدارک زیر را با دقت آپلود کنید:</p>
+        <ul>
+            <li><strong>تصویر کارت ملی:</strong> تصویر واضح و خوانا از کارت ملی خود را آپلود کنید. مطمئن شوید که تمام اطلاعات (نام، کد ملی، تاریخ تولد و غیره) به وضوح قابل مشاهده است.</li>
+            <li><strong>سلفی با کارت ملی:</strong> عکسی از خودتان در حالی که کارت ملی را در دست دارید آپلود کنید. چهره شما و کارت ملی باید به وضوح قابل مشاهده باشند.</li>
+        </ul>
+        <p><strong>نکات مهم:</strong></p>
+        <ul>
+            <li>فقط فایل‌های با فرمت PNG، JPG یا JPEG پذیرفته می‌شوند.</li>
+            <li>حداکثر حجم هر فایل ۵ مگابایت است.</li>
+            <li>مدارک شما توسط تیم پشتیبانی بررسی شده و نتیجه از طریق ایمیل اطلاع‌رسانی خواهد شد.</li>
+        </ul>
+    </div>
+
+    {% if verification %}
+    <div class="verification-status">
+        <h3>وضعیت احراز هویت</h3>
+        <p>وضعیت: <span class="status {{ verification.status }}">{{ verification.get_status_display }}</span></p>
+        {% if verification.status == 'rejected' and verification.rejection_reason %}
+        <p>دلیل رد شدن: <span>{{ verification.rejection_reason }}</span></p>
+        {% endif %}
+        <p>زمان ارسال: {{ verification.submitted_at|date:"Y/m/d - H:i" }}</p>
+        {% if verification.reviewed_at %}
+        <p>زمان بررسی: {{ verification.reviewed_at|date:"Y/m/d - H:i" }}</p>
+        {% endif %}
+        {% if verification.status == 'pending' or verification.status == 'rejected' %}
+        <p>می‌توانید مدارک جدیدی آپلود کنید:</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if not verification or verification.status == 'pending' or verification.status == 'rejected' %}
+    <div class="verification-form">
+        <h3>آپلود مدارک</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.national_id_image.id_for_label }}">{{ form.national_id_image.label }}</label>
+                {{ form.national_id_image }}
+                {% if form.national_id_image.errors %}
+                <p class="error">{{ form.national_id_image.errors.as_text }}</p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.selfie_with_id_image.id_for_label }}">{{ form.selfie_with_id_image.label }}</label>
+                {{ form.selfie_with_id_image }}
+                {% if form.selfie_with_id_image.errors %}
+                <p class="error">{{ form.selfie_with_id_image.errors.as_text }}</p>
+                {% endif %}
+            </div>
+            <button type="submit" class="verification-submit">ارسال مدارک</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

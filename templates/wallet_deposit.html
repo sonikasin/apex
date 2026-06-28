@@ -1,0 +1,36 @@
+
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}واریز به کیف پول{% endblock %}
+
+{% block content %}
+<div class="main-content with-sidebar">
+    <div class="container">
+        <div class="wallet-deposit-section">
+            <div class="wallet-deposit-container">
+                <h3>واریز به کیف پول</h3>
+                <p>موجودی فعلی: <span>{{ wallet.balance_usd|floatformat:2 }} دلار</span></p>
+                <form method="post" class="wallet-deposit-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="amount_toman">مبلغ (تومان):</label>
+                        <input type="number" id="amount_toman" name="amount_toman" value="{{ amount_toman|default:'' }}" required placeholder="مبلغ را به تومان وارد کنید">
+                    </div>
+                    <button type="submit" class="wallet-submit">پرداخت</button>
+                </form>
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

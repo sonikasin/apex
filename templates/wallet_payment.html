@@ -1,0 +1,25 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}پرداخت واریز کیف پول{% endblock %}
+
+{% block content %}
+<div class="payment-section">
+    <div class="payment-container">
+        <h2>تأیید پرداخت</h2>
+        <div class="payment-info">
+            <h3>جزئیات واریز</h3>
+            <div class="info-grid">
+                <p><strong>شناسه تراکنش:</strong> <span>{{ transaction.transaction_id }}</span></p>
+                <p><strong>مبلغ:</strong> <span>{{ transaction.amount_toman|floatformat:0 }} تومان</span></p>
+                <p><strong>معادل (دلار):</strong> <span>{{ transaction.amount_usd|floatformat:2 }} دلار</span></p>
+            </div>
+        </div>
+        <form method="post" class="payment-form">
+            {% csrf_token %}
+            <button type="submit" class="payment-submit">پرداخت از طریق درگاه</button>
+        </form>
+        <p class="payment-note">با کلیک بر روی دکمه بالا به درگاه پرداخت هدایت خواهید شد.</p>
+    </div>
+</div>
+{% endblock %}

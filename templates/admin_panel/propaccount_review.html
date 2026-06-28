@@ -1,0 +1,213 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block title %}بررسی حساب{% endblock %}
+
+{% block header_title %}بررسی حساب{% endblock %}
+
+{% block content %}
+    <h2>بررسی حساب</h2>
+    <form method="post" style="margin-bottom: 20px;">
+        {% csrf_token %}
+        <label for="search_account">جستجوی شماره حساب:</label>
+        <input type="text" id="search_account" name="search_account"
+               placeholder="شماره حساب را وارد کنید"
+               value="{{ request.POST.search_account|default_if_none:'' }}"
+               style="padding: 8px; width: 200px;">
+        <button type="submit" name="search" style="padding: 8px 16px;">جستجو</button>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="account_number">شماره حساب:</label>
+        <select name="account_number" id="account_number" style="padding: 8px; width: 200px;">
+            <option value="">انتخاب کنید</option>
+            {% for account in accounts %}
+                <option value="{{ account.account_number }}"
+                        {% if account.account_number == selected_account.account_number %}selected{% endif %}>
+                    {{ account.account_number }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit" style="padding: 8px 16px;">بررسی</button>
+    </form>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="margin: 10px 0; padding: 10px; background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if metrics %}
+        <div style="margin-top: 20px;">
+            <h3>جزئیات حساب</h3>
+            <p><strong>وضعیت حساب:</strong> {{ account_status }}</p>
+            <p><strong>بالانس اولیه:</strong> {{ metrics.initial_balance|floatformat:2 }} دلار</p>
+            <p><strong>بالانس فعلی:</strong> {{ metrics.current_balance|floatformat:2 }} دلار</p>
+            <p><strong>درصد سود فعلی:</strong> {{ current_profit_percent|floatformat:2 }}%</p>
+            <p><strong>کمترین اکوئیتی کلی:</strong> {{ metrics.min_equity_overall|floatformat:2 }} دلار</p>
+            <p><strong>بیشترین دراوداون کل:</strong> {{ metrics.max_drawdown_percent|floatformat:2 }}% ({{ metrics.max_drawdown_date }})</p>
+            <p><strong>حداکثر ضرر شناور:</strong> {{ metrics.max_floating_loss_percent|floatformat:2 }}% ({{ metrics.max_floating_loss_value|floatformat:2 }} دلار) در {{ metrics.max_floating_loss_time }}</p>
+            <p><strong>نقض قانون 2% ضرر شناور کلی:</strong> {{ metrics.floating_risk_violated|yesno:"بله,خیر" }}</p>
+            {% if metrics.floating_risk_violations %}
+                <h4>جزئیات نقض قانون 2% ضرر شناور کلی:</h4>
+                <ul>
+                    {% for violation in metrics.floating_risk_violations %}
+                        <li>{{ violation.time }}: {{ violation.floating_loss_percent|floatformat:2 }}% ({{ violation.total_floating_loss|floatformat:2 }} دلار) - موقعیت‌ها: {{ violation.violating_position_ids|join:", " }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <p><strong>نقض قانون 2% ضرر شناور هر موقعیت:</strong> {{ metrics.position_loss_violated|yesno:"بله,خیر" }}</p>
+            {% if metrics.position_loss_violations %}
+                <h4>جزئیات نقض قانون 2% ضرر شناور هر موقعیت:</h4>
+                <ul>
+                    {% for violation in metrics.position_loss_violations %}
+                        <li>{{ violation.time }}: موقعیت {{ violation.position_id }} ({{ violation.symbol }}) - {{ violation.loss_percent|floatformat:2 }}% ({{ violation.floating_loss|floatformat:2 }} دلار)</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <p><strong>نقض قانون سود:</strong> {{ metrics.profit_violated|yesno:"بله,خیر" }}</p>
+            {% if metrics.profit_violations %}
+                <h4>جزئیات نقض قانون سود:</h4>
+                <ul>
+                    {% for violation in metrics.profit_violations %}
+                        <li>
+                            {{ violation.time }}: {{ violation.symbol }} - 
+                            {% if violation.type == "single_trade" %}
+                                موقعیت {{ violation.position_id }} - سود: {{ violation.profit|floatformat:2 }} دلار ({{ violation.profit_percent|floatformat:2 }}%)
+                            {% else %}
+                                موقعیت‌ها: {{ violation.position_ids|join:", " }} - سود: {{ violation.profit|floatformat:2 }} دلار ({{ violation.profit_percent|floatformat:2 }}%)
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>معاملات زیر 30 ثانیه با سود مثبت</h3>
+            <p><strong>تعداد:</strong> {{ metrics.short_profitable_trades }}</p>
+            <p><strong>مجموع سود:</strong> {{ metrics.short_profit_value|floatformat:2 }} دلار</p>
+            {% if metrics.trades %}
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="padding: 8px; border: 1px solid #ddd;">نماد</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">تاریخ</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">زمان باز شدن</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">زمان بسته شدن</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">سود</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">مدت زمان</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trade in metrics.trades %}
+                            {% if trade.duration_seconds < 30 and trade.profit_loss > 0 %}
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.symbol }}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.date }}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.open_time|date:"H:i:s" }}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.close_time|default:"-"|date:"H:i:s" }}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.profit_loss|floatformat:2 }} دلار</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.duration_seconds }} ثانیه</td>
+                                </tr>
+                            {% endif %}
+                        {% empty %}
+                            <tr><td colspan="6" style="padding: 8px; border: 1px solid #ddd; text-align: center;">هیچ معامله‌ای یافت نشد.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>هیچ معامله‌ای یافت نشد.</p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>بالانس روزانه و دراوداون</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 8px; border: 1px solid #ddd;">تاریخ</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">بالانس شروع</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">کمترین اکوئیتی</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">دراوداون روزانه (%)</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">نقض حد مجاز</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for metric in metrics.daily_metrics %}
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">{{ metric.date }}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">{{ metric.start_balance|floatformat:2 }} دلار</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">{{ metric.min_equity|floatformat:2 }} دلار</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">{{ metric.daily_drawdown_percent|floatformat:2 }}%</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">{{ metric.exceeds_threshold|yesno:"بله,خیر" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">هیچ داده‌ای یافت نشد.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>هیستوری معاملات</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 8px; border: 1px solid #ddd;">نماد</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">تاریخ</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">زمان باز شدن</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">زمان بسته شدن</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">قیمت باز شدن</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">قیمت بسته شدن</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">نوع معامله</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">حجم</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">سود/زیان</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">مدت زمان</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if trades_paginated %}
+                        {% for trade in trades_paginated %}
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.symbol }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.date }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.open_time|date:"H:i:s" }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.close_time|default:"-"|date:"H:i:s" }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.open_price|floatformat:4 }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.close_price|default:"-"|floatformat:4 }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.trade_type|capfirst|default:"-" }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.volume|floatformat:2 }} لات</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.profit_loss|floatformat:2 }} دلار</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ trade.duration_seconds|default:"-" }} ثانیه</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="10" style="padding: 8px; border: 1px solid #ddd; text-align: center;">هیچ معامله‌ای یافت نشد.</td></tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="10" style="padding: 8px; border: 1px solid #ddd; text-align: center;">هیچ معامله‌ای یافت نشد.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            {% if trades_paginated %}
+                <form method="post" style="margin-top: 10px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="account_number" value="{{ selected_account.account_number }}">
+                    <input type="hidden" name="search_account" value="{{ request.POST.search_account|default_if_none:'' }}">
+                    {% if trades_paginated.has_previous %}
+                        <button type="submit" name="page" value="{{ trades_paginated.previous_page_number }}"
+                                style="padding: 8px 16px;">قبلی</button>
+                    {% endif %}
+                    <span>صفحه {{ trades_paginated.number }} از {{ trades_paginated.paginator.num_pages }}</span>
+                    {% if trades_paginated.has_next %}
+                        <button type="submit" name="page" value="{{ trades_paginated.next_page_number }}"
+                                style="padding: 8px 16px;">بعدی</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

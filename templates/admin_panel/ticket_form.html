@@ -1,0 +1,26 @@
+<!-- templates/admin_panel/ticket_form.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{% if form_type == 'add' %}افزودن تیکت{% else %}ویرایش تیکت{% endif %}{% endblock %}
+
+{% block header_title %}{% if form_type == 'add' %}افزودن تیکت{% else %}ویرایش تیکت{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if form_type == 'add' %}افزودن تیکت جدید{% else %}ویرایش تیکت{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>شماره تیکت:</label>
+        <input type="text" name="ticket_number" value="{{ ticket.ticket_number|default:'' }}">
+
+        <label>موضوع:</label>
+        <input type="text" name="subject" value="{{ ticket.subject|default:'' }}">
+
+        <label>دپارتمان:</label>
+        <input type="text" name="department" value="{{ ticket.department|default:'' }}">
+
+        <label>وضعیت:</label>
+        <input type="text" name="status" value="{{ ticket.status|default:'' }}">
+
+        <button type="submit">{% if form_type == 'add' %}ایجاد{% else %}ذخیره{% endif %}</button>
+    </form>
+{% endblock %}

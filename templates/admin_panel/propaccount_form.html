@@ -1,0 +1,73 @@
+<!-- templates/admin_panel/propaccount_form.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{% if form_type == 'add' %}افزودن حساب{% else %}ویرایش حساب{% endif %}{% endblock %}
+
+{% block header_title %}{% if form_type == 'add' %}افزودن حساب{% else %}ویرایش حساب{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if form_type == 'add' %}افزودن حساب جدید{% else %}ویرایش حساب{% endif %}</h2>
+    {% if form_type == 'edit' %}
+        {% if account.plan %}
+            <p>پلن وصل شده: {{ account.plan.name }} ({{ account.plan.account_size }} دلار)</p>
+        {% endif %}
+        {% if account.user %}
+            <p>کاربر وصل شده: {{ account.user.email }}</p>
+        {% endif %}
+        {% if account.order %}
+            <p>سفارش وصل شده: {{ account.order.order_number }}</p>
+        {% endif %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label>شماره حساب:</label>
+        <input type="text" name="account_number" value="{{ account.account_number|default:'' }}">
+
+        <label>سرور:</label>
+        <input type="text" name="server" value="{{ account.server|default:'' }}">
+
+        <label>رمز سرمایه‌گذار:</label>
+        <input type="text" name="investor_password" value="{{ account.investor_password|default:'' }}">
+
+        <label>رمز اصلی:</label>
+        <input type="text" name="main_password" value="{{ account.main_password|default:'' }}">
+
+        <label>پلن:</label>
+        <select name="plan_type">
+            <option value="">انتخاب پلن</option>
+            {% for plan in plans %}
+                <option value="{{ plan.id }}" {% if selected_plan == plan.id|stringformat:'s' %}selected{% endif %}>{{ plan.name }} ({{ plan.account_size }} دلار)</option>
+            {% endfor %}
+        </select>
+
+        <label>موجودی:</label>
+        <input type="number" name="balance" value="{{ account.balance|default:'' }}">
+
+        <label>درصد درادان روزانه:</label>
+        <input type="number" step="0.1" name="daily_draw_percent" value="{{ account.daily_draw_percent|default:'' }}">
+
+        <label>درصد درادان کلی:</label>
+        <input type="number" step="0.1" name="total_draw_percent" value="{{ account.total_draw_percent|default:'' }}">
+
+        <label>درصد ریسک شناور:</label>
+        <input type="number" step="0.1" name="floating_risk_percent" value="{{ account.floating_risk_percent|default:'' }}">
+
+        <label>کاربر:</label>
+        <select name="user">
+            <option value="">بدون کاربر</option>
+            {% for u in users %}
+                <option value="{{ u.id }}" {% if selected_user == u.id|stringformat:'s' %}selected{% endif %}>{{ u.email }}</option>
+            {% endfor %}
+        </select>
+
+        <label>سفارش:</label>
+        <select name="order">
+            <option value="">بدون سفارش</option>
+            {% for o in orders %}
+                <option value="{{ o.id }}" {% if selected_order == o.id|stringformat:'s' %}selected{% endif %}>{{ o.order_number }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">{% if form_type == 'add' %}ایجاد{% else %}ذخیره{% endif %}</button>
+    </form>
+{% endblock %}

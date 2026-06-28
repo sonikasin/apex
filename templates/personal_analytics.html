@@ -1,0 +1,255 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}آنالیز حساب شخصی{% endblock %}
+
+{% block content %}
+<div class="analysis-panel">
+    <h2>پنل آنالیز حساب شخصی</h2>
+
+    <!-- پیام‌باکس برای نمایش خطاها یا موفقیت -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags == 'error' %}message-error{% elif message.tags == 'success' %}message-success{% else %}message-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- فرم ورودی اطلاعات حساب -->
+    <div class="account-selection">
+        <h3>اطلاعات حساب را وارد کنید</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="login_number">شماره لاگین</label>
+                <input type="text" id="login_number" name="login_number" value="{{ login_number }}" placeholder="شماره لاگین حساب" required>
+            </div>
+            <div class="form-group">
+                <label for="investor_password">پسورد اینوستور</label>
+                <input type="text" id="investor_password" name="investor_password" value="{{ investor_password }}" placeholder="پسورد اینوستور" required>
+            </div>
+            <div class="form-group">
+                <label for="server">سرور</label>
+                <select id="server" name="server" required>
+                    <option value="">-- سرور را انتخاب کنید --</option>
+                    {% for server in servers %}
+                    <option value="{{ server }}" {% if server == server %}selected{% endif %}>{{ server }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="daily_draw_percent">درصد دراوداون روزانه</label>
+                <input type="number" step="0.1" id="daily_draw_percent" name="daily_draw_percent" value="{{ daily_draw_percent }}" placeholder="مثال: 5.0" required>
+            </div>
+            <div class="form-group">
+                <label for="total_draw_percent">درصد دراوداون کل</label>
+                <input type="number" step="0.1" id="total_draw_percent" name="total_draw_percent" value="{{ total_draw_percent }}" placeholder="مثال: 20.0" required>
+            </div>
+            <div class="form-group">
+                <label for="floating_risk_percent">درصد ریسک شناور</label>
+                <input type="number" step="0.1" id="floating_risk_percent" name="floating_risk_percent" value="{{ floating_risk_percent }}" placeholder="مثال: 2.0" required>
+            </div>
+            <div class="form-group">
+                <label for="profit_percent">درصد تارگت سود</label>
+                <input type="number" step="0.1" id="profit_percent" name="profit_percent" value="{{ profit_percent }}" placeholder="مثال: 10.0" required>
+            </div>
+            <button type="submit" class="btn btn-primary">نمایش آنالیز</button>
+        </form>
+    </div>
+
+    <!-- نمایش نتایج آنالیز -->
+    {% if metrics %}
+    <div class="analysis-grid">
+        <!-- دراوداون روزانه -->
+        <div class="analysis-item">
+            <h3>دراوداون روزانه</h3>
+            <div class="chart-container">
+                <div class="chart-label">{{ daily_drawdown_chart_percent|floatformat:2 }}%</div>
+            </div>
+            <div class="stats">
+                <p>عدد دراودان: <span>{{ daily_drawdown_result|floatformat:2 }} دلار</span></p>
+                <p>درصد: <span>{{ daily_draw_percent|floatformat:2 }}%</span></p>
+            </div>
+        </div>
+
+        <!-- دراوداون کل -->
+        <div class="analysis-item">
+            <h3>دراوداون کل</h3>
+            <div class="chart-container">
+                <div class="chart-label">{{ total_drawdown_chart_percent|floatformat:2 }}%</div>
+            </div>
+            <div class="stats">
+                <p>عدد دراودان: <span>{{ total_drawdown_result|floatformat:2 }} دلار</span></p>
+                <p>درصد: <span>{{ total_draw_percent|floatformat:2 }}%</span></p>
+            </div>
+        </div>
+
+        <!-- تارگت سود -->
+        <div class="analysis-item">
+            <h3>تارگت سود</h3>
+            <div class="chart-container">
+                <div class="chart-label">{{ profit_target_progress|floatformat:2 }}%</div>
+            </div>
+            <div class="stats">
+                <p>هدف: <span>{{ profit_target_value|floatformat:2 }} دلار</span></p>
+                <p>درصد فعلی: <span>{{ current_profit_percent|floatformat:2 }}%</span></p>
+            </div>
+        </div>
+
+        <!-- سود زیر 30 ثانیه -->
+        <div class="analysis-item profit-under-30s">
+            <h3>سود زیر 30 ثانیه</h3>
+            <div class="stats">
+                <p>عدد: <span>{{ metrics.short_profit_value|floatformat:2 }} دلار</span></p>
+            </div>
+        </div>
+
+        <!-- وضعیت حساب -->
+        <div class="analysis-item status-indicator">
+            <h3>وضعیت حساب</h3>
+            <div class="stats">
+                <p>{{ account_status }}</p>
+                <p>کمترین اکوئیتی: <span>{{ metrics.min_equity_overall|floatformat:2 }} دلار</span></p>
+            </div>
+        </div>
+
+        <!-- بالانس فعلی -->
+        <div class="analysis-item current-balance">
+            <h3>بالانس فعلی</h3>
+            <div class="stats">
+                <p>مقدار: <span>{{ metrics.current_balance|floatformat:2 }} دلار</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- نمودار کمترین اکوئیتی روزانه -->
+    <div class="daily-equity-chart">
+        <h3>نمودار کمترین اکوئیتی روزانه</h3>
+        <canvas id="dailyEquityChart"></canvas>
+    </div>
+
+    <!-- هیستوری معاملات -->
+    <div class="trade-history">
+        <h3>هیستوری معاملات</h3>
+        <table class="highlight">
+            <thead>
+                <tr>
+                    <th>نماد</th>
+                    <th>تاریخ</th>
+                    <th>قیمت باز شدن</th>
+                    <th>قیمت بسته شدن</th>
+                    <th>نوع معامله</th>
+                    <th>حجم</th>
+                    <th>سود/زیان</th>
+                    <th>مدت زمان</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if trades_paginated %}
+                    {% for trade in trades_paginated %}
+                    <tr>
+                        <td>{{ trade.symbol }}</td>
+                        <td>{{ trade.date }}</td>
+                        <td>{{ trade.open_price|floatformat:4 }}</td>
+                        <td>{{ trade.close_price|default:"-"|floatformat:4 }}</td>
+                        <td>{{ trade.trade_type|capfirst|default:"-" }}</td>
+                        <td>{{ trade.volume|floatformat:2 }} لات</td>
+                        <td class="{% if trade.profit_loss >= 0 %}profit{% else %}loss{% endif %}">
+                            {{ trade.profit_loss|floatformat:2 }} دلار
+                        </td>
+                        <td>{{ trade.duration_seconds|default:"-" }} ثانیه</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">هیچ معامله‌ای یافت نشد.</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8">هیچ معامله‌ای یافت نشد. لطفاً اطلاعات حساب را وارد کنید.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% if trades_paginated %}
+        <div class="pagination">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="login_number" value="{{ login_number }}">
+                <input type="hidden" name="investor_password" value="{{ investor_password }}">
+                <input type="hidden" name="server" value="{{ server }}">
+                <input type="hidden" name="daily_draw_percent" value="{{ daily_draw_percent }}">
+                <input type="hidden" name="total_draw_percent" value="{{ total_draw_percent }}">
+                <input type="hidden" name="floating_risk_percent" value="{{ floating_risk_percent }}">
+                <input type="hidden" name="profit_percent" value="{{ profit_percent }}">
+                {% if trades_paginated.has_previous %}
+                    <button type="submit" name="page" value="{{ trades_paginated.previous_page_number }}" class="pagination-btn">قبلی</button>
+                {% else %}
+                    <button class="pagination-btn" disabled>قبلی</button>
+                {% endif %}
+                <span class="pagination-info">صفحه {{ trades_paginated.number }} از {{ trades_paginated.paginator.num_pages }}</span>
+                {% if trades_paginated.has_next %}
+                    <button type="submit" name="page" value="{{ trades_paginated.next_page_number }}" class="pagination-btn">بعدی</button>
+                {% else %}
+                    <button class="pagination-btn" disabled>بعدی</button>
+                {% endif %}
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- اسکریپت برای نمودار -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    {% if metrics %}
+    const ctx = document.getElementById('dailyEquityChart').getContext('2d');
+    const dailyEquityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for metric in metrics.daily_metrics %}'{{ metric.date }}',{% endfor %}],
+            datasets: [{
+                label: 'کمترین اکوئیتی روزانه',
+                data: [{% for metric in metrics.daily_metrics %}{{ metric.min_equity|floatformat:2 }},{% endfor %}],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'تاریخ',
+                        color: '#e0e0e0'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'اکوئیتی (دلار)',
+                        color: '#e0e0e0'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e0e0e0'
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

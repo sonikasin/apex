@@ -1,0 +1,50 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{% if form_type == 'add' %}افزودن ظرفیت قرعه‌کشی{% else %}ویرایش ظرفیت قرعه‌کشی{% endif %}{% endblock %}
+
+{% block header_title %}{% if form_type == 'add' %}افزودن ظرفیت قرعه‌کشی{% else %}ویرایش ظرفیت قرعه‌کشی{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{% if form_type == 'add' %}افزودن ظرفیت قرعه‌کشی{% else %}ویرایش ظرفیت قرعه‌کشی{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save" /> {# برای تمایز، ولی اختیاری #}
+
+        <div class="form-group">
+            <label for="date">تاریخ:</label>
+            <input type="date" class="form-control" id="date" name="date" value="{% if quota %}{{ quota.date|date:'Y-m-d' }}{% else %}{{ now_date }}{% endif %}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="total_capacity">ظرفیت کل:</label>
+            <input type="number" class="form-control" id="total_capacity" name="total_capacity" value="{% if quota %}{{ quota.total_capacity }}{% else %}100{% endif %}" min="0" required>
+        </div>
+
+        <div class="form-group">
+            <label>تعداد تخصیص‌یافته:</label>
+            <p>{{ quota.allocated_count|default:"0" }}</p>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">
+                {% if form_type == 'add' %}ایجاد{% else %}ذخیره تغییرات{% endif %}
+            </button>
+
+            {% if quota %}
+            <button type="submit" name="action" value="reset_allocated" class="btn btn-warning mx-2"
+                    onclick="return confirm('آیا مطمئن هستید که می‌خواهید تعداد تخصیص‌یافته را به صفر برگردانید؟');">
+                ریست تعداد تخصیص‌یافته
+            </button>
+
+            <button type="submit" name="action" value="delete" class="btn btn-danger"
+                    onclick="return confirm('آیا مطمئن هستید که می‌خواهید این ظرفیت را کاملاً حذف کنید؟ این عمل قابل بازگشت نیست!');">
+                حذف ظرفیت
+            </button>
+            {% endif %}
+
+            <a href="{% url 'admin_panel:free_account_quota_list' %}" class="btn btn-secondary mx-2">لغو</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

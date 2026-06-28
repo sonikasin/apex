@@ -1,0 +1,97 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}درخواست ارتقاء مرحله - Apex Fx{% endblock %}
+
+{% block content %}
+<div class="stage-upgrade-request">
+    <h2>درخواست ارتقاء به مرحله بعدی</h2>
+    
+    <!-- نمایش پیام‌ها -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- انتخاب حساب -->
+    <div class="account-selection">
+        <h3>انتخاب حساب پراپ</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="account_number">حساب:</label>
+                <select name="account_number" id="account_number" required>
+                    <option value="">-- حساب را انتخاب کنید --</option>
+                    {% for account in accounts %}
+                    <option value="{{ account.account_number }}">{{ account.account_number }} - {{ account.get_level_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn-primary">ثبت درخواست ارتقاء</button>
+        </form>
+    </div>
+
+    <!-- لیست درخواست‌های قبلی -->
+    <div class="requests-table">
+        <h2>لیست درخواست‌های ارتقاء</h2>
+        {% if requests_paginated %}
+        <table class="highlight">
+            <thead>
+                <tr>
+                    <th>شماره حساب</th>
+                    <th>مرحله فعلی</th>
+                    <th>وضعیت</th>
+                    <th>تاریخ درخواست</th>
+                    <th>دلیل رد (در صورت وجود)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests_paginated %}
+                <tr>
+                    <td>{{ req.account.account_number }}</td>
+                    <td>{{ req.account.get_level_display }}</td>
+                    <td class="status {{ req.status }}">
+                        {% if req.status == 'pending' %}در انتظار
+                        {% elif req.status == 'approved' %}تأیید شده
+                        {% else %}رد شده{% endif %}
+                    </td>
+                    <td>{{ req.requested_at|date:"Y/m/d H:i" }}</td>
+                    <td>{{ req.rejection_reason|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">هیچ درخواستی یافت نشد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- صفحه‌بندی -->
+        {% if requests_paginated.has_other_pages %}
+        <div class="pagination">
+            <form class="pagination-form" method="get">
+                {% if requests_paginated.has_previous %}
+                <a href="?page={{ requests_paginated.previous_page_number }}" class="pagination-btn">قبلی</a>
+                {% else %}
+                <span class="pagination-btn disabled">قبلی</span>
+                {% endif %}
+                <span class="pagination-info">صفحه {{ requests_paginated.number }} از {{ requests_paginated.paginator.num_pages }}</span>
+                {% if requests_paginated.has_next %}
+                <a href="?page={{ requests_paginated.next_page_number }}" class="pagination-btn">بعدی</a>
+                {% else %}
+                <span class="pagination-btn disabled">بعدی</span>
+                {% endif %}
+            </form>
+        </div>
+        {% endif %}
+        {% else %}
+        <p>هیچ درخواستی یافت نشد.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

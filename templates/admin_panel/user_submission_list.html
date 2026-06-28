@@ -1,0 +1,63 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}لیست ارسال‌های کاربران{% endblock %}
+{% block header_title %}لیست ارسال‌های کاربران{% endblock %}
+{% block content %}
+<div>
+    <h2>لیست ارسال‌های کاربران</h2>
+    <form method="get" style="margin-bottom: 20px;">
+        <input type="text" name="search" value="{{ search_term }}" placeholder="جستجو بر اساس ایمیل، اینستاگرام یا تلگرام" style="padding: 10px; width: 300px; border-radius: 4px;">
+        <select name="status" style="padding: 10px; margin-right: 10px; border-radius: 4px;">
+            <option value="">همه وضعیت‌ها</option>
+            <option value="True" {% if status_filter == 'True' %}selected{% endif %}>تأیید شده</option>
+            <option value="False" {% if status_filter == 'False' %}selected{% endif %}>در انتظار تأیید</option>
+        </select>
+        <button type="submit" style="padding: 10px 20px;">جستجو</button>
+    </form>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>آیدی اینستاگرام</th>
+                    <th>آیدی تلگرام</th>
+                    <th>ایمیل</th>
+                    <th>تاریخ ارسال</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in page_obj %}
+                    <tr>
+                        <td>{{ submission.instagram_id }}</td>
+                        <td>{{ submission.telegram_id }}</td>
+                        <td>{{ submission.email }}</td>
+                        <td>{{ submission.submitted_at|date:"Y/m/d H:i" }}</td>
+                        <td>{{ submission.is_approved|yesno:"تأیید شده,در انتظار تأیید" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'admin_panel:user_submission_approve' submission.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background-color: {% if submission.is_approved %}#d32f2f{% else %}#2e7d32{% endif %}; margin-left: 5px;">
+                                    {{ submission.is_approved|yesno:"لغو تأیید,تأیید" }}
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'admin_panel:user_submission_delete' submission.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background-color: #d32f2f;">حذف</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_term %}&search={{ search_term }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">قبلی</a>
+        {% endif %}
+        <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_term %}&search={{ search_term }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">بعدی</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

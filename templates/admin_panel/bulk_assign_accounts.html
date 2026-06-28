@@ -1,0 +1,104 @@
+
+{% extends 'admin_panel/base.html' %}
+{% block title %}تخصیص گروهی حساب‌ها{% endblock %}
+{% block header_title %}تخصیص گروهی حساب‌ها{% endblock %}
+{% block content %}
+<!-- اضافه کردن jQuery و Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<div>
+    <h2>تخصیص گروهی حساب‌های خالی</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="user_id">کاربران:</label>
+            <select id="user_id" name="user_id" multiple style="width: 100%;">
+                {% for user in selected_users %}
+                    <option value="{{ user.id }}" selected>
+                        {{ user.email }} ({{ user.first_name }} {{ user.last_name }})
+                    </option>
+                {% endfor %}
+            </select>
+            <p>برای جستجو و انتخاب کاربران، شروع به تایپ کنید. می‌توانید چندین کاربر را انتخاب کنید.</p>
+        </div>
+        <div>
+            <label for="plan_type">پلن:</label>
+            <select id="plan_type" name="plan_type" required>
+                <option value="">انتخاب پلن</option>
+                {% for plan in plans %}
+                    <option value="{{ plan.id }}" {% if selected_plan == plan.id|stringformat:"s" %}selected{% endif %}
+                            data-account-size="{{ plan.account_size }}">
+                        {{ plan.get_name_display }} - {{ plan.account_size }} دلار
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="balance">موجودی (دلار):</label>
+            <input type="number" id="balance" name="balance" value="{{ selected_balance }}" step="0.01" min="0" required>
+        </div>
+        <button type="submit">تخصیص حساب‌ها</button>
+    </form>
+
+    {% if results %}
+        <h3>نتایج تخصیص</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ایمیل</th>
+                    <th>وضعیت</th>
+                    <th>پیام</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr class="{% if result.status == 'success' %}success{% else %}error{% endif %}">
+                        <td>{{ result.email }}</td>
+                        <td>{{ result.status }}</td>
+                        <td>{{ result.message }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#user_id').select2({
+        placeholder: 'جستجو و انتخاب کاربران',
+        ajax: {
+            url: '{% url "admin_panel:user_search" %}',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { q: params.term };
+            },
+            processResults: function(data) {
+                return {
+                    results: data.users.map(function(user) {
+                        return {
+                            id: user.id,
+                            text: user.email + ' (' + user.first_name + ' ' + user.last_name + ')'
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        minimumInputLength: 1,
+        allowClear: true,
+        multiple: true
+    });
+
+    $('#plan_type').on('change', function() {
+        var accountSize = $(this).find(':selected').data('account-size');
+        if (accountSize) {
+            $('#balance').val(accountSize);
+        }
+    });
+});
+</script>
+{% endblock %}

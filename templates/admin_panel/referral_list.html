@@ -1,0 +1,75 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}لیست رفرال‌ها{% endblock %}
+
+{% block header_title %}لیست رفرال‌ها{% endblock %}
+
+{% block content %}
+    <h2>لیست رفرال‌ها</h2>
+
+    <form method="get" class="search-filter-form">
+        <div class="filter-section">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>همه</option>
+                <option value="with_earnings" {% if status == 'with_earnings' %}selected{% endif %}>با درآمد</option>
+            </select>
+        </div>
+        <div class="search-section">
+            <input type="text" name="q" value="{{ query }}" placeholder="جستجو (ایمیل معرف یا معرفی‌شده)">
+            <button type="submit">جستجو</button>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ایمیل معرف</th>
+                <th>ایمیل معرفی‌شده</th>
+                <th>تاریخ ایجاد</th>
+                <th>درآمد (دلار)</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for referral in page_obj %}
+            <tr>
+                <td>{{ referral.referrer.email }}</td>
+                <td>{{ referral.referred.email }}</td>
+                <td>{{ referral.created_at|date:"Y/m/d H:i" }}</td>
+                <td>{{ referral.earnings }}</td>
+                <td>
+                    <a href="{% url 'admin_panel:referral_edit' referral.pk %}" class="btn btn-sm btn-primary">ویرایش</a> |
+                    <a href="{% url 'admin_panel:referral_delete' referral.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('آیا مطمئن هستید؟')">حذف</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">هیچ رفرالی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {% if page_obj.number > 1 %}
+            <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if status %}&status={{ status }}{% endif %}" class="btn btn-sm">اولین</a>
+        {% endif %}
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status %}&status={{ status }}{% endif %}" class="btn btn-sm">قبلی</a>
+        {% endif %}
+
+        <span class="page-info">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status %}&status={{ status }}{% endif %}" class="btn btn-sm">بعدی</a>
+        {% endif %}
+
+        {% if page_obj.number < page_obj.paginator.num_pages %}
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if status %}&status={{ status }}{% endif %}" class="btn btn-sm">آخرین</a>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'admin_panel:referral_add' %}" class="btn btn-primary">افزودن رفرال جدید</a>
+
+{% endblock %}

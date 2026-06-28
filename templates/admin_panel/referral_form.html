@@ -1,0 +1,135 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}{% if form_type == 'add' %}افزودن رفرال{% else %}ویرایش رفرال{% endif %}{% endblock %}
+{% block header_title %}{% if form_type == 'add' %}افزودن رفرال{% else %}ویرایش رفرال{% endif %}{% endblock %}
+
+{% block content %}
+<h2>{% if form_type == 'add' %}افزودن رفرال جدید{% else %}ویرایش رفرال{% endif %}</h2>
+
+<form method="post" id="referralForm">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label>ایمیل معرف:</label>
+        <input type="text" id="referrer_email" name="referrer_email" 
+               value="{% if form_type == 'edit' %}{{ referral.referrer.email }}{% endif %}" 
+               placeholder="جستجو و انتخاب ایمیل معرف..." >
+        <div id="referrer_results" class="search-results"></div>
+    </div>
+
+    <div class="form-group">
+        <label>ایمیل معرفی‌شده:</label>
+        <input type="text" id="referred_email" name="referred_email" 
+               value="{% if form_type == 'edit' %}{{ referral.referred.email }}{% elif prefill_referred %}{{ prefill_referred }}{% endif %}" 
+               placeholder="جستجو و انتخاب ایمیل معرفی‌شده..." >
+        <div id="referred_results" class="search-results"></div>
+    </div>
+
+    <div class="form-group">
+        <label>درآمد رفرال (دلار):</label>
+        <input type="number" step="0.01" name="earnings" 
+               value="{% if form_type == 'edit' %}{{ referral.earnings }}{% else %}0.00{% endif %}" required>
+    </div>
+
+    <button type="submit">{% if form_type == 'add' %}ایجاد{% else %}ذخیره{% endif %}</button>
+    <a href="{% url 'admin_panel:referral_list' %}" class="btn btn-secondary">لغو</a>
+</form>
+
+<style>
+    .search-results {
+        position: absolute;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        width: 100%;
+        display: none;
+    }
+    .search-results ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .search-results li {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+    .search-results li:hover {
+        background: #f5f5f5;
+    }
+    .form-group {
+        position: relative;
+        margin-bottom: 15px;
+    }
+    .form-group input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+    // Function to handle search for both fields
+    function setupSearch(inputId, resultsId) {
+        const input = document.getElementById(inputId);
+        const resultsDiv = document.getElementById(resultsId);
+
+        input.addEventListener('input', async function() {
+            const query = input.value.trim();
+            if (query.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`{% url 'admin_panel:user_search' %}?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                resultsDiv.innerHTML = '';
+                if (data.results.length > 0) {
+                    const ul = document.createElement('ul');
+                    data.results.forEach(result => {
+                        const li = document.createElement('li');
+                        li.textContent = result.email;
+                        li.onclick = () => {
+                            input.value = result.email;
+                            resultsDiv.style.display = 'none';
+                        };
+                        ul.appendChild(li);
+                    });
+                    resultsDiv.appendChild(ul);
+                    resultsDiv.style.display = 'block';
+                } else {
+                    resultsDiv.innerHTML = '<ul><li>هیچ کاربری یافت نشد.</li></ul>';
+                    resultsDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                resultsDiv.innerHTML = '<ul><li>خطا در جستجو.</li></ul>';
+                resultsDiv.style.display = 'block';
+            }
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
+    }
+
+    // Setup for both inputs
+    setupSearch('referrer_email', 'referrer_results');
+    setupSearch('referred_email', 'referred_results');
+
+    // Form validation
+    document.getElementById('referralForm').addEventListener('submit', function(e) {
+        const referrer = document.getElementById('referrer_email').value.trim();
+        const referred = document.getElementById('referred_email').value.trim();
+        
+    });
+</script>
+
+{% endblock %}

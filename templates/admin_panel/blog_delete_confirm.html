@@ -1,0 +1,160 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>{% extends 'admin_panel/base.html' %}
+{% block title %}حذف پست وبلاگ{% endblock %}
+{% block header_title %}حذف پست وبلاگ{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="page-title">حذف پست وبلاگ</h2>
+    <p class="confirmation-text">آیا مطمئن هستید که می‌خواهید پست "{{ blog.title }}" را حذف کنید؟</p>
+    <form method="post" class="form-container">
+        {% csrf_token %}
+        <button type="submit" class="delete-button">بله، حذف کن</button>
+        <a href="{% url 'admin_panel:blog_list_admin' %}" class="cancel-button">خیر، لغو</a>
+    </form>
+</div>
+<style>
+    .container {
+        padding: 2rem;
+        background: #1a1a1a;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    body.light-mode .container {
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .confirmation-text {
+        font-size: 1.2rem;
+        color: #e0e0e0;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    body.light-mode .confirmation-text {
+        color: #1f2a44;
+    }
+
+    .form-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .delete-button, .cancel-button {
+        padding: 0.7rem 1.5rem;
+        text-decoration: none;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .delete-button {
+        background: #dc3545;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    .delete-button:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .cancel-button {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    .cancel-button:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .confirmation-text {
+            font-size: 1rem;
+        }
+
+        .delete-button, .cancel-button {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+        }
+
+        .confirmation-text {
+            font-size: 0.9rem;
+        }
+
+        .delete-button, .cancel-button {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}

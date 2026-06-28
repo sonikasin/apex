@@ -1,0 +1,98 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>{% extends 'admin_panel/base.html' %}
+
+{% block title %}لیست ظرفیت‌های قرعه‌کشی{% endblock %}
+
+{% block header_title %}لیست ظرفیت‌های قرعه‌کشی{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>لیست ظرفیت‌های قرعه‌کشی</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>تاریخ</th>
+                <th>ظرفیت کل</th>
+                <th>تعداد تخصیص‌یافته</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quota in page_obj %}
+                <tr>
+                    <td>{{ quota.date }}</td>
+                    <td>{{ quota.total_capacity }}</td>
+                    <td>{{ quota.allocated_count }}</td>
+                    <td>
+                        <a href="{% url 'admin_panel:free_account_quota_edit' quota.pk %}" class="btn btn-primary btn-sm">ویرایش</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">هیچ ظرفیتی یافت نشد.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {% if page_obj.number > 1 %}
+            <a href="?page=1" class="btn btn-outline-secondary">اولین</a>
+        {% endif %}
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary">قبلی</a>
+        {% endif %}
+
+        <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-secondary">بعدی</a>
+        {% endif %}
+
+        {% if page_obj.number < page_obj.paginator.num_pages %}
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary">آخرین</a>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'admin_panel:free_account_quota_add' %}" class="btn btn-success mt-3">افزودن ظرفیت جدید</a>
+</div>
+{% endblock %}

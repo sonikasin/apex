@@ -1,0 +1,125 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}
+    {% if form_type == 'add' %}افزودن پلن{% else %}ویرایش پلن{% endif %}
+{% endblock %}
+
+{% block header_title %}
+    {% if form_type == 'add' %}افزودن پلن{% else %}ویرایش پلن{% endif %}
+{% endblock %}
+
+{% block content %}
+    <h2>{% if form_type == 'add' %}افزودن پلن جدید{% else %}ویرایش پلن{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <h3>جزئیات پلن</h3>
+        <label>نام پلن:</label>
+        <select name="name">
+            <option value="">انتخاب کنید</option>
+            {% for value, display in plan.PLAN_TYPES %}
+                <option value="{{ value }}" {% if plan.name == value %}selected{% endif %}>{{ display }}</option>
+            {% endfor %}
+        </select>
+
+        <label>اندازه حساب (دلار):</label>
+        <input type="number" name="account_size" value="{{ plan.account_size|default:'' }}">
+
+        <label>قیمت (دلار):</label>
+        <input type="number" name="price" value="{{ plan.price|default:'' }}">
+
+        <label>لوریج:</label>
+        <input type="text" name="leverage" value="{{ plan.leverage|default:'' }}">
+
+        <h3>مراحل پلن</h3>
+        <div id="stages-container">
+            {% for stage in plan.stages.all %}
+                <div class="stage-form">
+                    <input type="hidden" name="stage_id[]" value="{{ stage.id }}">
+                    <label>نوع مرحله:</label>
+                    <select name="stage_type[]">
+                        <option value="">انتخاب کنید</option>
+                        {% for value, display in stage.STAGE_TYPES %}
+                            <option value="{{ value }}" {% if stage.stage_type == value %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label>هدف سود:</label>
+                    <input type="number" name="profit_target[]" value="{{ stage.profit_target|default:'' }}">
+
+                    <label>درصد هدف سود:</label>
+                    <input type="number" name="profit_target_percent[]" value="{{ stage.profit_target_percent|default:'' }}">
+
+                    <label>حداکثر ضرر (%):</label>
+                    <input type="number" name="max_loss_percent[]" value="{{ stage.max_loss_percent|default:'10.0' }}">
+
+                    <label>حداکثر ضرر روزانه (%):</label>
+                    <input type="number" name="max_daily_loss_percent[]" value="{{ stage.max_daily_loss_percent|default:'5.0' }}">
+
+                    <label>حداقل روزهای معاملاتی:</label>
+                    <input type="number" name="min_trading_days[]" value="{{ stage.min_trading_days|default:'' }}">
+
+                    <label>درصد ریسک شناور:</label>
+                    <input type="number" name="floating_risk_percent[]" value="{{ stage.floating_risk_percent|default:'' }}">
+
+                    <input type="checkbox" name="delete_stage[]" value="{{ stage.id }}"> حذف این مرحله
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-stage">اضافه کردن مرحله جدید</button>
+
+        <button type="submit">ذخیره</button>
+        <a href="{% url 'admin_panel:propplan_list' %}">لغو</a>
+    </form>
+
+    <script>
+        document.getElementById('add-stage').addEventListener('click', function() {
+            const container = document.getElementById('stages-container');
+            const newStage = document.createElement('div');
+            newStage.className = 'stage-form';
+            newStage.innerHTML = `
+                <label>نوع مرحله:</label>
+                <select name="stage_type[]">
+                    <option value="">انتخاب کنید</option>
+                    <option value="stage_one">مرحله اول</option>
+                    <option value="stage_two">مرحله دوم</option>
+                    <option value="real">ریل</option>
+                </select>
+
+                <label>هدف سود:</label>
+                <input type="number" name="profit_target[]">
+
+                <label>درصد هدف سود:</label>
+                <input type="number" name="profit_target_percent[]">
+
+                <label>حداکثر ضرر (%):</label>
+                <input type="number" name="max_loss_percent[]" value="10.0">
+
+                <label>حداکثر ضرر روزانه (%):</label>
+                <input type="number" name="max_daily_loss_percent[]" value="5.0">
+
+                <label>حداقل روزهای معاملاتی:</label>
+                <input type="number" name="min_trading_days[]">
+
+                <label>درصد ریسک شناور:</label>
+                <input type="number" name="floating_risk_percent[]">
+            `;
+            container.appendChild(newStage);
+        });
+
+        // Prevent submission of empty stages
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const stageForms = document.querySelectorAll('.stage-form');
+            stageForms.forEach(form => {
+                const stageType = form.querySelector('select[name="stage_type[]"]').value;
+                const inputs = form.querySelectorAll('input[type="number"]');
+                let hasData = false;
+                inputs.forEach(input => {
+                    if (input.value) hasData = true;
+                });
+                if (!stageType && !hasData) {
+                    form.remove(); // Remove empty stage forms before submission
+                }
+            });
+        });
+    </script>
+{% endblock %}

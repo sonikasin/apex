@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل همکاری</title>
+    <style>
+        body {
+            font-family: 'IRANSans', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+        }
+        .affiliate-panel {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .card p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .card p strong {
+            color: #1a73e8;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        .table th {
+            background: #1a73e8;
+            color: #fff;
+        }
+        .table td {
+            background: #fff;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1a73e8;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1557b0;
+        }
+        .return-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .copy-btn {
+            background: #28a745;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <section class="affiliate-panel">
+        <h2>پنل همکاری</h2>
+        <div class="card">
+            <h3>اطلاعات رفرال</h3>
+            <p><strong>کد رفرال شما:</strong> {{ referral_code }}</p>
+            <p><strong>لینک رفرال:</strong> 
+                <span id="referral-link">{{ referral_link }}</span>
+                <button class="btn copy-btn" onclick="copyToClipboard('referral-link')">کپی</button>
+            </p>
+            <p><strong>درصد همکاری:</strong> {{ affiliate_percentage }}%</p>
+            <p><strong>تعداد رفرال‌ها:</strong> {{ referral_count }}</p>
+            <p><strong>تعداد خریدهای موفق:</strong> {{ order_count }}</p>
+            <p><strong>درآمد کل (دلار):</strong> {{ total_earnings|floatformat:2 }}</p>
+            <p><strong>موجودی کیف پول (دلار):</strong> {{ wallet_balance|floatformat:2 }}</p>
+        </div>
+        
+        <h3>لیست رفرال‌ها</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ایمیل معرفی‌شده</th>
+                    <th>تاریخ ثبت‌نام</th>
+                    <th>تعداد خریدهای موفق</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in referrals %}
+                <tr>
+                    <td>{{ item.referral.referred.email }}</td>
+                    <td>{{ item.referral.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ item.successful_order_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">هیچ رفرالی یافت نشد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h3>خریدهای موفق رفرال‌ها</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>شماره سفارش</th>
+                    <th>کاربر</th>
+                    <th>پلن</th>
+                    <th>مبلغ (دلار)</th>
+                    <th>درآمد شما (دلار)</th>
+                    <th>تاریخ خرید</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in successful_orders %}
+                <tr>
+                    <td>{{ item.order.order_number }}</td>
+                    <td>{{ item.order.user.email }}</td>
+                    <td>{{ item.order.plan.name|default:'-' }}</td>
+                    <td>{{ item.order.final_price_usd|floatformat:2 }}</td>
+                    <td>{{ item.earnings|floatformat:2 }}</td>
+                    <td>{{ item.order.purchase_date|date:"Y-m-d" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">هیچ خرید موفقی یافت نشد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="return-btn">
+            <a href="{{ home_url }}" class="btn">بازگشت به صفحه اصلی</a>
+        </div>
+    </section>
+    <script>
+        function copyToClipboard(elementId) {
+            var text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(function() {
+                alert('لینک رفرال کپی شد!');
+            }, function(err) {
+                alert('خطا در کپی لینک: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!-- templates/admin_panel/proporder_list.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}لیست سفارش‌ها{% endblock %}
+
+{% block header_title %}لیست سفارش‌ها{% endblock %}
+
+{% block content %}
+    <h2>لیست سفارش‌ها</h2>
+    <form method="get">
+        <input type="text" name="search" value="{{ search_term }}" placeholder="جستجو...">
+        <select name="status">
+            <option value="">همه وضعیت‌ها</option>
+            <!-- گزینه‌های وضعیت بر اساس مدل PropOrder -->
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>در حال انتظار</option>
+            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>تکمیل شده</option>
+            <!-- گزینه‌های دیگر را اضافه کنید -->
+        </select>
+        <button type="submit">جستجو</button>
+    </form>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>شماره سفارش</th>
+                    <th>پلن</th>
+                    <th>dollar</th>
+                    <th>تاریخ خرید</th>
+                    <th>وضعیت</th>
+                    <th>کاربر</th>
+                    <th>شناسه</th>
+                    <th>مبلغ پرداخت شده</th>
+                    <th>شماره اکانت تخویلی</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in page_obj %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.dollar_price }}</td>
+                        <td>{{ order.plan.name|default:'-' }}</td>
+                        <td>{{ order.purchase_date|date:"Y-m-d" }}</td>
+                        <td>{{ order.get_status_display|default:order.status }}</td>
+                        <td>{{ order.user.email|default:'-' }}</td>
+                        <td>{{ order.transaction_id|default:'-' }}</td>
+                        <td>{{ order.final_price_toman|default:'-' }}</td>
+                        <td>{{ order.accnum|default:'-' }}</td>
+
+                        <td>
+                            <a href="{% url 'admin_panel:proporder_edit' order.pk %}">ویرایش</a> |
+                            <a href="{% url 'admin_panel:proporder_delete' order.pk %}" onclick="return confirm('حذف شود؟');">حذف</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">هیچ سفارشی یافت نشد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+     <div class="pagination">
+    {% if page_obj.number > 1 %}
+        <a href="?page=1&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">اولین</a>
+    {% endif %}
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">قبلی</a>
+    {% endif %}
+
+    <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">بعدی</a>
+    {% endif %}
+
+    {% if page_obj.number < page_obj.paginator.num_pages %}
+        <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_term }}&status={{ status_filter }}&department={{ department_filter }}">آخرین</a>
+    {% endif %}
+</div>
+
+    <a href="{% url 'admin_panel:proporder_add' %}">افزودن سفارش جدید</a>
+{% endblock %}

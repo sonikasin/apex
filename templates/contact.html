@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}تماس با ما{% endblock %}
+{% block content %}
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: 'Vazirmatn', Arial, sans-serif;
+        direction: rtl;
+    }
+
+    #contact-section {
+        padding: 6rem 3rem;
+        background: linear-gradient(145deg, #121212 20%, #003f2d 80%);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        min-height: 100vh;
+    }
+
+    body.light-mode #contact-section {
+        background: linear-gradient(145deg, #f9fafb 20%, #d1fae5 80%);
+    }
+
+    #contact-content {
+        max-width: 1300px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    #contact-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #10b981;
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        animation: fadeInUp 1s ease-out;
+    }
+
+    body.light-mode #contact-title {
+        color: #059669;
+        text-shadow: none;
+    }
+
+    #contact-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #10b981, #059669);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+    }
+
+    #contact-title:hover::after {
+        width: 120px;
+    }
+
+    #contact-form {
+        background: rgba(26, 26, 26, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        text-align: right;
+        animation: fadeInUp 1.2s ease-out;
+    }
+
+    body.light-mode #contact-form {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    #contact-form:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    #contact-form-text {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: #b0b0b0;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+    }
+
+    body.light-mode #contact-form-text {
+        color: #4b5563;
+    }
+
+    #contact-form form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    #contact-form input, #contact-form textarea {
+        background: #2a2a2a;
+        border: none;
+        padding: 0.8rem 1.2rem;
+        border-radius: 10px;
+        color: #e0e0e0;
+        font-size: 1rem;
+        font-weight: 300;
+        transition: all 0.3s ease;
+    }
+
+    body.light-mode #contact-form input, body.light-mode #contact-form textarea {
+        background: #e0e0e0;
+        color: #1f2a44;
+    }
+
+    #contact-form input:focus, #contact-form textarea:focus {
+        outline: none;
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        background: #3a3a3a;
+    }
+
+    body.light-mode #contact-form input:focus, body.light-mode #contact-form textarea:focus {
+        background: #d0d0d0;
+    }
+
+    #contact-form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    #contact-submit {
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: #ffffff;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    #contact-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.6);
+    }
+
+    #contact-info {
+        background: rgba(26, 26, 26, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        text-align: right;
+        animation: fadeInUp 1.4s ease-out;
+    }
+
+    body.light-mode #contact-info {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    #contact-info:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    #contact-info-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #10b981;
+        margin-bottom: 1.5rem;
+    }
+
+    body.light-mode #contact-info-title {
+        color: #059669;
+    }
+
+    #contact-info-email, #contact-info-telegram, #contact-info-instagram, #contact-info-support, #contact-info-phone {
+        font-size: 1rem;
+        font-weight: 300;
+        color: #b0b0b0;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    body.light-mode #contact-info-email, body.light-mode #contact-info-telegram, body.light-mode #contact-info-instagram, body.light-mode #contact-info-support, body.light-mode #contact-info-phone {
+        color: #4b5563;
+    }
+
+    #contact-info-email a, #contact-info-telegram a, #contact-info-instagram a, #contact-info-support a, #contact-info-phone a {
+        color: #10b981;
+        text-decoration: none;
+        font-weight: 400;
+        transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    body.light-mode #contact-info-email a, body.light-mode #contact-info-telegram a, body.light-mode #contact-info-instagram a, body.light-mode #contact-info-support a, body.light-mode #contact-info-phone a {
+        color: #059669;
+    }
+
+    #contact-info-email a:hover, #contact-info-telegram a:hover, #contact-info-instagram a:hover, #contact-info-support a:hover, #contact-info-phone a:hover {
+        color: #059669;
+        transform: translateX(-4px);
+    }
+
+    #contact-info-email::before, #contact-info-telegram::before, #contact-info-instagram::before, #contact-info-support::before, #contact-info-phone::before {
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 1.2rem;
+        color: #10b981;
+        transition: transform 0.3s ease;
+    }
+
+    body.light-mode #contact-info-email::before, body.light-mode #contact-info-telegram::before, body.light-mode #contact-info-instagram::before, body.light-mode #contact-info-support::before, body.light-mode #contact-info-phone::before {
+        color: #059669;
+    }
+
+    #contact-info-email::before {
+        content: '\f0e0'; /* fa-envelope */
+    }
+
+    #contact-info-telegram::before, #contact-info-support::before {
+        content: '\f3fe'; /* fa-telegram */
+    }
+
+    #contact-info-instagram::before {
+        content: '\f16d'; /* fa-instagram */
+    }
+
+    #contact-info-phone::before {
+        content: '\f095'; /* fa-phone */
+    }
+
+    #contact-info-email:hover::before, #contact-info-telegram:hover::before, #contact-info-instagram:hover::before, #contact-info-support:hover::before, #contact-info-phone:hover::before {
+        transform: scale(1.2);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        #contact-section {
+            padding: 5rem 2rem;
+        }
+
+        #contact-title {
+            font-size: 2.5rem;
+        }
+
+        #contact-content {
+            gap: 1.5rem;
+        }
+
+        #contact-form-text {
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        #contact-section {
+            padding: 4rem 1.5rem;
+        }
+
+        #contact-title {
+            font-size: 2.2rem;
+        }
+
+        #contact-content {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        #contact-form, #contact-info {
+            padding: 2rem;
+        }
+
+        #contact-info-title {
+            font-size: 1.5rem;
+        }
+
+        #contact-info-email, #contact-info-telegram, #contact-info-instagram, #contact-info-support, #contact-info-phone {
+            font-size: 0.95rem;
+        }
+
+        #contact-info-email::before, #contact-info-telegram::before, #contact-info-instagram::before, #contact-info-support::before, #contact-info-phone::before {
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #contact-section {
+            padding: 3rem 1rem;
+        }
+
+        #contact-title {
+            font-size: 1.8rem;
+        }
+
+        #contact-form-text {
+            font-size: 0.9rem;
+        }
+
+        #contact-form, #contact-info {
+            padding: 1.5rem;
+        }
+
+        #contact-form input, #contact-form textarea {
+            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        #contact-submit {
+            padding: 0.7rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        #contact-info-title {
+            font-size: 1.4rem;
+        }
+
+        #contact-info-email, #contact-info-telegram, #contact-info-instagram, #contact-info-support, #contact-info-phone {
+            font-size: 0.9rem;
+        }
+
+        #contact-info-email::before, #contact-info-telegram::before, #contact-info-instagram::before, #contact-info-support::before, #contact-info-phone::before {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #contact-section {
+            padding: 2.5rem 1rem;
+        }
+
+        #contact-title {
+            font-size: 1.6rem;
+        }
+
+        #contact-form-text {
+            font-size: 0.85rem;
+        }
+
+        #contact-form input, #contact-form textarea {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        #contact-submit {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        #contact-info-title {
+            font-size: 1.3rem;
+        }
+
+        #contact-info-email, #contact-info-telegram, #contact-info-instagram, #contact-info-support, #contact-info-phone {
+            font-size: 0.85rem;
+        }
+
+        #contact-info-email::before, #contact-info-telegram::before, #contact-info-instagram::before, #contact-info-support::before, #contact-info-phone::before {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<section id="contact-section">
+    <h2 id="contact-title">تماس با ما</h2>
+    <div id="contact-content">
+        <div id="contact-form">
+            <p id="contact-form-text">ما همیشه آماده پاسخگویی به سوالات شما هستیم. از طریق فرم زیر یا اطلاعات تماس با ما در ارتباط باشید.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="نام" required>
+                <input type="email" name="email" placeholder="ایمیل" required>
+                <textarea name="message" placeholder="پیام" required></textarea>
+                <button type="submit" id="contact-submit">ارسال پیام</button>
+            </form>
+        </div>
+        <div id="contact-info">
+            <h3 id="contact-info-title">اطلاعات تماس</h3>
+            <p id="contact-info-email">ایمیل: <a href="mailto:info@apexfx.net">info@apexfx.net</a></p>
+            <p id="contact-info-telegram">تلگرام مجموعه: <a href="https://t.me/ApexFx_net">@apexfx_net</a></p>
+            <p id="contact-info-instagram">اینستاگرام: <a href="https://www.instagram.com/apexfx_net">apexfx_net</a></p>
+            <p id="contact-info-support">آدرس:<a >اردبیل,ججین,ساختمان کیانا</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>

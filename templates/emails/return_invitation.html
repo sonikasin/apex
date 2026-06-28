@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازگشت به Apex FX</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* فونت Vazir ممکن است در ایمیل‌ها پشتیبانی نشود */
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+            text-align: right; /* راست‌چین کردن کل متن‌ها */
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #007bff; /* رنگ ثابت برای سازگاری */
+            padding: 20px;
+            color: #ffffff;
+            text-align: right;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+            color: #333333;
+            line-height: 1.6;
+            text-align: right;
+        }
+        .content h2 {
+            color: #007bff;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .content p {
+            margin: 10px 0;
+        }
+        .discount-code {
+            background-color: #e7f3ff;
+            border: 2px dashed #007bff;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: right;
+        }
+        .discount-box {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center; /* وسط‌چین کردن باکس کد */
+            margin: 10px 0;
+        }
+        .discount-box input {
+            font-size: 16px;
+            padding: 8px;
+            width: 100px;
+            text-align: center;
+            border: 1px solid #007bff;
+            border-radius: 5px 0 0 5px;
+            margin: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .discount-box button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: 1px solid #007bff;
+            border-radius: 0 5px 5px 0;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .ltr {
+            direction: ltr;
+            display: inline-block;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-size: 14px;
+            color: #666666;
+            text-align: right;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .discount-box input {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>اپکس اف ایکس رو فراموش نکن!</h1>
+        </div>
+        <div class="content">
+            <h2>دلمون برات تنگ شده!</h2>
+            <p>پراپ اپکس اف ایکس رو فراموش کردی؟ ما یه هدیه ویژه برای بازگشتت آماده کردیم:</p>
+            <div class="discount-code">کد تخفیف ۴۰ درصدی</div>
+            <div class="discount-box">
+                <span class="ltr">
+                    <input type="text" value="40off" id="discountCode" readonly>
+                    <button onclick="copyCode()">کپی</button>
+                </span>
+            </div>
+            <p>با این کد می‌تونی دوباره به جمع معامله‌گران موفق ما بپیوندی و مسیر موفقیتت رو ادامه بدی!</p>
+            <p>همین حالا برگرد و از این فرصت استثنایی استفاده کن. ما منتظرت هستیم! 😊</p>
+            <a href="https://apexfx.net/" class="button">همین حالا برگرد</a>
+        </div>
+        <div class="footer">
+            <p>📞 <strong>تماس با ما:</strong> <span class="ltr">02171057717</span></p>
+            <p>
+                <a href="https://apexfx.net/" class="ltr">🌐 سایت ما</a> |
+                <a href="https://t.me/ApexFx_net" class="ltr">📱 کانال تلگرام</a> |
+                <a href="https://t.me/+Xeon49199f9iNGFk" class="ltr">📱 گروه تلگرام</a> |
+                <a href="https://www.instagram.com/apexfx_net" class="ltr">📸 اینستاگرام</a>
+            </p>
+            <p>© 2025 Apex FX. تمامی حقوق محفوظ است.</p>
+        </div>
+    </div>
+    <script>
+        function copyCode() {
+            var code = document.getElementById("discountCode");
+            code.select();
+            try {
+                document.execCommand("copy");
+                alert("کد تخفیف کپی شد: 40OFF");
+            } catch (err) {
+                console.error("خطا در کپی کد: ", err);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,756 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}آنالیز حساب پراپ - Apex Fx{% endblock %}
+
+{% block content %}
+<style>
+/* Analytics Section */
+.analytics-section {
+    margin-bottom: 35px;
+    text-align: right;
+    padding: 20px;
+}
+
+/* Button Container */
+.personal-analytics-btn-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: flex-end;
+}
+
+.btn-personal-analytics {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-personal-analytics:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+/* Account Selection */
+.account-selection {
+    margin-bottom: 35px;
+}
+
+.account-selection h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #10b981;
+    margin-bottom: 15px;
+}
+
+.account-selection form {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.light-mode .account-selection form {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.account-selection form:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.light-mode .account-selection form:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.account-selection select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+
+body.light-mode .account-selection select {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #1f2a44;
+}
+
+.account-selection select:focus {
+    outline: none;
+    border-color: #10b981;
+    background-color: #4a4a4a;
+    transform: scale(1.02);
+}
+
+body.light-mode .account-selection select:focus {
+    background-color: #f9fafb;
+}
+
+.account-selection .trade-now-btn {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.account-selection .trade-now-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+/* Guidance Box */
+.guidance-box {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+body.light-mode .guidance-box {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.guidance-box h3 {
+    font-size: 20px;
+    color: #10b981;
+    margin-bottom: 15px;
+}
+
+.guidance-box ul {
+    list-style-type: decimal;
+    padding-right: 20px;
+    color: #e0e0e0;
+    line-height: 1.8;
+}
+
+body.light-mode .guidance-box ul {
+    color: #4b5563;
+}
+
+/* Analysis Panel */
+.analysis-panel {
+    margin-bottom: 35px;
+}
+
+.analysis-panel h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 20px;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.analysis-item {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+body.light-mode .analysis-item {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.analysis-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.light-mode .analysis-item:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.analysis-item h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #10b981;
+    margin-bottom: 15px;
+}
+
+.chart-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.chart-label {
+    font-size: 32px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.stats p {
+    font-size: 16px;
+    color: #b0b0b0;
+    margin-bottom: 10px;
+}
+
+body.light-mode .stats p {
+    color: #4b5563;
+}
+
+.stats p span {
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+body.light-mode .stats p span {
+    color: #1f2a44;
+}
+
+.profit-under-30s p,
+.current-balance p,
+.trading-days p {
+    font-size: 16px;
+    color: #b0b0b0;
+    margin-bottom: 10px;
+}
+
+body.light-mode .profit-under-30s p,
+body.light-mode .current-balance p,
+body.light-mode .trading-days p {
+    color: #4b5563;
+}
+
+.profit-under-30s p span,
+.current-balance p span,
+.trading-days p span {
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+body.light-mode .profit-under-30s p span,
+body.light-mode .current-balance p span,
+body.light-mode .trading-days p span {
+    color: #1f2a44;
+}
+
+.status-indicator {
+    font-size: 20px;
+    font-weight: 700;
+    color: #10b981;
+    text-align: center;
+}
+
+.status-indicator.drawdown {
+    color: #dc2626;
+}
+
+.status-indicator.passed {
+    color: #10b981;
+}
+
+.status-indicator.pending {
+    color: #6b7280;
+}
+
+/* Daily Equity Chart */
+.daily-equity-chart {
+    margin-bottom: 35px;
+}
+
+.daily-equity-chart h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #10b981;
+    margin-bottom: 15px;
+}
+
+.daily-equity-chart canvas {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.light-mode .daily-equity-chart canvas {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.daily-equity-chart canvas:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.light-mode .daily-equity-chart canvas:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Trade History Table */
+.trade-history {
+    margin-bottom: 35px;
+}
+
+.trade-history h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #10b981;
+    margin-bottom: 15px;
+}
+
+#trade-history-table {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    overflow-x: auto;
+}
+
+body.light-mode #trade-history-table {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+#trade-history-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 800px;
+}
+
+#trade-history-table th,
+#trade-history-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 14px;
+}
+
+body.light-mode #trade-history-table th,
+body.light-mode #trade-history-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#trade-history-table th {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+body.light-mode #trade-history-table th {
+    color: #121212;
+}
+
+#trade-history-table td {
+    color: #e0e0e0;
+}
+
+body.light-mode #trade-history-table td {
+    color: #1f2a44;
+}
+
+#trade-history-table .profit {
+    color: #10b981;
+}
+
+#trade-history-table .loss {
+    color: #dc2626;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination .pagination-btn {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.pagination .pagination-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+.pagination .pagination-btn.disabled {
+    background: linear-gradient(90deg, #6b7280, #4b5563);
+    color: #b0b0b0;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.pagination .pagination-info {
+    color: #e0e0e0;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+body.light-mode .pagination .pagination-info {
+    color: #1f2a44;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .analytics-section {
+        padding: 15px;
+    }
+
+    .personal-analytics-btn-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-personal-analytics {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .analysis-panel h2,
+    .account-selection h2,
+    .daily-equity-chart h3,
+    .trade-history h3 {
+        font-size: 20px;
+    }
+
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analysis-item {
+        padding: 15px;
+    }
+
+    #trade-history-table {
+        padding: 15px;
+    }
+
+    #trade-history-table table {
+        min-width: 100%;
+    }
+
+    #trade-history-table th,
+    #trade-history-table td {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .account-selection .trade-now-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .daily-equity-chart canvas {
+        min-height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .analysis-panel h2,
+    .account-selection h2,
+    .daily-equity-chart h3,
+    .trade-history h3 {
+        font-size: 18px;
+    }
+
+    .analysis-item {
+        padding: 12px;
+    }
+
+    .analysis-item h3 {
+        font-size: 16px;
+    }
+
+    .stats p,
+    .profit-under-30s p,
+    .current-balance p,
+    .trading-days p {
+        font-size: 14px;
+    }
+
+    #trade-history-table th,
+    #trade-history-table td {
+        padding: 8px;
+        font-size: 11px;
+    }
+
+    .pagination .pagination-btn,
+    .pagination .pagination-info {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .daily-equity-chart canvas {
+        min-height: 150px;
+    }
+}
+</style>
+
+<div class="analytics-section">
+    <div class="personal-analytics-btn-container">
+        <a href="https://apexfx.net/#plans" class="btn-personal-analytics">خرید چالش </a>
+        <a href="{% url 'personal_analytics' %}" class="btn-personal-analytics">آنالیز حساب شخصی</a>
+    </div>
+<div class="guidance-box">
+        <h3>راهنمای استفاده از پنل آنالیز</h3>
+        <ul>
+            <li>پنل آنالیز حتما بعد بسته شدن هر معامله آپدیت میشه.</li>
+            <li>برای آپدیت شدن هربار باید دکمه "نمایش آنالیز" دوباره بزنید تا آپدیت بشه؛ خودکار آپدیت نمیشه.</li>
+            <li>ممکنه بعد بستن معامله تا بشینه روی دیتابیس، پنل آنالیز نیم ساعت طول بکشه.</li>
+            <li>اگر معامله آخر تازه ثبت کرده بودید و پنل آپدیت نشده بود، 1 ساعت منتظر بمونید بعد آپدیت کنید.</li>
+            <li>پنل آنالیز صرفا یه دستیار کمکی میباشد و نظر نهایی توسط کارشناس مجموعه بعد بررسی دقیق حساب گرفته میشود.</li>
+        </ul>
+    </div>
+    <div class="account-selection">
+        <h2>انتخاب حساب</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <select id="account-select" name="account_number">
+                <option value="">-- حساب را انتخاب کنید --</option>
+                {% for account in accounts %}
+                <option value="{{ account.account_number }}" {% if selected_account.account_number == account.account_number %}selected{% endif %}>{{ account.account_number }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="trade-now-btn">نمایش آنالیز</button>
+        </form>
+    </div>
+
+    
+
+    <div class="analysis-panel">
+        <h2>پنل آنالیز حساب پراپ</h2>
+        <div class="analysis-grid">
+            <div class="analysis-item">
+                <h3>دراوداون روزانه</h3>
+                <div class="chart-container">
+                    <div class="chart-label" id="daily-drawdown-result">
+                        {{ daily_drawdown_result|floatformat:2 }} دلار
+                    </div>
+                </div>
+            </div>
+            <div class="analysis-item">
+                <h3>دراوداون کل</h3>
+                <div class="chart-container">
+                    <div class="chart-label" id="total-drawdown-result">
+                        {{ total_drawdown_result|floatformat:2 }} دلار
+                    </div>
+                </div>
+            </div>
+            <div class="analysis-item">
+                <h3>تارگت سود</h3>
+                <div class="chart-container">
+                    <div class="chart-label" id="profit-target-value">
+                        {{ profit_target_value|floatformat:2 }} دلار
+                    </div>
+                </div>
+            </div>
+            <div class="analysis-item">
+                <h3>سود زیر 30 ثانیه</h3>
+                <div class="profit-under-30s">
+                    <p>عدد: <span id="short-profit-value">
+                        {{ metrics.short_profit_value|floatformat:2 }} دلار
+                    </span></p>
+                </div>
+            </div>
+          
+            <div class="analysis-item">
+                <h3>بالانس فعلی</h3>
+                <div class="current-balance">
+                    <p>مقدار: <span id="current-balance-value">
+                        {{ metrics.current_balance|floatformat:2 }} دلار
+                    </span></p>
+                </div>
+            </div>
+            <div class="analysis-item">
+                <h3>تعداد روزهای معاملاتی</h3>
+                <div class="trading-days">
+                    <p>تعداد: <span id="trading-days-count">
+                        {{ trading_days_count }} روز
+                    </span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="daily-equity-chart">
+            <h3>نمودار کمترین اکوئیتی روزانه</h3>
+            <canvas id="dailyEquityChart"></canvas>
+        </div>
+
+        <div class="trade-history">
+            <h3>هیستوری معاملات</h3>
+            <table id="trade-history-table">
+                <thead>
+                    <tr>
+                        <th>نماد</th>
+                        <th>تاریخ</th>
+                        <th>قیمت باز شدن</th>
+                        <th>قیمت بسته شدن</th>
+                        <th>نوع معامله</th>
+                        <th>حجم</th>
+                        <th>سود/زیان</th>
+                        <th>مدت زمان</th>
+                    </tr>
+                </thead>
+                <tbody id="trade-history-body">
+                    {% if trades_paginated %}
+                        {% for trade in trades_paginated %}
+                        <tr>
+                            <td>{{ trade.symbol }}</td>
+                            <td>{{ trade.date }}</td>
+                            <td>{{ trade.open_price|floatformat:4 }}</td>
+                            <td>{{ trade.close_price|default:"-"|floatformat:4 }}</td>
+                            <td>{{ trade.trade_type|capfirst|default:"-" }}</td>
+                            <td>{{ trade.volume|floatformat:2 }} لات</td>
+                            <td class="{% if trade.profit_loss >= 0 %}profit{% else %}loss{% endif %}">{{ trade.profit_loss|floatformat:2 }} دلار</td>
+                            <td>{{ trade.duration_seconds|default:"-" }} ثانیه</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">هیچ معامله‌ای یافت نشد.</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="8">هیچ معامله‌ای یافت نشد. لطفاً حساب را انتخاب کنید.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            {% if trades_paginated %}
+            <div class="pagination">
+                <form method="POST" class="pagination-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="account_number" value="{{ selected_account.account_number }}">
+                    {% if trades_paginated.has_previous %}
+                        <button type="submit" name="page" value="{{ trades_paginated.previous_page_number }}" class="pagination-btn">قبلی</button>
+                    {% else %}
+                        <button type="submit" class="pagination-btn disabled" disabled>قبلی</button>
+                    {% endif %}
+                    <span class="pagination-info">صفحه {{ trades_paginated.number }} از {{ trades_paginated.paginator.num_pages }}</span>
+                    {% if trades_paginated.has_next %}
+                        <button type="submit" name="page" value="{{ trades_paginated.next_page_number }}" class="pagination-btn">بعدی</button>
+                    {% else %}
+                        <button type="submit" class="pagination-btn disabled" disabled>بعدی</button>
+                    {% endif %}
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.querySelector('.theme-toggle');
+    const hamburger = document.querySelector('.hamburger');
+    const navUl = document.querySelector('nav ul');
+
+    // Theme Toggle
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('light-mode');
+        });
+    }
+
+    // Hamburger Menu
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            navUl.classList.toggle('active');
+            this.textContent = navUl.classList.contains('active') ? '✕' : '☰';
+        });
+    }
+
+    // Daily Equity Chart
+    const dailyEquityData = {{ metrics.daily_min_equities|safe|default:"[]" }};
+    const ctx = document.getElementById('dailyEquityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dailyEquityData.map(item => item.date),
+            datasets: [{
+                label: 'کمترین اکوئیتی روزانه (دلار)',
+                data: dailyEquityData.map(item => item.min_equity),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'اکوئیتی (دلار)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'تاریخ'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

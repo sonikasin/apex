@@ -1,0 +1,242 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}لیست تیکت‌ها{% endblock %}
+{% block content %}
+
+<style>
+/* Ticket List Section */
+.ticket-section {
+    margin-bottom: 35px;
+    text-align: right;
+    padding: 20px;
+}
+
+.ticket-section h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 20px;
+}
+
+.ticket-section .new-ticket-btn {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    margin-bottom: 20px;
+}
+
+.ticket-section .new-ticket-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+.requests-table {
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    overflow-x: auto;
+}
+
+body.light-mode .requests-table {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.requests-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 600px;
+}
+
+.requests-table th,
+.requests-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 14px;
+}
+
+body.light-mode .requests-table th,
+body.light-mode .requests-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.requests-table th {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+body.light-mode .requests-table th {
+    color: #121212;
+}
+
+.requests-table td {
+    color: #e0e0e0;
+}
+
+body.light-mode .requests-table td {
+    color: #1f2a44;
+}
+
+.requests-table .status {
+    padding: 6px 12px;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+.requests-table .status.pending {
+    background-color: #6b7280;
+}
+
+.requests-table .status.approved {
+    background-color: #10b981;
+}
+
+.requests-table .status.rejected {
+    background-color: #dc2626;
+}
+
+.requests-table .action-btn {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.requests-table .action-btn.disabled {
+    background: linear-gradient(90deg, #6b7280, #4b5563);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.requests-table .action-btn:hover:not(.disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ticket-section {
+        padding: 15px;
+    }
+
+    .ticket-section h2 {
+        font-size: 22px;
+    }
+
+    .requests-table {
+        padding: 15px;
+    }
+
+    .requests-table table {
+        min-width: 100%;
+    }
+
+    .requests-table th,
+    .requests-table td {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .requests-table .action-btn {
+        padding: 6px 15px;
+        font-size: 12px;
+    }
+
+    .ticket-section .new-ticket-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ticket-section h2 {
+        font-size: 20px;
+    }
+
+    .requests-table th,
+    .requests-table td {
+        padding: 8px;
+        font-size: 11px;
+    }
+
+    .requests-table .action-btn {
+        padding: 5px 12px;
+        font-size: 11px;
+    }
+}
+</style>
+
+<div class="ticket-section">
+    <h2>لیست تیکت‌ها</h2>
+    <a href="{% url 'create_ticket' %}" class="new-ticket-btn">ساخت تیکت جدید</a>
+    <div class="requests-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>شماره تیکت</th>
+                    <th>موضوع</th>
+                    <th>دپارتمان</th>
+                    <th>تاریخ</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.ticket_number|default:"شماره نامعتبر" }}</td>
+                    <td>{{ ticket.subject }}</td>
+                    <td>{{ ticket.department }}</td>
+                    <td>{{ ticket.created_at|date:"Y/m/d" }}</td>
+                    <td><span class="status {{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
+                    <td>
+                        {% if ticket.ticket_number %}
+                            <a href="{% url 'ticket_detail' ticket.ticket_number %}" class="action-btn">مشاهده</a>
+                        {% else %}
+                            <button class="action-btn disabled" disabled>مشاهده غیرفعال</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">تیکتی یافت نشد.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

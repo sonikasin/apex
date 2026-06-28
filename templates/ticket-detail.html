@@ -1,0 +1,35 @@
+
+{% extends 'base_dashboard.html' %}
+{% block title %}جزئیات تیکت {{ ticket.ticket_number }}{% endblock %}
+{% block content %}
+<section class="ticket-detail">
+    <h2>جزئیات تیکت {{ ticket.ticket_number }}</h2>
+    <div class="detail-content">
+        <div class="info">
+            <p>موضوع: <span>{{ ticket.subject }}</span></p>
+            <p>دپارتمان: <span>{{ ticket.department }}</span></p>
+            <p>تاریخ: <span>{{ ticket.created_at|date:"Y/m/d" }}</span></p>
+            <p>وضعیت: <span class="status {{ ticket.status|lower }}">{{ ticket.get_status_display }}</span></p>
+        </div>
+        <div class="messages">
+            {% for message in ticket.messages %}
+            <div class="message {% if message.sender == 'user' %}user{% else %}support{% endif %}">
+                <p>{{ message.text|default_if_none:"" }}</p>
+                <div class="timestamp">{{ message.timestamp }}</div>
+            </div>
+            {% empty %}
+            <p>هنوز پیامی وجود ندارد.</p>
+            {% endfor %}
+        </div>
+        {% if ticket.status == 'open' %}
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="message" placeholder="پاسخ شما" required></textarea>
+            <button type="submit">ارسال پاسخ</button>
+        </form>
+        {% else %}
+        <p>این تیکت بسته شده است و نمی‌توانید پاسخ دهید.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

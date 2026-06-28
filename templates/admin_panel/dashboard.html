@@ -1,0 +1,11 @@
+<!-- templates/admin_panel/dashboard.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}داشبورد{% endblock %}
+
+{% block header_title %}داشبورد{% endblock %}
+
+{% block content %}
+    <h2>خوش آمدید به داشبورد</h2>
+    <p>تعداد حساب‌های خالی: {{ empty_accounts }}</p>
+{% endblock %}

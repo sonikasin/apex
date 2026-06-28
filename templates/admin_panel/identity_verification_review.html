@@ -1,0 +1,41 @@
+<!-- templates/admin_panel/identity_verification_review.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}بررسی احراز هویت{% endblock %}
+
+{% block header_title %}بررسی احراز هویت{% endblock %}
+
+{% block content %}
+    <h2>بررسی احراز هویت</h2>
+    <p>کاربر: {{ verification.user.email }}</p>
+    <p>زمان ارسال: {{ verification.submitted_at }}</p>
+    <p>وضعیت کنونی: {{ verification.get_status_display }}</p>
+    {% if verification.rejection_reason %}
+        <p>دلیل رد شدن: {{ verification.rejection_reason }}</p>
+    {% endif %}
+    <div>
+        <h3>تصویر کارت ملی</h3>
+        <img src="{{ verification.national_id_image.url }}" alt="تصویر کارت ملی">
+    </div>
+    <div>
+        <h3>سلفی با کارت ملی</h3>
+        <img src="{{ verification.selfie_with_id_image.url }}" alt="سلفی با کارت ملی">
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <label>وضعیت:</label>
+        <select name="status">
+            <option value="pending">در انتظار</option>
+            <option value="approved">تأیید شده</option>
+            <option value="rejected">رد شده</option>
+        </select>
+
+        <label>دلیل رد شدن (در صورت رد):</label>
+        <textarea
+
+ name="rejection_reason">{{ verification.rejection_reason|default_if_none:'' }}</textarea>
+
+        <button type="submit">ذخیره</button>
+        <a href="{% url 'admin_panel:identity_verification_list' %}">لغو</a>
+    </form>
+{% endblock %}

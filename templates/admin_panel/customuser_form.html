@@ -1,0 +1,49 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}{% if form_type == 'add' %}افزودن کاربر{% else %}ویرایش کاربر{% endif %}{% endblock %}
+{% block header_title %}{% if form_type == 'add' %}افزودن کاربر{% else %}ویرایش کاربر{% endif %}{% endblock %}
+{% block content %}
+<h2>{% if form_type == 'add' %}افزودن کاربر جدید{% else %}ویرایش کاربر{% endif %}</h2>
+<form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="email">ایمیل:</label>
+        <input type="email" name="email" id="email" value="{{ user.email|default_if_none:'' }}" required>
+    </div>
+    <div class="form-group">
+        <label for="first_name">نام:</label>
+        <input type="text" name="first_name" id="first_name" value="{{ user.first_name|default_if_none:'' }}" required>
+    </div>
+    <div class="form-group">
+        <label for="last_name">نام خانوادگی:</label>
+        <input type="text" name="last_name" id="last_name" value="{{ user.last_name|default_if_none:'' }}" required>
+    </div>
+    <div class="form-group">
+        <label for="phone_number">شماره تماس:</label>
+        <input type="text" name="phone_number" id="phone_number" value="{{ user.phone_number|default_if_none:'' }}">
+    </div>
+    <div class="form-group">
+        <label for="referral_code">کد رفرال:</label>
+        <input type="text" name="referral_code" id="referral_code" value="{{ user.referral_code|default_if_none:user.id }}">
+    </div>
+    <div class="form-group">
+        <label for="affiliate_percentage">درصد همکاری رفرال (%):</label>
+        <input type="number" step="0.1" name="affiliate_percentage" id="affiliate_percentage" value="{{ user.affiliate_percentage|default_if_none:'0.0' }}">
+    </div>
+    {% if form_type == 'edit' %}
+    <div class="form-group">
+        <label for="is_active">فعال:</label>
+        <input type="checkbox" name="is_active" id="is_active" {% if user.is_active %}checked{% endif %}>
+    </div>
+    <div class="form-group">
+        <label for="is_email_verified">ایمیل تأیید شده:</label>
+        <input type="checkbox" name="is_email_verified" id="is_email_verified" {% if user.is_email_verified %}checked{% endif %}>
+    </div>
+    <div class="form-group">
+        <label for="is_staff">کارمند:</label>
+        <input type="checkbox" name="is_staff" id="is_staff" {% if user.is_staff %}checked{% endif %}>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">{% if form_type == 'add' %}ایجاد{% else %}ذخیره{% endif %}</button>
+    <a href="{% url 'admin_panel:customuser_list' %}" class="btn btn-secondary">لغو</a>
+</form>
+{% endblock %}

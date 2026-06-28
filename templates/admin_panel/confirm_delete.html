@@ -1,0 +1,15 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}حذف {{ object_type }}{% endblock %}
+{% block header_title %}حذف {{ object_type }}{% endblock %}
+{% block content %}
+    <h2>آیا مطمئن هستید که می‌خواهید این {{ object_type }} را حذف کنید؟</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="بله، حذف کن" class="btn btn-danger">
+        <a href="{% url 'admin_panel:referral_list' %}" class="btn btn-secondary">خیر، لغو</a>
+    </form>
+
+    <p><strong>{{ object }}</strong></p>
+
+{% endblock %}

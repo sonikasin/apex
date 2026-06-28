@@ -1,0 +1,48 @@
+<!-- templates/admin_panel/employee_form.html -->
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{% if form_type == 'add' %}افزودن کارمند{% else %}ویرایش کارمند{% endif %}{% endblock %}
+
+{% block header_title %}{% if form_type == 'add' %}افزودن کارمند{% else %}ویرایش کارمند{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{{ form_type|title }} کارمند</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if form_type == 'add' %}
+            <label>کاربر:</label>
+            <select name="user">
+                <option value="">انتخاب کنید</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.email }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+        <label>مدیریت کاربران:</label>
+        <input type="checkbox" name="can_manage_users" {% if employee.can_manage_users %}checked{% endif %}>
+
+        <label>مدیریت حساب‌ها:</label>
+        <input type="checkbox" name="can_manage_accounts" {% if employee.can_manage_accounts %}checked{% endif %}>
+
+        <label>مدیریت سفارشات:</label>
+        <input type="checkbox" name="can_manage_orders" {% if employee.can_manage_orders %}checked{% endif %}>
+
+        <label>مدیریت پلن‌ها:</label>
+        <input type="checkbox" name="can_manage_plans" {% if employee.can_manage_plans %}checked{% endif %}>
+
+        <label>مدیریت تیکت‌ها:</label>
+        <input type="checkbox" name="can_manage_tickets" {% if employee.can_manage_tickets %}checked{% endif %}>
+
+        <label>مدیریت کارمندان:</label>
+        <input type="checkbox" name="can_manage_employees" {% if employee.can_manage_employees %}checked{% endif %}>
+
+        <label>مدیریت احراز هویت:</label>
+        <input type="checkbox" name="can_manage_verifications" {% if employee.can_manage_verifications %}checked{% endif %}>
+
+        <label>مدیریت کدهای تخفیف:</label>
+        <input type="checkbox" name="can_manage_discounts" {% if employee.can_manage_discounts %}checked{% endif %}>
+
+        <button type="submit">ذخیره</button>
+        <a href="{% url 'admin_panel:employee_list' %}">لغو</a>
+    </form>
+{% endblock %}

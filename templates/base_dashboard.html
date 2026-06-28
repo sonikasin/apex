@@ -1,0 +1,96 @@
+{% load tz %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Apex Fx{% endblock %}</title>
+    <link rel="icon" href="{% static '/images/logo.png' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-image">
+            <span class="logo-text">Apex Fx</span>
+        </div>
+        <button class="hamburger">☰</button>
+        <nav>
+            <ul>
+                {% if request.user.is_authenticated %}
+                <li><a href="{% url 'index' %}" {% if request.path == '/' %}class="active"{% endif %}>خانه</a></li>
+                <li><a href="{% url 'dashboard' %}" class="{% if request.path == '/dashboard/' %}active{% endif %}">داشبورد</a></li>
+                <li><a href="{% url 'about' %}" class="{% if request.path == '/about/' %}active{% endif %}">درباره ما</a></li>
+                <li><a href="{% url 'blog_list' %}" class="{% if request.path == '/blog/' %}active{% endif %}">وبلاگ</a></li>
+                <li><a href="{% url 'contact' %}" class="{% if request.path == '/contact/' %}active{% endif %}">تماس با ما</a></li>
+                <li><a href="{% url 'rules' %}" class="{% if request.path == '/rules/' %}active{% endif %}">قوانین</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div>
+            <button class="theme-toggle"></button>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="trade-now-btn">خروج</a>
+            {% else %}
+            <a href="{% url 'user_register' %}" class="trade-now-btn">ثبت نام | لاگین</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- ==================== SIDEBAR با استیکر (کاملاً آفلاین) ==================== -->
+    <div class="sidebar">
+        <ul>
+            <li>
+                <a href="{% url 'dashboard' %}">
+                    📊 <span>داشبورد</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'ticket_list' %}">
+                    🎟️ <span>تیکت‌ها</span>
+                </a>
+            </li>
+           
+            <li>
+                <a href="{% url 'prop_orders' %}">
+                    📋 <span>سفارشات پراپ</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'prop_accounts' %}">
+                    💰 <span>حساب‌های پراپ</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'identity_verification' %}">
+                    ✅ <span>احراز هویت</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content with-sidebar">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hamburger Menu Functionality
+            const hamburger = document.querySelector('.hamburger');
+            const navUl = document.querySelector('nav ul');
+            hamburger.addEventListener('click', function() {
+                navUl.classList.toggle('active');
+                this.textContent = navUl.classList.contains('active') ? '✕' : '☰';
+            });
+
+            // Theme Toggle Functionality
+            const themeToggle = document.querySelector('.theme-toggle');
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('light-mode');
+            });
+        });
+    </script>
+</body>
+</html>

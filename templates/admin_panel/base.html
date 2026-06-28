@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}پنل مدیریت{% endblock %}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        /* CSS حرفه‌ای برای پنل ادمین */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f9;
+            color: #333;
+            direction: rtl;
+            overflow-x: hidden;
+        }
+
+        /* سایدبار */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            right: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: #3a567e;
+        }
+
+        /* هدر */
+        .header {
+            background-color: #ffffff;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 250px;
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .header .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .user-info span {
+            margin-right: 10px;
+        }
+
+        .header .user-info a {
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        /* Content */
+        .content {
+            padding: 80px 20px 20px 20px;
+            margin-right: 250px; /* فضای برای سایدبار */
+            min-height: 100vh;
+            width: calc(100% - 250px);
+            position: relative;
+        }
+
+        /* جدول */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        /* فرم‌ها */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #3a567e;
+        }
+
+        /* پیام‌ها */
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .messages li {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* صفحه‌بندی */
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            padding: 8px 12px;
+            margin: 0 5px;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .pagination a:hover {
+            background-color: #3a567e;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+
+            .header {
+                right: 0;
+            }
+
+            .content {
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .header .toggle-btn {
+                display: block;
+                cursor: pointer;
+                font-size: 24px;
+                margin-right: 10px;
+            }
+        }
+    </style>
+    <script>
+        // JavaScript ساده برای toggle سایدبار در موبایل
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+        <h1>{% block header_title %}پنل مدیریت{% endblock %}</h1>
+        <div class="user-info">
+            <span>کاربر: {{ request.user.email }}</span>
+            <a href="{% url 'logout' %}">خروج</a>  <!-- فرض بر وجود URL خروج -->
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h2>منو</h2>
+        <ul>
+            <li><a href="{% url 'admin_panel:dashboard' %}">داشبورد</a></li>
+            <li><a href="{% url 'admin_panel:customuser_list' %}">کاربران</a></li>
+            <li><a href="{% url 'admin_panel:propaccount_list' %}">حساب‌های پراپ</a></li>
+            <li><a href="{% url 'admin_panel:empty_accounts_list' %}">حساب‌های خالی</a></li>
+            <li><a href="{% url 'admin_panel:create_account_via_api' %}">ایجاد حساب از طریق API</a></li>
+            <li><a href="{% url 'admin_panel:bulk_assign_accounts' %}">تخصیص گروهی حساب‌ها</a></li>
+            <li><a href="{% url 'admin_panel:proporder_list' %}">سفارش‌ها</a></li>
+            <li><a href="{% url 'admin_panel:ticket_list' %}">تیکت‌ها</a></li>
+            <li><a href="{% url 'admin_panel:employee_list' %}">کارمندان</a></li>
+            <li><a href="{% url 'admin_panel:identity_verification_list' %}">احراز هویت‌ها</a></li>
+            <li><a href="{% url 'admin_panel:propplan_list' %}">پلن‌های پراپ</a></li>
+            <li><a href="{% url 'admin_panel:wallet_list' %}" class="hover:text-gray-300">کیف پول‌ها</a></li>
+            <li><a href="{% url 'admin_panel:rule_list' %}">قوانین</a></li>
+            <li><a href="{% url 'admin_panel:discount_code_list' %}">کدهای تخفیف</a></li>
+            <li><a href="{% url 'admin_panel:referral_list' %}">رفرال‌ها</a></li>
+            <li><a href="{% url 'admin_panel:propaccount_review' %}">بررسی حساب</a></li>
+            
+            <li><a href="{% url 'admin_panel:send_gift_email' %}">ارسال ایمیل هدیه</a></li>
+            <li><a href="{% url 'admin_panel:blog_list_admin' %}">وبلاگ ها</a></li>
+
+                        <li><a href="{% url 'admin_panel:user_submission_list' %}">ارسال‌های کاربران</a></li>
+                        <li><a href="{% url 'admin_panel:password_generator' %}">تولید رمز عبور</a></li>
+            <li><a href="{% url 'admin_panel:free_account_quota_list' %}">free acc</a></li>
+
+
+        </ul>
+    </div>
+
+    <div class="content">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
