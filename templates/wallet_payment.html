@@ -4,22 +4,49 @@
 {% block title %}پرداخت واریز کیف پول{% endblock %}
 
 {% block content %}
-<div class="payment-section">
-    <div class="payment-container">
-        <h2>تأیید پرداخت</h2>
-        <div class="payment-info">
-            <h3>جزئیات واریز</h3>
-            <div class="info-grid">
-                <p><strong>شناسه تراکنش:</strong> <span>{{ transaction.transaction_id }}</span></p>
-                <p><strong>مبلغ:</strong> <span>{{ transaction.amount_toman|floatformat:0 }} تومان</span></p>
-                <p><strong>معادل (دلار):</strong> <span>{{ transaction.amount_usd|floatformat:2 }} دلار</span></p>
+<div class="dash-container">
+    <div class="dash-page-section" style="max-width: 560px; margin: 0 auto;">
+        <div class="dash-page-section__header">
+            <h2 class="dash-page-section__title">تأیید پرداخت</h2>
+        </div>
+
+        <!-- Transaction Summary -->
+        <div class="dash-card" style="margin-bottom: 20px;">
+            <div class="dash-card__header">
+                <span class="dash-card__badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>
+                </span>
+                <h3 class="dash-card__title">جزئیات واریز</h3>
+            </div>
+            <div class="dash-ticket-info" style="padding: 0; border: none; box-shadow: none; margin: 0;">
+                <div class="dash-ticket-info__item">
+                    <span class="dash-ticket-info__label">شناسه تراکنش</span>
+                    <span class="dash-ticket-info__value">{{ transaction.transaction_id }}</span>
+                </div>
+                <div class="dash-ticket-info__item">
+                    <span class="dash-ticket-info__label">مبلغ</span>
+                    <span class="dash-ticket-info__value">{{ transaction.amount_toman|floatformat:0 }} تومان</span>
+                </div>
+                <div class="dash-ticket-info__item">
+                    <span class="dash-ticket-info__label">معادل دلاری</span>
+                    <span class="dash-ticket-info__value" style="color: var(--dash-primary);">${{ transaction.amount_usd|floatformat:2 }}</span>
+                </div>
             </div>
         </div>
-        <form method="post" class="payment-form">
-            {% csrf_token %}
-            <button type="submit" class="payment-submit">پرداخت از طریق درگاه</button>
-        </form>
-        <p class="payment-note">با کلیک بر روی دکمه بالا به درگاه پرداخت هدایت خواهید شد.</p>
+
+        <!-- Pay Button -->
+        <div class="dash-card" style="text-align: center;">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="dash-btn dash-btn--primary" style="width: 100%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    پرداخت از طریق درگاه
+                </button>
+            </form>
+            <p style="font-size: 13px; color: var(--dash-text-muted); margin-top: 16px; line-height: 1.6;">
+                با کلیک بر روی دکمه بالا به درگاه بانکی امن هدایت خواهید شد.
+            </p>
+        </div>
     </div>
 </div>
 {% endblock %}

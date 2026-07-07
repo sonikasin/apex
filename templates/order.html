@@ -4,401 +4,104 @@
 {% block title %}سفارش پلن - Apex Fx{% endblock %}
 
 {% block content %}
-<div class="order-container">
-    <h2 class="order-title">سفارش پلن پراپ</h2>
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <p>{{ message }}</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-    <div class="order-details">
-        <h3>جزئیات پلن</h3>
-        <p><strong>نوع پلن:</strong> <span>{{ plan.get_name_display }}</span></p>
-        <p><strong>اندازه حساب:</strong> <span>{{ plan.account_size }} دلار</span></p>
-        <p><strong>اهرم:</strong> <span>{{ plan.leverage }}</span></p>
-        <p><strong>لِوِل:</strong> <span>{{ plan.get_level_display }}</span></p>
-        <p><strong>قیمت اصلی:</strong> <span>{{ original_price_usd }} دلار</span></p>
-        {% if final_price_usd != original_price_usd %}
-        <p><strong>قیمت با تخفیف:</strong> <span>{{ final_price_usd }} دلار ({{ final_price_toman }} تومان)</span></p>
-        {% else %}
-        <p><strong>قیمت نهایی:</strong> <span>{{ final_price_usd }} دلار ({{ final_price_toman }} تومان)</span></p>
-        {% endif %}
-    </div>
-    <form method="post" class="order-form">
-        {% csrf_token %}
-        <h3>انتخاب گزینه‌ها</h3>
-        <div class="form-group">
-            <label for="id_broker">انتخاب بروکر:</label>
-            <select name="server" id="id_broker" required>
-                <option value="" disabled selected>-- انتخاب بروکر --</option>
-                {% for broker in brokers %}
-                <option value="{{ broker }}">{{ broker }}</option>
-                {% endfor %}
-            </select>
+<section class="pub-page pub-page--gradient">
+    <div class="pub-wrap pub-wrap--narrow">
+        <div class="pub-heading">
+            <h1 class="pub-heading__title">سفارش <span>پلن پراپ</span></h1>
+            <div class="pub-heading__line"></div>
         </div>
-        <div class="form-group">
-            <label>روش پرداخت:</label>
-            <div class="payment-method">
-                <label><input type="radio" name="payment_method" value="rial" required> ریالی</label>
-                <label><input type="radio" name="payment_method" value="tether"> تتر (به پشتیبانی تلگرام پیام دهید @ApexFxSup)</label>
+
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+            <div class="pub-alert pub-alert--error">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Plan Summary -->
+        <div class="pub-card" style="margin-bottom: 1.5rem;">
+            <h3 class="pub-card__title" style="display:flex; align-items:center; gap:0.6rem;">
+                <i class="fas fa-box-open" style="color: var(--pub-primary);"></i> جزئیات پلن
+            </h3>
+            <div class="pub-summary">
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">نوع پلن</span>
+                    <span class="pub-summary__value">{{ plan.get_name_display }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">اندازه حساب</span>
+                    <span class="pub-summary__value">{{ plan.account_size }} دلار</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">اهرم</span>
+                    <span class="pub-summary__value">{{ plan.leverage }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">لِوِل</span>
+                    <span class="pub-summary__value">{{ plan.get_level_display }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">قیمت اصلی</span>
+                    <span class="pub-summary__value">{{ original_price_usd }} دلار</span>
+                </div>
+                <div class="pub-summary__row pub-summary__row--total">
+                    <span class="pub-summary__label">{% if final_price_usd != original_price_usd %}قیمت با تخفیف{% else %}قیمت نهایی{% endif %}</span>
+                    <span class="pub-summary__value">{{ final_price_usd }} دلار <small style="color:var(--pub-text-muted); font-weight:500;">({{ final_price_toman }} تومان)</small></span>
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <label for="id_discount_code">کد تخفیف (اختیاری):</label>
-            <input type="text" name="discount_code" id="id_discount_code">
-        </div>
-        <div class="form-group wallet-checkbox">
-            <input type="checkbox" name="use_wallet" id="id_use_wallet">
-            <label for="id_use_wallet">استفاده از موجودی کیف پول</label>
-        </div>
-        <div class="form-group wallet-checkbox">
-    <input type="checkbox" name="fixed_dollar" id="id_fixed_dollar">
-    <label for="id_fixed_dollar">
-        خرید با دلار ثابت 99,000 تومان
-    </label>
-</div>
 
-        <button type="submit" class="order-btn">تأیید و ادامه به پرداخت</button>
-    </form>
-</div>
-<style>
-    .order-container {
-        padding: 2rem;
-        max-width: 600px;
-        margin: 0 auto;
-        min-height: calc(100vh - 120px);
-    }
+        <!-- Order Form -->
+        <form method="post" class="pub-card">
+            {% csrf_token %}
+            <h3 class="pub-card__title" style="display:flex; align-items:center; gap:0.6rem;">
+                <i class="fas fa-sliders-h" style="color: var(--pub-primary);"></i> انتخاب گزینه‌ها
+            </h3>
 
-    .order-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
+            <div class="pub-form-group">
+                <label for="id_broker">انتخاب بروکر</label>
+                <select name="server" id="id_broker" class="pub-select" required>
+                    <option value="" disabled selected>-- انتخاب بروکر --</option>
+                    {% for broker in brokers %}
+                    <option value="{{ broker }}">{{ broker }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    .messages {
-        margin-bottom: 1rem;
-        text-align: center;
-    }
+            <div class="pub-form-group">
+                <label>روش پرداخت</label>
+                <div class="pub-radio-group">
+                    <div class="pub-check">
+                        <input type="radio" name="payment_method" id="pm_rial" value="rial" required>
+                        <label for="pm_rial">ریالی</label>
+                    </div>
+                    <div class="pub-check">
+                        <input type="radio" name="payment_method" id="pm_tether" value="tether">
+                        <label for="pm_tether">تتر (به پشتیبانی تلگرام پیام دهید @ApexFxSup)</label>
+                    </div>
+                </div>
+            </div>
 
-    .messages p {
-        font-size: 1rem;
-        color: #e74c3c;
-        padding: 0.5rem;
-    }
+            <div class="pub-form-group">
+                <label for="id_discount_code">کد تخفیف (اختیاری)</label>
+                <input type="text" name="discount_code" id="id_discount_code" class="pub-input" placeholder="کد تخفیف خود را وارد کنید">
+            </div>
 
-    body.light-mode .messages p {
-        color: #c0392b;
-    }
+            <div class="pub-check">
+                <input type="checkbox" name="use_wallet" id="id_use_wallet">
+                <label for="id_use_wallet">استفاده از موجودی کیف پول</label>
+            </div>
 
-    .order-details {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        margin-bottom: 2rem;
-        color: #e0e0e0;
-    }
+            <div class="pub-check" style="margin-bottom: 1.3rem;">
+                <input type="checkbox" name="fixed_dollar" id="id_fixed_dollar">
+                <label for="id_fixed_dollar">خرید با دلار ثابت ۹۹,۰۰۰ تومان</label>
+            </div>
 
-    body.light-mode .order-details {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-
-    .order-details h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .order-details p {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .order-details span {
-        font-weight: 700;
-        color: #10b981;
-    }
-
-    .order-form {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    body.light-mode .order-form {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-
-    .order-form h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #10b981;
-        margin-bottom: 1rem;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-group label {
-        font-size: 1rem;
-        color: #e0e0e0;
-        margin-bottom: 0.5rem;
-    }
-
-    body.light-mode .form-group label {
-        color: #1f2a44;
-    }
-
-    .form-group select,
-    .form-group input[type="text"] {
-        padding: 0.8rem;
-        border: 1px solid #333;
-        border-radius: 8px;
-        background: #2a2a2a;
-        color: #e0e0e0;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    body.light-mode .form-group select,
-    body.light-mode .form-group input[type="text"] {
-        border-color: #d1d5db;
-        background: #f9fafb;
-        color: #1f2a44;
-    }
-
-    .form-group select:focus,
-    .form-group input[type="text"]:focus {
-        outline: none;
-        border-color: #10b981;
-        box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-    }
-
-    .payment-method {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .payment-method label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 1rem;
-        color: #e0e0e0;
-    }
-
-    body.light-mode .payment-method label {
-        color: #1f2a44;
-    }
-
-    .wallet-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .wallet-checkbox input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        accent-color: #10b981;
-        border: 1px solid #333;
-        border-radius: 4px;
-    }
-
-    body.light-mode .wallet-checkbox input[type="checkbox"] {
-        border-color: #d1d5db;
-    }
-
-    .wallet-checkbox input[type="checkbox"]:checked {
-        background-color: #10b981;
-        border-color: #10b981;
-    }
-
-    .wallet-checkbox input[type="checkbox"]:focus {
-        outline: none;
-        box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-    }
-
-    .order-btn {
-        padding: 0.8rem 1.5rem;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: #121212;
-        border: none;
-        border-radius: 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-        align-self: flex-end;
-    }
-
-    body.light-mode .order-btn {
-        color: #ffffff;
-    }
-
-    .order-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 480px) {
-        .order-container {
-            padding: 1rem;
-        }
-
-        .order-title {
-            font-size: 1.2rem;
-        }
-
-        .order-details {
-            padding: 1rem;
-        }
-
-        .order-details h3 {
-            font-size: 1.2rem;
-        }
-
-        .order-details p {
-            font-size: 0.9rem;
-        }
-
-        .order-form {
-            padding: 1rem;
-        }
-
-        .order-form h3 {
-            font-size: 1.2rem;
-        }
-
-        .form-group label {
-            font-size: 0.9rem;
-        }
-
-        .form-group select,
-        .form-group input[type="text"] {
-            padding: 0.6rem;
-            font-size: 0.8rem;
-        }
-
-        .payment-method label {
-            font-size: 0.9rem;
-        }
-
-        .order-btn {
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-        }
-    }
-
-    @media (min-width: 481px) and (max-width: 768px) {
-        .order-container {
-            padding: 1.5rem;
-        }
-
-        .order-title {
-            font-size: 1.5rem;
-        }
-
-        .order-details {
-            padding: 1.3rem;
-        }
-
-        .order-details h3 {
-            font-size: 1.3rem;
-        }
-
-        .order-form {
-            padding: 1.3rem;
-        }
-
-        .order-form h3 {
-            font-size: 1.3rem;
-        }
-
-        .form-group label {
-            font-size: 0.95rem;
-        }
-
-        .form-group select,
-        .form-group input[type="text"] {
-            padding: 0.7rem;
-            font-size: 0.9rem;
-        }
-
-        .order-btn {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-        }
-    }
-
-    @media (min-width: 769px) and (max-width: 1200px) {
-        .order-container {
-            padding: 2rem;
-        }
-
-        .order-title {
-            font-size: 1.7rem;
-        }
-
-        .order-details {
-            padding: 1.5rem;
-        }
-
-        .order-form {
-            padding: 1.5rem;
-        }
-    }
-
-    @media (min-width: 1201px) {
-        .order-container {
-            padding: 2.5rem;
-        }
-
-        .order-title {
-            font-size: 2rem;
-        }
-
-        .order-details {
-            padding: 2rem;
-        }
-
-        .order-form {
-            padding: 2rem;
-        }
-
-        .order-form h3 {
-            font-size: 1.6rem;
-        }
-
-        .form-group label {
-            font-size: 1.1rem;
-        }
-
-        .form-group select,
-        .form-group input[type="text"] {
-            padding: 0.9rem;
-            font-size: 1.1rem;
-        }
-
-        .order-btn {
-            padding: 0.9rem 1.7rem;
-        }
-    }
-</style>
+            <button type="submit" class="pub-btn pub-btn--primary" style="width:100%;">
+                <i class="fas fa-arrow-left"></i> تأیید و ادامه به پرداخت
+            </button>
+        </form>
+    </div>
+</section>
 {% endblock %}

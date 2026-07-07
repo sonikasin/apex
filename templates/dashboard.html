@@ -1,615 +1,219 @@
-<style>
-    .dashboard-container {
-        width: 100%;
-        padding: 1rem;
-    }
-    /* Free Account Section Styles */
-    .free-account-section {
-        margin-bottom: 2rem;
-    }
-    .free-account-section h2 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-    .free-account-panel {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow: hidden;
-        color: #e0e0e0;
-        transition: transform 0.3s ease;
-    }
-    body.light-mode .free-account-panel {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-    .free-account-panel:hover {
-        transform: translateY(-5px);
-    }
-    .free-account-panel::before {
-        content: '';
-        position: absolute;
-        top: -40%;
-        left: -40%;
-        width: 180%;
-        height: 180%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 60%);
-        z-index: 0;
-        animation: walletGlow 8s infinite linear;
-    }
-    .free-account-panel h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .free-account-panel p {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .free-account-panel span {
-        font-weight: 700;
-        color: #10b981;
-    }
-    .free-account-button {
-        display: inline-block;
-        padding: 0.7rem 1.2rem;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: #121212;
-        text-decoration: none;
-        font-weight: 600;
-        border-radius: 20px;
-        transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
-        position: relative;
-        z-index: 1;
-        cursor: pointer;
-        border: none;
-        width: 100%;
-        text-align: center;
-    }
-    body.light-mode .free-account-button {
-        color: #ffffff;
-    }
-    .free-account-button:hover:not(:disabled) {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.6);
-    }
-    .free-account-button:disabled {
-        background: linear-gradient(90deg, #6b7280, #4b5563);
-        cursor: not-allowed;
-        box-shadow: none;
-        opacity: 0.6;
-    }
-    .quota-info {
-        font-size: 1rem;
-        margin-top: 0.5rem;
-        text-align: center;
-        color: #b0b0b0;
-    }
-    body.light-mode .quota-info {
-        color: #4b5563;
-    }
-    /* Wallet Section Styles */
-    .wallet-overview {
-        margin-bottom: 2rem;
-    }
-    .wallet-overview h2 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-    .wallet-panel {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow: hidden;
-        color: #e0e0e0;
-        transition: transform 0.3s ease;
-    }
-    body.light-mode .wallet-panel {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-    .wallet-panel:hover {
-        transform: translateY(-5px);
-    }
-    .wallet-panel::before {
-        content: '';
-        position: absolute;
-        top: -40%;
-        left: -40%;
-        width: 180%;
-        height: 180%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 60%);
-        z-index: 0;
-        animation: walletGlow 8s infinite linear;
-    }
-    .wallet-panel h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .wallet-panel p {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .wallet-panel span {
-        font-weight: 700;
-        color: #10b981;
-    }
-    .wallet-action {
-        display: inline-block;
-        padding: 0.7rem 1.2rem;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: #121212;
-        text-decoration: none;
-        font-weight: 600;
-        border-radius: 20px;
-        transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
-        position: relative;
-        z-index: 1;
-    }
-    body.light-mode .wallet-action {
-        color: #ffffff;
-    }
-    .wallet-action:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.6);
-    }
-    /* Referral Section Styles */
-    .referral-section {
-        margin-bottom: 2rem;
-    }
-    .referral-section h2 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-    .referral-panel {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow: hidden;
-        color: #e0e0e0;
-        transition: transform 0.3s ease;
-    }
-    body.light-mode .referral-panel {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-    .referral-panel:hover {
-        transform: translateY(-5px);
-    }
-    .referral-panel::before {
-        content: '';
-        position: absolute;
-        top: -40%;
-        left: -40%;
-        width: 180%;
-        height: 180%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 60%);
-        z-index: 0;
-        animation: walletGlow 8s infinite linear;
-    }
-    .referral-panel h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .referral-panel p {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .referral-panel span {
-        font-weight: 700;
-        color: #10b981;
-    }
-    .copy-button {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: #121212;
-        text-decoration: none;
-        font-weight: 600;
-        border-radius: 15px;
-        transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
-        position: relative;
-        z-index: 1;
-        cursor: pointer;
-        margin-left: 0.5rem;
-    }
-    body.light-mode .copy-button {
-        color: #ffffff;
-    }
-    .copy-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.6);
-    }
-    /* User Info Section Styles */
-    .user-info {
-        margin-bottom: 2rem;
-    }
-    .user-info h2 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-    .user-panel {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow: hidden;
-        color: #e0e0e0;
-        transition: transform 0.3s ease;
-    }
-    body.light-mode .user-panel {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-    .user-panel:hover {
-        transform: translateY(-5px);
-    }
-    .user-panel::before {
-        content: '';
-        position: absolute;
-        top: -40%;
-        left: -40%;
-        width: 180%;
-        height: 180%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 60%);
-        z-index: 0;
-        animation: walletGlow 8s infinite linear;
-    }
-    .user-panel h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .user-panel p {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-    .user-panel span {
-        font-weight: 700;
-        color: #10b981;
-    }
-    /* Quick Access Styles */
-    .quick-nav {
-        margin-top: 2rem;
-    }
-    .quick-nav h2 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    .nav-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-    .nav-link {
-        background: #1e2e4f;
-        padding: 1.2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    body.light-mode .nav-link {
-        background: #d5e8f8;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .nav-link:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
-    }
-    .nav-link h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-    .nav-link p {
-        font-size: 0.85rem;
-        color: #b0b0b0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    body.light-mode .nav-link p {
-        color: #4b5563;
-    }
-    /* Animations */
-    @keyframes walletGlow {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 0.5rem;
-        }
-        .free-account-section h2, .wallet-overview h2, .referral-section h2, .user-info h2 {
-            font-size: 1.5rem;
-        }
-        .free-account-panel, .wallet-panel, .referral-panel, .user-panel {
-            padding: 1rem;
-        }
-        .free-account-panel h3, .wallet-panel h3, .referral-panel h3, .user-panel h3 {
-            font-size: 1.2rem;
-        }
-        .free-account-panel p, .wallet-panel p, .referral-panel p, .user-panel p {
-            font-size: 1rem;
-        }
-        .free-account-button, .wallet-action, .copy-button {
-            padding: 0.6rem 1rem;
-            font-size: 0.9rem;
-        }
-        .quick-nav h2 {
-            font-size: 1.5rem;
-        }
-        .nav-link {
-            padding: 1rem;
-        }
-        .nav-link h3 {
-            font-size: 1rem;
-        }
-        .nav-link p {
-            font-size: 0.8rem;
-        }
-    }
-    @media (max-width: 480px) {
-        .dashboard-container {
-            padding: 0.3rem;
-        }
-        .free-account-section h2, .wallet-overview h2, .referral-section h2, .user-info h2 {
-            font-size: 1.2rem;
-        }
-        .free-account-panel, .wallet-panel, .referral-panel, .user-panel {
-            padding: 0.8rem;
-        }
-        .free-account-panel h3, .wallet-panel h3, .referral-panel h3, .user-panel h3 {
-            font-size: 1rem;
-        }
-        .free-account-panel p, .wallet-panel p, .user-panel p, .referral-panel p {
-            font-size: 0.9rem;
-        }
-        .free-account-button, .wallet-action, .copy-button {
-            padding: 0.5rem 0.8rem;
-            font-size: 0.8rem;
-        }
-        .quick-nav h2 {
-            font-size: 1.2rem;
-        }
-        .nav-link {
-            padding: 0.8rem;
-        }
-        .nav-link h3 {
-            font-size: 0.9rem;
-        }
-        .nav-link p {
-            font-size: 0.7rem;
-        }
-    }
-    @media (min-width: 769px) and (max-width: 1200px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-        .free-account-section h2, .wallet-overview h2, .referral-section h2, .user-info h2 {
-            font-size: 1.6rem;
-        }
-        .free-account-panel, .wallet-panel, .referral-panel, .user-panel {
-            padding: 1.3rem;
-        }
-        .free-account-panel h3, .wallet-panel h3, .referral-panel h3, .user-panel h3 {
-            font-size: 1.3rem;
-        }
-        .free-account-panel p, .wallet-panel p, .referral-panel p, .user-panel p {
-            font-size: 1.1rem;
-        }
-        .free-account-button, .wallet-action, .copy-button {
-            padding: 0.7rem 1.2rem;
-        }
-        .quick-nav h2 {
-            font-size: 1.6rem;
-        }
-        .nav-link {
-            padding: 1.1rem;
-        }
-        .nav-link h3 {
-            font-size: 1.05rem;
-        }
-        .nav-link p {
-            font-size: 0.8rem;
-        }
-    }
-    @media (min-width: 1201px) {
-        .dashboard-container {
-            padding: 1.5rem;
-        }
-        .free-account-section h2, .wallet-overview h2, .referral-section h2, .user-info h2 {
-            font-size: 2rem;
-        }
-        .free-account-panel, .wallet-panel, .referral-panel, .user-panel {
-            padding: 1.8rem;
-        }
-        .free-account-panel h3, .wallet-panel h3, .referral-panel h3, .user-panel h3 {
-            font-size: 1.6rem;
-        }
-        .free-account-panel p, .wallet-panel p, .user-panel p, .referral-panel p {
-            font-size: 1.3rem;
-        }
-        .free-account-button, .wallet-action, .copy-button {
-            padding: 0.9rem 1.5rem;
-        }
-        .quick-nav h2 {
-            font-size: 2rem;
-        }
-        .nav-link {
-            padding: 1.4rem;
-        }
-        .nav-link h3 {
-            font-size: 1.2rem;
-        }
-        .nav-link p {
-            font-size: 0.9rem;
-        }
-    }
-</style>
 {% extends 'base_dashboard.html' %}
 {% load static %}
 {% block title %}داشبورد{% endblock %}
 {% block content %}
-<div class="main-content with-sidebar">
-    <div class="dashboard-container">
-    
-        <!-- Free Account Section -->
-        <div class="free-account-section">
-            <h2>خرید چالش</h2>
-            <div class="free-account-panel">
-                <h3>بخش خرید چالش</h3>
-                <a href="https://apexfx.info/#plans" class="wallet-action">رفتن به صفحه خرید</a>
+<div class="dash-container">
+    <!-- Welcome Banner -->
+    <div class="dash-welcome">
+        <div class="dash-welcome__content">
+            <h1 class="dash-welcome__title">سلام، {{ user.first_name }} {{ user.last_name }}</h1>
+            <p class="dash-welcome__subtitle">به پنل کاربری Apex Fx خوش آمدید</p>
+        </div>
+        <div class="dash-welcome__decoration"></div>
+    </div>
+
+    <!-- Stats Cards Row -->
+    <div class="dash-stats">
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            </div>
+            <div class="dash-stat-card__info">
+                <span class="dash-stat-card__label">موجودی کیف پول</span>
+                <span class="dash-stat-card__value">${{ wallet.balance_usd|floatformat:2 }}</span>
             </div>
         </div>
-        <div class="free-account-section">
-            <h2>دریافت سرتیفیکیت</h2>
-            <div class="free-account-panel">
-                <h3>بخش دریافت سرتیفیکیت</h3>
-                <a href="{% url 'generate_certificate' %}" class="wallet-action">رفتن به صفحه دریافت سرتیفیکیت</a>
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="dash-stat-card__info">
+                <span class="dash-stat-card__label">درآمد از معرف</span>
+                <span class="dash-stat-card__value">${{ total_referral_earnings|floatformat:2 }}</span>
             </div>
         </div>
-        <!-- Wallet Section -->
-        <div class="wallet-overview">
-            <h2>کیف پول</h2>
-            <div class="wallet-panel">
-                <h3>موجودی کیف پول</h3>
-                <p><strong>موجودی:</strong> <span>{{ wallet.balance_usd|floatformat:2 }} دلار</span></p>
-                <a href="{% url 'wallet_deposit' %}" class="wallet-action">واریز به کیف پول</a>
+        <div class="dash-stat-card">
+            <div class="dash-stat-card__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+            </div>
+            <div class="dash-stat-card__info">
+                <span class="dash-stat-card__label">ایمیل</span>
+                <span class="dash-stat-card__value dash-stat-card__value--small">{{ user.email }}</span>
             </div>
         </div>
-        <!-- Referral Section -->
-        <div class="referral-section">
-            <h2>برنامه رفرال</h2>
-            <div class="referral-panel">
-                <h3>اطلاعات رفرال</h3>
-                <p><strong>کد رفرال شما:</strong> <span id="referral-code">{{ user.id }}</span> <button class="copy-button" onclick="copyText('referral-code', 'کد رفرال کپی شد!')">کپی</button></p>
-                <p><strong>لینک رفرال:</strong> <span id="referral-link">{{ request.scheme }}://{{ request.get_host }}{% url 'register' %}?referral_code={{ user.id }}</span> <button class="copy-button" onclick="copyText('referral-link', 'لینک رفرال کپی شد!')">کپی</button></p>
-                <p><strong>درآمد از معرف:</strong> <span>{{ total_referral_earnings|floatformat:2 }} دلار</span></p>
+    </div>
+
+    <!-- Action Cards Grid -->
+    <div class="dash-grid">
+        <!-- Buy Challenge Card -->
+        <div class="dash-card dash-card--action">
+            <div class="dash-card__header">
+                <span class="dash-card__badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                </span>
+                <h3 class="dash-card__title">خرید چالش</h3>
+            </div>
+            <p class="dash-card__desc">چالش پراپ خود را انتخاب کنید و معامله‌گری حرفه‌ای را شروع کنید.</p>
+            <a href="https://apexfx.info/#plans" class="dash-card__btn">رفتن به صفحه خرید</a>
+        </div>
+
+        <!-- Certificate Card -->
+        <div class="dash-card dash-card--action">
+            <div class="dash-card__header">
+                <span class="dash-card__badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M9 11h6"/></svg>
+                </span>
+                <h3 class="dash-card__title">دریافت سرتیفیکیت</h3>
+            </div>
+            <p class="dash-card__desc">سرتیفیکیت موفقیت خود در چالش را دریافت کنید.</p>
+            <a href="{% url 'generate_certificate' %}" class="dash-card__btn">دریافت سرتیفیکیت</a>
+        </div>
+
+        <!-- Wallet Card -->
+        <div class="dash-card dash-card--wallet">
+            <div class="dash-card__header">
+                <span class="dash-card__badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                </span>
+                <h3 class="dash-card__title">کیف پول</h3>
+            </div>
+            <div class="dash-card__wallet-balance">
+                <span class="dash-card__wallet-amount">${{ wallet.balance_usd|floatformat:2 }}</span>
+                <span class="dash-card__wallet-label">موجودی فعلی</span>
+            </div>
+            <a href="{% url 'wallet_deposit' %}" class="dash-card__btn">واریز به کیف پول</a>
+        </div>
+
+        <!-- Referral Card -->
+        <div class="dash-card dash-card--referral">
+            <div class="dash-card__header">
+                <span class="dash-card__badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </span>
+                <h3 class="dash-card__title">برنامه رفرال</h3>
+            </div>
+            <div class="dash-card__referral-info">
+                <div class="dash-card__referral-row">
+                    <span class="dash-card__referral-label">کد رفرال:</span>
+                    <div class="dash-card__referral-value-wrap">
+                        <span id="referral-code" class="dash-card__referral-value">{{ user.id }}</span>
+                        <button class="dash-card__copy-btn" onclick="copyText('referral-code', 'کد رفرال کپی شد!')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="dash-card__referral-row">
+                    <span class="dash-card__referral-label">لینک رفرال:</span>
+                    <div class="dash-card__referral-value-wrap">
+                        <span id="referral-link" class="dash-card__referral-value dash-card__referral-value--link">{{ request.scheme }}://{{ request.get_host }}{% url 'register' %}?referral_code={{ user.id }}</span>
+                        <button class="dash-card__copy-btn" onclick="copyText('referral-link', 'لینک رفرال کپی شد!')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="dash-card__referral-row">
+                    <span class="dash-card__referral-label">درآمد کل:</span>
+                    <span class="dash-card__referral-value dash-card__referral-value--highlight">${{ total_referral_earnings|floatformat:2 }}</span>
+                </div>
             </div>
         </div>
-        <!-- Quick Access Section -->
-        <div class="quick-nav">
-            <h2>دسترسی سریع</h2>
-            <div class="nav-grid">
-                <a href="{% url 'ticket_list' %}" class="nav-link">
-                    <h3>تیکت‌ها</h3>
-                    <p>تیکت جدید ثبت کن یا تیکت‌های باز رو ببین</p>
-                </a>
-                <a href="{% url 'analytics' %}" class="nav-link">
-                    <h3>آنالیز حساب</h3>
-                    <p>عملکرد حسابت رو بررسی کن</p>
-                </a>
-                <a href="{% url 'prop_orders' %}" class="nav-link">
-                    <h3>سفارشات</h3>
-                    <p>سفارشات پراپ اخیرت رو ببین</p>
-                </a>
-                <a href="{% url 'prop_accounts' %}" class="nav-link">
-                    <h3>حساب‌ها</h3>
-                    <p>حساب‌های پراپت رو مدیریت کن</p>
-                </a>
-            </div>
+    </div>
+
+    <!-- Quick Access Section -->
+    <div class="dash-quick-access">
+        <h2 class="dash-section-title">دسترسی سریع</h2>
+        <div class="dash-quick-grid">
+            <a href="{% url 'ticket_list' %}" class="dash-quick-item">
+                <div class="dash-quick-item__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+                </div>
+                <h4 class="dash-quick-item__title">تیکت‌ها</h4>
+                <p class="dash-quick-item__desc">ثبت تیکت جدید یا مشاهده تیکت‌ها</p>
+            </a>
+            <a href="{% url 'analytics' %}" class="dash-quick-item">
+                <div class="dash-quick-item__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                </div>
+                <h4 class="dash-quick-item__title">آنالیز حساب</h4>
+                <p class="dash-quick-item__desc">بررسی عملکرد حساب</p>
+            </a>
+            <a href="{% url 'prop_orders' %}" class="dash-quick-item">
+                <div class="dash-quick-item__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+                </div>
+                <h4 class="dash-quick-item__title">سفارشات</h4>
+                <p class="dash-quick-item__desc">مشاهده سفارشات پراپ</p>
+            </a>
+            <a href="{% url 'prop_accounts' %}" class="dash-quick-item">
+                <div class="dash-quick-item__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                </div>
+                <h4 class="dash-quick-item__title">حساب‌ها</h4>
+                <p class="dash-quick-item__desc">مدیریت حساب‌های پراپ</p>
+            </a>
         </div>
-        <br/>
-        <!-- User Info Section -->
-        <div class="user-info">
-            <h2>مشخصات کاربری</h2>
-            <div class="user-panel">
-                <h3>اطلاعات حساب</h3>
-                <p><strong>نام:</strong> <span>{{ user.first_name }}</span></p>
-                <p><strong>نام خانوادگی:</strong> <span>{{ user.last_name }}</span></p>
-                <p><strong>ایمیل:</strong> <span>{{ user.email }}</span></p>
-                <p><strong>شماره تماس:</strong> <span>{{ user.phone_number|default:"ثبت نشده" }}</span></p>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="dash-user-info">
+        <h2 class="dash-section-title">مشخصات کاربری</h2>
+        <div class="dash-user-info__card">
+            <div class="dash-user-info__avatar">
+                <span>{{ user.first_name|make_list|first }}</span>
+            </div>
+            <div class="dash-user-info__details">
+                <div class="dash-user-info__row">
+                    <span class="dash-user-info__label">نام:</span>
+                    <span class="dash-user-info__value">{{ user.first_name }}</span>
+                </div>
+                <div class="dash-user-info__row">
+                    <span class="dash-user-info__label">نام خانوادگی:</span>
+                    <span class="dash-user-info__value">{{ user.last_name }}</span>
+                </div>
+                <div class="dash-user-info__row">
+                    <span class="dash-user-info__label">ایمیل:</span>
+                    <span class="dash-user-info__value">{{ user.email }}</span>
+                </div>
+                <div class="dash-user-info__row">
+                    <span class="dash-user-info__label">شماره تماس:</span>
+                    <span class="dash-user-info__value">{{ user.phone_number|default:"ثبت نشده" }}</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     function copyText(elementId, successMessage) {
         const textElement = document.getElementById(elementId);
         const text = textElement.textContent;
         navigator.clipboard.writeText(text).then(() => {
-            alert(successMessage);
+            showToast(successMessage);
         }).catch(err => {
             console.error('خطا در کپی کردن متن: ', err);
-            alert('خطا در کپی کردن متن!');
+            showToast('خطا در کپی کردن متن!');
         });
     }
-    document.getElementById('free-account-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        fetch('{% url 'dashboard' %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('خطایی در ارتباط با سرور رخ داد.');
+
+    function showToast(message) {
+        const existing = document.querySelector('.dash-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'dash-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
         });
-    });
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 2500);
+    }
 </script>
 {% endblock %}

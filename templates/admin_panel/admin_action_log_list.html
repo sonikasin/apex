@@ -1,0 +1,132 @@
+{% extends 'admin_panel/base.html' %}
+{% block header_title %}لاگ‌های ادمین{% endblock %}
+{% block title %}لاگ‌های ادمین{% endblock %}
+
+{% block content %}
+<style>
+    .log-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+    .log-count { background:var(--primary-soft); color:var(--primary-600); padding:6px 14px; border-radius:999px; font-weight:600; font-size:13px; }
+    .filter-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:14px; }
+    .filter-actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+    .badge { padding:3px 11px; border-radius:999px; font-size:12px; font-weight:700; display:inline-block; }
+    .b-delete { background:#fee2e2; color:#991b1b; }
+    .b-create { background:#dcfce7; color:#166534; }
+    .b-update { background:#dbeafe; color:#1e40af; }
+    .b-action { background:#f3e8ff; color:#6b21a8; }
+    .b-view   { background:#f1f5f9; color:#475569; }
+    .mono { direction:ltr; text-align:left; font-family:ui-monospace, monospace; font-size:12.5px; }
+    .truncate { max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .btn-clear { background:#64748b; }
+    .btn-clear:hover { background:#475569; }
+    label { margin-bottom:4px; }
+    form .filter-grid input, form .filter-grid select { margin-bottom:0; }
+</style>
+
+<div class="log-toolbar">
+    <h1 style="margin:0;">لاگ‌های عملیات ادمین</h1>
+    <span class="log-count">مجموع: {{ total_count }} رکورد</span>
+</div>
+
+<form method="get">
+    <div class="filter-grid">
+        <div>
+            <label>ایمیل ادمین</label>
+            <input type="text" name="email" list="emails" value="{{ filters.email }}" placeholder="جستجوی ایمیل">
+            <datalist id="emails">{% for em in distinct_emails %}<option value="{{ em }}">{% endfor %}</datalist>
+        </div>
+        <div>
+            <label>نوع عملیات</label>
+            <select name="category">
+                <option value="">همه</option>
+                {% for val, lbl in categories %}<option value="{{ val }}" {% if filters.category == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>متد</label>
+            <select name="method">
+                <option value="">همه</option>
+                {% for m in distinct_methods %}<option value="{{ m }}" {% if filters.method == m %}selected{% endif %}>{{ m }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>ویو</label>
+            <select name="view_name">
+                <option value="">همه</option>
+                {% for v in distinct_views %}<option value="{{ v }}" {% if filters.view_name == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>کد وضعیت</label>
+            <input type="number" name="status_code" value="{{ filters.status_code }}" placeholder="مثلاً 200">
+        </div>
+        <div>
+            <label>IP</label>
+            <input type="text" name="ip" value="{{ filters.ip }}" placeholder="آدرس IP">
+        </div>
+        <div>
+            <label>از تاریخ</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}">
+        </div>
+        <div>
+            <label>تا تاریخ</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}">
+        </div>
+        <div style="grid-column:1/-1;">
+            <label>جستجوی آزاد (شرح، مسیر، داده‌های ارسالی، شناسه آبجکت)</label>
+            <input type="text" name="q" value="{{ filters.q }}" placeholder="جستجو...">
+        </div>
+    </div>
+    <div class="filter-actions">
+        <button type="submit">اعمال فیلتر</button>
+        <a class="btn btn-clear" href="{% url 'admin_panel:admin_action_log_list' %}">پاک کردن</a>
+    </div>
+</form>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr>
+            <th>زمان</th><th>ادمین</th><th>نوع</th><th>شرح عملیات</th>
+            <th>متد</th><th>مسیر</th><th>کد</th><th>IP</th><th>جزئیات</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in page_obj %}
+        <tr>
+            <td style="white-space:nowrap;">{{ log.created_at|date:"Y/m/d H:i:s" }}</td>
+            <td style="white-space:nowrap;">{{ log.user_email }}{% if log.is_superuser %} <span style="color:#f59e0b;">★</span>{% endif %}</td>
+            <td>
+                {% if log.category == 'delete' %}<span class="badge b-delete">{{ log.get_category_display }}</span>
+                {% elif log.category == 'create' %}<span class="badge b-create">{{ log.get_category_display }}</span>
+                {% elif log.category == 'update' %}<span class="badge b-update">{{ log.get_category_display }}</span>
+                {% elif log.category == 'action' %}<span class="badge b-action">{{ log.get_category_display }}</span>
+                {% else %}<span class="badge b-view">{{ log.get_category_display }}</span>{% endif %}
+            </td>
+            <td>{{ log.action_description }}</td>
+            <td>{{ log.method }}</td>
+            <td class="mono truncate">{{ log.path }}</td>
+            <td>{{ log.status_code|default:"-" }}</td>
+            <td class="mono">{{ log.ip_address|default:"-" }}</td>
+            <td><a href="{% url 'admin_panel:admin_action_log_detail' log.pk %}" style="color:var(--primary); font-weight:600;">مشاهده</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">هیچ لاگی یافت نشد.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1{% if querystring %}&{{ querystring }}{% endif %}">« اولین</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">قبلی</a>
+    {% endif %}
+    <span style="background:var(--primary); color:#fff; border-color:var(--primary);">{{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">بعدی</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if querystring %}&{{ querystring }}{% endif %}">آخرین »</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

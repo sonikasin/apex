@@ -1,12 +1,37 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO Base -->
     <title>{% block title %}Apex Fx | اپکس اف ایکس | پراپ فرم و پراپ تریدینگ ایرانی{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Apex Fx بهترین پلتفرم پراپ تریدینگ ایرانی. چالش‌های پراپ حرفه‌ای با تسویه سریع و پشتیبانی ۲۴/۷.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}پراپ تریدینگ, پراپ فرم, Apex Fx, اپکس اف ایکس, prop trading, prop firm, چالش پراپ, پراپ ایرانی{% endblock %}">
+    <meta name="author" content="Apex Fx">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://apexfx.net{{ request.path }}">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Apex Fx | پراپ تریدینگ ایرانی{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}بهترین پلتفرم پراپ تریدینگ ایرانی با حساب‌های متنوع و پشتیبانی ۲۴/۷{% endblock %}">
+    <meta property="og:url" content="https://apexfx.net{{ request.path }}">
+    <meta property="og:site_name" content="Apex Fx">
+    <meta property="og:image" content="https://apexfx.net/static/images/logo.png">
+    <meta property="og:locale" content="fa_IR">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Apex Fx | پراپ تریدینگ ایرانی">
+    <meta name="twitter:description" content="بهترین پلتفرم پراپ تریدینگ ایرانی">
+    <meta name="twitter:image" content="https://apexfx.net/static/images/logo.png">
+    <meta name="theme-color" content="#10b981">
     <link rel="icon" href="{% static '/images/logo.png' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
    <script type="text/javascript">
   !function(){var i="wUnG7q",a=window,d=document;function g(){var g=d.createElement("script"),s="https://www.goftino.com/widget/"+i,l=localStorage.getItem("goftino_"+i);g.async=!0,g.src=l?s+"?o="+l:s;d.getElementsByTagName("head")[0].appendChild(g);}"complete"===d.readyState?g():a.attachEvent?a.attachEvent("onload",g):a.addEventListener("load",g,!1);}();
 </script>
@@ -39,20 +64,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 3rem;
-            background: rgba(18, 18, 18, 0.98);
-            backdrop-filter: blur(15px);
+            padding: 0.9rem 3rem;
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            transition: background 0.5s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
 
         body.light-mode header {
-            background: rgba(249, 250, 251, 0.98);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         }
 
         .logo {
@@ -105,9 +133,10 @@
         }
 
         nav ul li a.active, nav ul li a:hover {
-            background: linear-gradient(90deg, #10b981, #059669);
+            background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+            transform: translateY(-1px);
         }
 
         nav ul li a::after {
@@ -122,27 +151,49 @@
         }
 
         nav ul li a:hover::after {
-            width: 100%;
-            left: 0;
+            width: 0;
         }
 
         .hamburger {
             display: none;
-            font-size: 1.5rem;
-            background: none;
-            border: none;
-            color: #e0e0e0;
+            order: 3;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
             cursor: pointer;
-            transition: transform 0.3s ease;
+            position: relative;
+            padding: 0;
+            transition: all 0.3s ease;
         }
 
         body.light-mode .hamburger {
-            color: #1f2a44;
+            background: rgba(16, 185, 129, 0.08);
         }
 
         .hamburger:hover {
-            transform: scale(1.1);
+            background: rgba(16, 185, 129, 0.18);
         }
+
+        .hamburger span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 18px;
+            height: 2px;
+            background: #10b981;
+            border-radius: 2px;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger span:nth-child(1) { transform: translate(-50%, -6px); }
+        .hamburger span:nth-child(3) { transform: translate(-50%, 4px); }
+
+        .hamburger.active span:nth-child(1) { transform: translate(-50%, -50%) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translate(-50%, -50%) rotate(-45deg); }
 
         .theme-toggle {
             background: linear-gradient(90deg, #2a2a2a, #3a3a3a);
@@ -153,7 +204,7 @@
             border-radius: 24px;
             position: relative;
             transition: background 0.5s ease;
-            margin-left: 1rem;
+            flex-shrink: 0;
         }
 
         body.light-mode .theme-toggle {
@@ -191,7 +242,18 @@
             border-radius: 25px;
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-            margin-left: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            white-space: nowrap;
+        }
+
+        .trade-now-btn i { font-size: 0.95rem; }
+
+        .auth-links {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
         }
 
         body.light-mode .trade-now-btn {
@@ -208,105 +270,6 @@
         .main-content {
             padding-top: 70px; /* فاصله از هدر برای جلوگیری از زیر هدر رفتن محتوا */
             min-height: calc(100vh - 70px); /* تنظیم ارتفاع حداقل برای جلوگیری از بریده شدن */
-        }
-
-        /* Footer Styles */
-        footer {
-            padding: 3rem 2rem;
-            background: #0a0a0a;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            border-top: 2px solid #333;
-            position: relative;
-            overflow: visible;
-            width: 100%;
-            text-align: right;
-        }
-
-        body.light-mode footer {
-            background: #e6e7e8;
-            border-top: 2px solid #d1d5db;
-        }
-
-        .footer-logo, .footer-links, .footer-contact {
-            max-width: 100%;
-            overflow: visible;
-        }
-
-        .footer-logo .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #10b981;
-            margin-bottom: 0.8rem;
-            text-decoration: none;
-        }
-
-        .footer-logo p {
-            font-size: 0.85rem;
-            font-weight: 300;
-            color: #b0b0b0;
-            line-height: 1.5;
-            max-width: 250px;
-        }
-
-        body.light-mode .footer-logo p {
-            color: #4b5563;
-        }
-
-        .footer-links h4, .footer-contact h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #10b981;
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links ul, .footer-contact ul {
-            list-style: none;
-        }
-
-        .footer-links ul li, .footer-contact ul li {
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-links ul li a, .footer-contact ul li a {
-            color: #b0b0b0;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 300;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: color 0.3s ease;
-        }
-
-        body.light-mode .footer-links ul li a, body.light-mode .footer-contact ul li a {
-            color: #4b5563;
-        }
-
-        .footer-links ul li a:hover, .footer-contact ul li a:hover {
-            color: #10b981;
-        }
-
-        .footer-links ul li a i, .footer-contact ul li a i {
-            font-size: 0.85rem;
-            color: #10b981;
-        }
-
-        .copyright {
-            grid-column: span 3;
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            font-weight: 300;
-            color: #b0b0b0;
-            border-top: 1px solid #333;
-            padding-top: 0.8rem;
-        }
-
-        body.light-mode .copyright {
-            color: #4b5563;
-            border-top: 1px solid #d1d5db;
         }
 
         /* Animations */
@@ -337,17 +300,11 @@
             header {
                 padding: 1rem 2rem;
             }
-            footer {
-                padding: 2rem 1.5rem;
-            }
         }
 
         @media (max-width: 1024px) {
             header {
                 padding: 0.8rem 1.5rem;
-            }
-            footer {
-                padding: 1.5rem 1rem;
             }
         }
 
@@ -356,40 +313,38 @@
                 display: none;
                 flex-direction: column;
                 position: absolute;
-                top: 60px;
-                right: 0;
-                background: #1a1a1a;
-                width: 100%;
-                padding: 1rem;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                top: 64px;
+                right: 1rem;
+                left: 1rem;
+                background: rgba(13, 17, 23, 0.97);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                width: auto;
+                padding: 0.8rem;
+                gap: 0.3rem;
+                border: 1px solid rgba(16, 185, 129, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
                 animation: slideIn 0.3s ease-out;
             }
             body.light-mode nav ul {
-                background: #ffffff;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                background: rgba(255, 255, 255, 0.97);
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
             }
             nav ul.active {
                 display: flex;
+            }
+            nav ul li a {
+                display: block;
+                width: 100%;
+                text-align: center;
+                padding: 0.85rem 1rem;
             }
             .hamburger {
                 display: block;
             }
             .main-content {
                 padding-top: 60px; /* کاهش padding-top توی موبایل */
-            }
-            footer {
-                grid-template-columns: 1fr;
-                padding: 1rem 0.5rem;
-            }
-            .footer-logo, .footer-links, .footer-contact {
-                padding-bottom: 0.6rem;
-                border-bottom: 1px solid rgba(51, 51, 51, 0.3);
-            }
-            body.light-mode .footer-logo, body.light-mode .footer-links, body.light-mode .footer-contact {
-                border-bottom: 1px solid rgba(209, 213, 219, 0.3);
-            }
-            .footer-logo {
-                border-bottom: none;
             }
         }
 
@@ -400,27 +355,25 @@
             .logo-text {
                 font-size: 1.5rem;
             }
+            .auth-links {
+                gap: 0.5rem;
+            }
             .trade-now-btn {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.7rem;
-                max-width: 120px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
+                padding: 0.5rem 0.7rem;
+                font-size: 0.85rem;
+            }
+            .trade-now-btn .btn-label {
+                display: none;
+            }
+            .trade-now-btn i {
+                font-size: 1rem;
+            }
+            .theme-toggle {
+                width: 40px;
+                height: 20px;
             }
             .main-content {
                 padding-top: 50px; /* کاهش بیشتر توی موبایل کوچک */
-            }
-            footer .footer-logo .logo {
-                font-size: 1.2rem;
-            }
-            .footer-logo p {
-                font-size: 0.7rem;
-            }
-            .auth-links {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 0.3rem;
             }
         }
     </style>
@@ -433,7 +386,6 @@
             <span class="logo-text">Apex Fx</span>
         </div>
            </a>
-        <button class="hamburger">☰</button>
         <nav>
             <ul>
                 <li><a href="{% url 'index' %}" {% if request.path == '/' %}class="active"{% endif %}>خانه</a></li>
@@ -445,12 +397,13 @@
             </ul>
         </nav>
         <div class="auth-links">
-            <button class="theme-toggle"></button>
+            <button class="theme-toggle" aria-label="تغییر تم"></button>
             {% if request.user.is_authenticated %}
-            <a href="{% url 'logout' %}" class="trade-now-btn">خروج</a>
+            <a href="{% url 'logout' %}" class="trade-now-btn"><i class="fas fa-arrow-right-from-bracket"></i><span class="btn-label">خروج</span></a>
             {% else %}
-            <a href="{% url 'login' %}" class="trade-now-btn">ثبت نام | لاگین</a>
+            <a href="{% url 'login' %}" class="trade-now-btn"><i class="fas fa-right-to-bracket"></i><span class="btn-label">ثبت نام | لاگین</span></a>
             {% endif %}
+            <button class="hamburger" aria-label="منو"><span></span><span></span><span></span></button>
         </div>
     </header>
 
@@ -459,44 +412,81 @@
         {% endblock %}
     </main>
 
-    <footer>
-        <div class="footer-logo">
-            <div class="logo">Apex Fx</div>
-            <p>ما یه پلتفرم پیشرو تو پراپ تریدینگ هستیم که با طرح‌های متنوع و پشتیبانی قوی به معامله‌گران کمک می‌کنیم.</p>
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__brand">
+                <a href="{% url 'index' %}" class="site-footer__brand-logo">
+                    <img src="{% static 'images/logo.png' %}" alt="Apex Fx">
+                    <span>Apex Fx</span>
+                </a>
+                <p class="site-footer__desc">پلتفرم پیشرو پراپ تریدینگ ایرانی؛ با طرح‌های متنوع، تسویه سریع و پشتیبانی حرفه‌ای کنار معامله‌گران هستیم.</p>
+                <div class="site-footer__social">
+                    <a href="https://t.me/ApexFx_net" target="_blank" rel="noopener" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.instagram.com/apexfx_net" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://rubika.ir/ApexFx_Net" target="_blank" rel="noopener" aria-label="Rubika"><i class="fas fa-comment-dots"></i></a>
+                    <a href="mailto:info@apexfx.net" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+
+            <div class="site-footer__col">
+                <h4>دسترسی سریع</h4>
+                <ul>
+                    <li><a href="{% url 'index' %}"><i class="fas fa-chevron-left"></i> خانه</a></li>
+                    <li><a href="{% url 'dashboard' %}"><i class="fas fa-chevron-left"></i> داشبورد</a></li>
+                    <li><a href="{% url 'about' %}"><i class="fas fa-chevron-left"></i> درباره ما</a></li>
+                    <li><a href="{% url 'blog_list' %}"><i class="fas fa-chevron-left"></i> وبلاگ</a></li>
+                    <li><a href="{% url 'rules' %}"><i class="fas fa-chevron-left"></i> قوانین</a></li>
+                </ul>
+            </div>
+
+            <div class="site-footer__col">
+                <h4>ارتباط با ما</h4>
+                <ul>
+                    <li><a href="mailto:info@apexfx.net"><i class="fas fa-envelope"></i> info@apexfx.net</a></li>
+                    <li><a href="https://t.me/ApexFx_net" target="_blank" rel="noopener"><i class="fab fa-telegram"></i> کانال تلگرام</a></li>
+                    <li><a href="https://www.instagram.com/apexfx_net" target="_blank" rel="noopener"><i class="fab fa-instagram"></i> اینستاگرام</a></li>
+                    <li><a href="{% url 'contact' %}"><i class="fas fa-location-dot"></i> اردبیل، ججین، ساختمان کیانا</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="footer-links">
-            <h4>لینک‌های سریع</h4>
-            <ul>
-                <li><a href="{% url 'index' %}" >خانه</a></li>
-                <li><a href="{% url 'dashboard' %}" >داشبورد</a></li>
-                <li><a href="{% url 'about' %}" >درباره ما</a></li>
-                <li><a href="{% url 'blog_list' %}" >وبلاگ</a></li>
-                <li><a href="{% url 'contact' %}" >تماس با ما</a></li>
-                <li><a href="{% url 'rules' %}" >قوانین</a></li>
-            </ul>
+
+        <div class="site-footer__bottom">
+            <span class="site-footer__copy">© ۱۴۰۴ Apex Fx — تمامی حقوق محفوظ است.</span>
+            <div class="site-footer__badges">
+                <span><i class="fas fa-shield-halved"></i> پرداخت امن</span>
+                <span><i class="fas fa-headset"></i> پشتیبانی ۲۴/۷</span>
+            </div>
         </div>
-        <div class="footer-contact">
-            <h4>تماس با ما</h4>
-            <ul>
-                <li><a href="mailto:info@apexfx.net">info@apexfx.net</a></li>
-                <li><a href="https://t.me/ApexFx_net">تلگرام مجموعه</a></li>
-                <li><a href="https://www.instagram.com/apexfx_net">اینستاگرام</a></li>
-                <li><a href="https://t.me/ApexFxSup2">آدرس : اردبیل,ججین, ساختمان کیانا</a></li>
-            </ul>
-        </div>
-        <div class="copyright">© ۱۴۰۴ Apex Fx. تمامی حقوق محفوظ است.</div>
     </footer>
 <script type="text/javascript">
   !function(){var i="wUnG7q",a=window,d=document;function g(){var g=d.createElement("script"),s="https://www.goftino.com/widget/"+i,l=localStorage.getItem("goftino_"+i);g.async=!0,g.src=l?s+"?o="+l:s;d.getElementsByTagName("head")[0].appendChild(g);}"complete"===d.readyState?g():a.attachEvent?a.attachEvent("onload",g):a.addEventListener("load",g,!1);}();
 </script>
     <script>
-        document.querySelector('.hamburger').addEventListener('click', () => {
-            document.querySelector('nav ul').classList.toggle('active');
-        });
+        const hamburgerBtn = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('nav ul');
+        if (hamburgerBtn && navMenu) {
+            hamburgerBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                hamburgerBtn.classList.toggle('active');
+            });
+            navMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    hamburgerBtn.classList.remove('active');
+                });
+            });
+        }
 
-        document.querySelector('.theme-toggle').addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-        });
+        const themeToggleBtn = document.querySelector('.theme-toggle');
+        if (themeToggleBtn) {
+            if (localStorage.getItem('apex-theme') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('light-mode');
+                localStorage.setItem('apex-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+            });
+        }
     </script>
     <script type="text/javascript">
   !function(){var i="wUnG7q",a=window,d=document;function g(){var g=d.createElement("script"),s="https://www.goftino.com/widget/"+i,l=localStorage.getItem("goftino_"+i);g.async=!0,g.src=l?s+"?o="+l:s;d.getElementsByTagName("head")[0].appendChild(g);}"complete"===d.readyState?g():a.attachEvent?a.attachEvent("onload",g):a.addEventListener("load",g,!1);}();

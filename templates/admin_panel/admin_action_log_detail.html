@@ -1,0 +1,39 @@
+{% extends 'admin_panel/base.html' %}
+{% block header_title %}جزئیات لاگ{% endblock %}
+{% block title %}جزئیات لاگ #{{ log.pk }}{% endblock %}
+
+{% block content %}
+<style>
+    .detail-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; max-width:860px; }
+    .detail-card table { box-shadow:none; border:none; margin:0; border-radius:0; }
+    .detail-card th { width:190px; }
+    .back-link { display:inline-flex; align-items:center; gap:6px; color:var(--primary); font-weight:600; text-decoration:none; margin-bottom:14px; }
+    .post-pre { background:#0f172a; color:#e2e8f0; padding:18px; border-radius:var(--radius); direction:ltr; text-align:left; overflow:auto; white-space:pre-wrap; word-break:break-word; font-family:ui-monospace, monospace; font-size:13px; max-width:860px; }
+    .mono { direction:ltr; text-align:left; font-family:ui-monospace, monospace; word-break:break-all; }
+</style>
+
+<a class="back-link" href="{% url 'admin_panel:admin_action_log_list' %}">→ بازگشت به لیست لاگ‌ها</a>
+<h1 style="margin:6px 0 18px;">جزئیات لاگ <span style="color:var(--text-muted);">#{{ log.pk }}</span></h1>
+
+<div class="detail-card">
+    <table>
+        <tbody>
+            <tr><th>زمان</th><td>{{ log.created_at|date:"Y/m/d H:i:s" }}</td></tr>
+            <tr><th>ادمین</th><td>{{ log.user_email }}{% if log.is_superuser %} <span style="color:#f59e0b;">(سوپریوزر)</span>{% endif %}</td></tr>
+            <tr><th>نوع عملیات</th><td>{{ log.get_category_display }}</td></tr>
+            <tr><th>شرح</th><td>{{ log.action_description }}</td></tr>
+            <tr><th>متد HTTP</th><td>{{ log.method }}</td></tr>
+            <tr><th>مسیر</th><td class="mono">{{ log.path }}</td></tr>
+            <tr><th>نام ویو</th><td>{{ log.view_name|default:"-" }}</td></tr>
+            <tr><th>شناسه آبجکت</th><td>{{ log.object_id|default:"-" }}</td></tr>
+            <tr><th>پارامترهای کوئری</th><td class="mono">{{ log.query_string|default:"-" }}</td></tr>
+            <tr><th>کد وضعیت پاسخ</th><td>{{ log.status_code|default:"-" }}</td></tr>
+            <tr><th>آدرس IP</th><td class="mono">{{ log.ip_address|default:"-" }}</td></tr>
+            <tr><th>User-Agent</th><td class="mono">{{ log.user_agent|default:"-" }}</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h3 style="margin:22px 0 10px;">داده‌های ارسالی (POST)</h3>
+<pre class="post-pre">{{ pretty_post|default:"—" }}</pre>
+{% endblock %}

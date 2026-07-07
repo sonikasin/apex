@@ -23,6 +23,13 @@ logger = logging.getLogger(__name__)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import PropPlan, PropOrder, BlogPost
+from .payment_gateways import (
+    get_active_gateway,
+    get_gateway,
+    create_transaction,
+    verify_transaction,
+    payment_redirect_url,
+)
 import uuid
 
 
@@ -87,7 +94,7 @@ def get_plan_details(request):
 from decimal import Decimal
 
 # نرخ تبدیل تتر به تومان (می‌توانید این را از تنظیمات یا API دریافت کنید)
-TETHER_TO_TOMAN_RATE = Decimal('166100')
+TETHER_TO_TOMAN_RATE = Decimal('178100')
 FIXED_DOLLAR_RATE = Decimal('99000')
 
 
@@ -392,72 +399,55 @@ def payment_gateway(request, order_id):
     final_price_usd = order.final_price_usd
     
     if request.method == 'POST':
-        # PayStar configurations
-        token = "6y63e4oex3q822"
-        sign_key = "B3D7A776EC4BF4FB24CAF4F7A5C301600CB8B23489330669BB5B7B9AB1F1B153276D789EC123E8F0984DC3DA1A507329C23A9FB86237D1F6823FDF69D1F29FA8D21CB2A78DA3CDB5A748C062B1DFD2CABE4EE2BD4F778E45F992A17FA1064D4AF8D7B5961964E94DD1FBE8EAA205F56F6AFB6F93C7BA05A64C94218291927147"
-        callback_url = 'https://apexfx.info/payment-callback/'  # Update to your actual callback URL
+        # انتخاب درگاه ریالی فعال (از پنل ادمین قابل تغییر است)
+        gateway = get_active_gateway()
+        error_url = f"{reverse('payment_error')}?{urlencode({'msg': 'ارتباط با درگاه پرداخت ناموفق بود.'})}"
 
-        # Split user's full name
-      
         first_name = request.user.first_name
         last_name = request.user.last_name
 
         try:
-            # Generate PayStar sign
-            amount = int(final_price_toman * 10)  # Convert to Rial
+            amount = int(final_price_toman * 10)  # تبدیل تومان به ریال
             order_id_str = str(order.id)
-            sign = generate_paystar_sign(amount, order_id_str, callback_url, sign_key)
 
-            headers = {
-                'Authorization': f'Bearer {token}',
-                'Content-Type': 'application/json',
-            }
-            payload = {
-                "amount": amount,
-                "order_id": order_id_str,
-                "callback": callback_url,
-                "first_name": first_name,
-                "last_name": last_name,
-                "products": [
-                    {
-                        "code": "2323",
-                        "price": str(amount),
-                        "quantity": 1000000
-                    }
-                ],
-                "sign": sign,
-                "wallet": "AJKVW4",
-                "description": f'order id: {order.id} product: {order.plan.name}',
-            }
+            # ذخیره‌ی درگاهی که این سفارش با آن پرداخت می‌شود (برای verify در callback)
+            order.payment_gateway = gateway['name']
+            order.save(update_fields=['payment_gateway'])
 
-            proxies = {
-                'http': 'http://81.12.93.154:8888',
-                'https': 'https://81.12.93.154:8888',
-            }
-            proxy_url = "https://api.directpay.finance/api/pardakht/create"
-            # Send request to PayStar API
-            response = requests.post(
-                proxy_url,
-                json=payload,
-                headers=headers,
-                timeout=60
+            response = create_transaction(
+                gateway,
+                amount,
+                order_id_str,
+                first_name=first_name,
+                last_name=last_name,
+                description=f'order id: {order.id} product: {order.plan.name}',
+                timeout=60,
             )
-            logger.info(f"PayStar create transaction response: {response.status_code} - {response.text}")
+            logger.info(f"[{gateway['name']}] create response: {response.status_code} - {response.text}")
 
             if response.status_code == 200:
                 response_data = response.json()
                 if response_data.get('status') == 1:
                     pay_token = response_data['data']['token']
-                    return redirect(f"https://api.directpay.finance/api/pardakht/payment?token={pay_token}&referer=https://apexfx.net")
+                    return redirect(payment_redirect_url(gateway, pay_token))
                 else:
-                    print(request, f"خطا در ایجاد تراکنش: {response_data.get('message', 'Unknown error')}")
-                    error_url = f"{reverse('payment_error')}?{urlencode({'msg': response_data.get('message', 'Unknown error')})}"
+                    msg = response_data.get('message', 'خطا در ایجاد تراکنش.')
+                    logger.error(f"[{gateway['name']}] create error: {msg}")
+                    error_url = f"{reverse('payment_error')}?{urlencode({'msg': msg})}"
                     return redirect(error_url)
             else:
-                print(request, "ارتباط با درگاه پرداخت ناموفق بود.")
+                try:
+                    body = response.json()
+                    msg = body.get('message') or str(body)
+                except Exception:
+                    msg = response.text[:300]
+                logger.error(
+                    f"[{gateway['name']}] create failed: HTTP {response.status_code} - {response.text[:500]}"
+                )
+                error_url = f"{reverse('payment_error')}?{urlencode({'msg': f'درگاه ({response.status_code}): {msg}'})}"
                 return redirect(error_url)
         except requests.exceptions.RequestException as e:
-            logger.error(f"PayStar create transaction exception: {str(e)}")
+            logger.error(f"[{gateway['name']}] create exception: {str(e)}")
             messages.error(request, "خطا در ارتباط با درگاه پرداخت.")
             return redirect(error_url)
     
@@ -549,29 +539,17 @@ def payment_callback(request):
             transaction.save()
         return redirect(f"{reverse('payment_error' if not is_wallet_transaction else 'wallet_error')}?{urlencode({'msg': 'تراکنش ناموفق بود.'})}")
 
-    expected_amount = int((order.final_price_toman if order else transaction.amount_toman) * 10)
-    sign = generate_paystar_verify_sign(expected_amount, ref_num, card_number, tracking_code)
+    # درگاهی که این تراکنش با آن ساخته شده را پیدا می‌کنیم تا با همان verify کنیم
+    gateway_name = (order.payment_gateway if order else transaction.payment_gateway)
+    gateway = get_gateway(gateway_name)
 
-    verify_data = {
-        "ref_num": ref_num,
-        "amount": expected_amount,
-        "sign": sign,
-    }
-    headers = {
-        'Authorization': 'Bearer 6y63e4oex3q822',
-        'Content-Type': 'application/json',
-    }
+    expected_amount = int((order.final_price_toman if order else transaction.amount_toman) * 10)
 
     try:
-        session = requests.Session()
-        response = session.post(
-            "https://api.directpay.finance/api/pardakht/verify",
-            json=verify_data,
-            headers=headers,
-            timeout=25,
-            verify=False
+        response = verify_transaction(
+            gateway, expected_amount, ref_num, card_number, tracking_code, timeout=25
         )
-        logger.info(f"Verify response: {response.status_code} - {response.text[:300]}")
+        logger.info(f"[{gateway['name']}] verify response: {response.status_code} - {response.text[:300]}")
 
         if response.status_code == 200 and response.json().get('status') == 1:
             if is_wallet_transaction:
@@ -919,56 +897,30 @@ def wallet_payment_gateway(request, transaction_id):
         request.session[f'wallet_transaction_id_{transaction_id}'] = transaction.id
         request.session.modified = True
         
-        # PayStar configurations
-        token = "6y63e4oex3q822"
-        sign_key = "B3D7A776EC4BF4FB24CAF4F7A5C301600CB8B23489330669BB5B7B9AB1F1B153276D789EC123E8F0984DC3DA1A507329C23A9FB86237D1F6823FDF69D1F29FA8D21CB2A78DA3CDB5A748C062B1DFD2CABE4EE2BD4F778E45F992A17FA1064D4AF8D7B5961964E94DD1FBE8EAA205F56F6AFB6F93C7BA05A64C94218291927147"
-        callback_url = 'https://apexfx.info/payment-callback/'  # Update to your actual callback URL
+        # انتخاب درگاه ریالی فعال
+        gateway = get_active_gateway()
 
-        # Split user's full name
         first_name = request.user.first_name
         last_name = request.user.last_name
 
         try:
-            # Generate PayStar sign
-            amount = int(transaction.amount_toman * 10)  # Convert to Rial
-            wallet_order_id = f"1831{transaction.id}"  # Prefix with 1831 for wallet transactions
-            sign = generate_paystar_sign(amount, wallet_order_id, callback_url, sign_key)
+            amount = int(transaction.amount_toman * 10)  # تبدیل تومان به ریال
+            wallet_order_id = f"1831{transaction.id}"  # پیشوند 1831 برای تراکنش‌های کیف پول
 
-            headers = {
-                'Authorization': f'Bearer {token}',
-                'Content-Type': 'application/json',
-            }
-            payload = {
-                "amount": amount,
-                "order_id": wallet_order_id,
-                "callback": callback_url,
-                "first_name": first_name,
-                "last_name": last_name,
-                "products": [
-                    {
-                        "code": "2323",
-                        "price": str(amount),
-                        "quantity": 1000000
-                    }
-                ],
-                "sign": sign,
-                "wallet": "AJKVW4",
-                "description": f'wallet transaction id: {transaction.id}',
-            }
+            # ذخیره‌ی درگاه استفاده‌شده برای verify در callback
+            transaction.payment_gateway = gateway['name']
+            transaction.save(update_fields=['payment_gateway'])
 
-            proxies = {
-                'http': 'http://81.12.93.154:2172',
-                'https': 'http://81.12.93.154:2172',
-            }
-            proxy_url = "https://api.directpay.finance/api/pardakht/create"
-            # Send request to PayStar API
-            response = requests.post(
-                proxy_url,
-                json=payload,
-                headers=headers,
-                timeout=30
+            response = create_transaction(
+                gateway,
+                amount,
+                wallet_order_id,
+                first_name=first_name,
+                last_name=last_name,
+                description=f'wallet transaction id: {transaction.id}',
+                timeout=30,
             )
-            logger.info(f"PayStar create transaction response for wallet: {response.status_code} - {response.text}")
+            logger.info(f"[{gateway['name']}] wallet create response: {response.status_code} - {response.text}")
 
             if response.status_code == 200:
                 response_data = response.json()
@@ -978,8 +930,9 @@ def wallet_payment_gateway(request, transaction_id):
                     del request.session[f'payment_attempt_{transaction_id}']
                     del request.session[f'wallet_transaction_id_{transaction_id}']
                     request.session.modified = True
-                    logger.info(f"Redirecting to PayStar payment: https://api.directpay.finance/api/pardakht/payment?token={pay_token}")
-                    return redirect(f"https://api.directpay.finance/api/pardakht/payment?token={pay_token}&referer=https://apexfx.net")
+                    redirect_url = payment_redirect_url(gateway, pay_token)
+                    logger.info(f"Redirecting to gateway payment: {redirect_url}")
+                    return redirect(redirect_url)
                 else:
                     error_message = response_data.get('message', 'خطا در ایجاد تراکنش.')
                     messages.error(request, f"خطا در ایجاد تراکنش: {error_message}")
@@ -987,9 +940,14 @@ def wallet_payment_gateway(request, transaction_id):
                     error_url = f"{reverse('wallet_error')}?{urlencode({'msg': f'خطا در ایجاد تراکنش: {error_message}'})}"
                     return redirect(error_url)
             else:
-                messages.error(request, "ارتباط با درگاه پرداخت ناموفق بود.")
-                logger.error(f"PayStar failed with status {response.status_code}")
-                error_url = f"{reverse('wallet_error')}?{urlencode({'msg': 'ارتباط با درگاه پرداخت ناموفق بود.'})}"
+                try:
+                    body = response.json()
+                    gw_msg = body.get('message') or str(body)
+                except Exception:
+                    gw_msg = response.text[:300]
+                messages.error(request, f"خطای درگاه ({response.status_code}): {gw_msg}")
+                logger.error(f"[{gateway['name']}] wallet create failed: HTTP {response.status_code} - {response.text[:500]}")
+                error_url = f"{reverse('wallet_error')}?{urlencode({'msg': f'خطای درگاه ({response.status_code}): {gw_msg}'})}"
                 return redirect(error_url)
         except requests.exceptions.RequestException as e:
             messages.error(request, "خطا در ارتباط با درگاه پرداخت.")

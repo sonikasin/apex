@@ -221,6 +221,7 @@ class PropOrder(models.Model):
     accnum = models.DecimalField(max_digits=15, decimal_places=0, null=True, blank=True, verbose_name="اکانت تحویلی")
 
     used_wallet = models.BooleanField(default=False, verbose_name="استفاده از کیف پول")
+    payment_gateway = models.CharField(max_length=20, blank=True, null=True, verbose_name="درگاه پرداخت")
 
     def __str__(self):
         return f"سفارش {self.order_number}"
@@ -388,6 +389,7 @@ class WalletTransaction(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="وضعیت")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="تاریخ ایجاد")
     transaction_id = models.CharField(max_length=50, unique=True, verbose_name="شناسه تراکنش")
+    payment_gateway = models.CharField(max_length=20, blank=True, null=True, verbose_name="درگاه پرداخت")
 
     def __str__(self):
         return f"{self.transaction_type} - {self.user.email} - {self.amount_usd} دلار"
@@ -460,3 +462,43 @@ class AccountSimulationLog(models.Model):
 
     def __str__(self):
         return f"{self.account_number} - {self.checked_at.strftime('%Y-%m-%d %H:%M')}"
+
+
+
+class PaymentGatewaySetting(models.Model):
+    """
+    تنظیمات تک‌رکوردی (singleton) برای انتخاب درگاه ریالی فعال.
+    همیشه فقط یک رکورد با pk=1 وجود دارد.
+    """
+    GATEWAY_CHOICES = [
+        ('directpay', 'دایرکت پی'),
+        ('paystar', 'پی‌استار'),
+    ]
+    active_rial_gateway = models.CharField(
+        max_length=20,
+        choices=GATEWAY_CHOICES,
+        default='directpay',
+        verbose_name="درگاه ریالی فعال",
+    )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="آخرین به‌روزرسانی")
+
+    class Meta:
+        verbose_name = 'تنظیمات درگاه پرداخت'
+        verbose_name_plural = 'تنظیمات درگاه پرداخت'
+
+    def __str__(self):
+        return f"درگاه فعال: {self.get_active_rial_gateway_display()}"
+
+    def save(self, *args, **kwargs):
+        # اجبار به singleton بودن
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @classmethod
+    def get_active_gateway(cls):
+        return cls.load().active_rial_gateway

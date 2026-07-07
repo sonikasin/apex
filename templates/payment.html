@@ -4,197 +4,63 @@
 {% block title %}پرداخت - Apex Fx{% endblock %}
 
 {% block content %}
-<div class="payment-container">
-    <h2 class="payment-title">پرداخت سفارش</h2>
-    <div class="payment-details">
-        <h3>جزئیات پرداخت</h3>
-        <p><strong>شماره سفارش:</strong> <span>{{ order.order_number }}</span></p>
-        <p><strong>نوع پلن:</strong> <span>{{ order.plan.get_name_display }}</span></p>
-        <p><strong>اندازه حساب:</strong> <span>{{ order.plan.account_size }} دلار</span></p>
-        <p><strong>بروکر:</strong> <span>{{ order.server }}</span></p>
-        <p><strong>لِوِل:</strong> <span>{{ order.plan.get_level_display }}</span></p>
-        <p><strong>قیمت اصلی:</strong> <span>{{ original_price_usd }} دلار</span></p>
-        {% if final_price_usd != original_price_usd %}
-        <p><strong>قیمت با تخفیف:</strong> <span>{{ final_price_usd }} دلار ({{ final_price_toman }} تومان)</span></p>
-        {% else %}
-        <p><strong>قیمت نهایی:</strong> <span>{{ final_price_usd }} دلار ({{ final_price_toman }} تومان)</span></p>
-        {% endif %}
+<section class="pub-page pub-page--gradient">
+    <div class="pub-wrap pub-wrap--narrow">
+        <div class="pub-heading">
+            <h1 class="pub-heading__title">پرداخت <span>سفارش</span></h1>
+            <div class="pub-heading__line"></div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="pub-card" style="margin-bottom: 1.5rem;">
+            <h3 class="pub-card__title" style="display:flex; align-items:center; gap:0.6rem;">
+                <i class="fas fa-receipt" style="color: var(--pub-primary);"></i> جزئیات پرداخت
+            </h3>
+            <div class="pub-summary">
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">شماره سفارش</span>
+                    <span class="pub-summary__value pub-summary__value--accent">{{ order.order_number }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">نوع پلن</span>
+                    <span class="pub-summary__value">{{ order.plan.get_name_display }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">اندازه حساب</span>
+                    <span class="pub-summary__value">{{ order.plan.account_size }} دلار</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">بروکر</span>
+                    <span class="pub-summary__value">{{ order.server }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">لِوِل</span>
+                    <span class="pub-summary__value">{{ order.plan.get_level_display }}</span>
+                </div>
+                <div class="pub-summary__row">
+                    <span class="pub-summary__label">قیمت اصلی</span>
+                    <span class="pub-summary__value">{{ original_price_usd }} دلار</span>
+                </div>
+                <div class="pub-summary__row pub-summary__row--total">
+                    <span class="pub-summary__label">{% if final_price_usd != original_price_usd %}قیمت با تخفیف{% else %}قیمت نهایی{% endif %}</span>
+                    <span class="pub-summary__value">{{ final_price_usd }} دلار <small style="color:var(--pub-text-muted); font-weight:500;">({{ final_price_toman }} تومان)</small></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pay Button -->
+        <div class="pub-card" style="text-align:center;">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="pub-btn pub-btn--primary" style="width:100%;">
+                    <i class="fas fa-lock"></i> پرداخت با درگاه بانکی
+                </button>
+            </form>
+            <p class="pub-note">
+                <i class="fas fa-shield-halved" style="color: var(--pub-primary);"></i>
+                پس از کلیک بر روی دکمه پرداخت، به درگاه بانکی امن هدایت خواهید شد.
+            </p>
+        </div>
     </div>
-    <form method="post" class="payment-form">
-        {% csrf_token %}
-        <button type="submit" class="payment-btn">پرداخت با درگاه بانکی</button>
-    </form>
-    <p class="payment-info">پس از کلیک بر روی دکمه پرداخت، به درگاه بانکی هدایت خواهید شد.</p>
-</div>
-<style>
-    .payment-container {
-        padding: 2rem;
-        max-width: 600px;
-        margin: 0 auto;
-        min-height: calc(100vh - 120px);
-    }
-
-    .payment-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-
-    .payment-details {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        margin-bottom: 2rem;
-        color: #e0e0e0;
-    }
-
-    body.light-mode .payment-details {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-
-    .payment-details h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .payment-details p {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .payment-details span {
-        font-weight: 700;
-        color: #10b981;
-    }
-
-    .payment-form {
-        display: flex;
-        justify-content: center;
-    }
-
-    .payment-btn {
-        padding: 0.8rem 1.5rem;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: #121212;
-        border: none;
-        border-radius: 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    body.light-mode .payment-btn {
-        color: #ffffff;
-    }
-
-    .payment-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-    }
-
-    .payment-info {
-        font-size: 1rem;
-        color: #b0b0b0;
-        text-align: center;
-        margin-top: 1rem;
-    }
-
-    body.light-mode .payment-info {
-        color: #4b5563;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 480px) {
-        .payment-container {
-            padding: 1rem;
-        }
-
-        .payment-title {
-            font-size: 1.2rem;
-        }
-
-        .payment-details {
-            padding: 1rem;
-        }
-
-        .payment-details h3 {
-            font-size: 1.2rem;
-        }
-
-        .payment-details p {
-            font-size: 0.9rem;
-        }
-
-        .payment-btn {
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-        }
-
-        .payment-info {
-            font-size: 0.9rem;
-        }
-    }
-
-    @media (min-width: 481px) and (max-width: 768px) {
-        .payment-container {
-            padding: 1.5rem;
-        }
-
-        .payment-title {
-            font-size: 1.5rem;
-        }
-
-        .payment-details {
-            padding: 1.3rem;
-        }
-
-        .payment-details h3 {
-            font-size: 1.3rem;
-        }
-
-        .payment-btn {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-        }
-    }
-
-    @media (min-width: 769px) and (max-width: 1200px) {
-        .payment-container {
-            padding: 2rem;
-        }
-
-        .payment-title {
-            font-size: 1.7rem;
-        }
-
-        .payment-details {
-            padding: 1.5rem;
-        }
-    }
-
-    @media (min-width: 1201px) {
-        .payment-container {
-            padding: 2.5rem;
-        }
-
-        .payment-title {
-            font-size: 2rem;
-        }
-
-        .payment-details {
-            padding: 2rem;
-        }
-
-        .payment-btn {
-            padding: 0.9rem 1.7rem;
-        }
-    }
-</style>
+</section>
 {% endblock %}

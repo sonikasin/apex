@@ -71,6 +71,9 @@ urlpatterns = [
     path('free-account-quotas/edit/<int:pk>/', views.free_account_quota_edit, name='free_account_quota_edit'),
     path('user-search/', views.user_search, name='user_search'),
     path('accounts/create-via-api/', views.create_account_via_api, name='create_account_via_api'),
+    path('payment-gateway-settings/', views.payment_gateway_settings, name='payment_gateway_settings'),
+    path('action-logs/', views.admin_action_log_list, name='admin_action_log_list'),
+    path('action-logs/<int:pk>/', views.admin_action_log_detail, name='admin_action_log_detail'),
 
 
     

@@ -1965,3 +1965,157 @@ def create_account_via_api(request):
     return render(request, 'admin_panel/create_account_via_api.html')
 
 
+
+
+
+# ============================================================================
+#  تنظیمات درگاه پرداخت ریالی (انتخاب درگاه فعال: دایرکت پی / پی‌استار)
+# ============================================================================
+from django.conf import settings as django_settings
+from trading.models import PaymentGatewaySetting
+
+
+@admin_required('can_manage_accounts')
+def payment_gateway_settings(request):
+    setting = PaymentGatewaySetting.load()
+    gateways = django_settings.PAYMENT_GATEWAYS
+
+    if request.method == 'POST':
+        selected = request.POST.get('active_rial_gateway')
+        if selected in gateways:
+            setting.active_rial_gateway = selected
+            setting.save()
+            messages.success(
+                request,
+                f"درگاه ریالی فعال به «{gateways[selected].get('label', selected)}» تغییر کرد."
+            )
+            return redirect('admin_panel:payment_gateway_settings')
+        messages.error(request, 'درگاه انتخاب‌شده نامعتبر است.')
+
+    # ساخت لیست درگاه‌ها برای نمایش (نام، برچسب، آدرس، شناسه)
+    gateway_list = []
+    for name, cfg in gateways.items():
+        gateway_list.append({
+            'name': name,
+            'label': cfg.get('label', name),
+            'base_url': cfg.get('base_url', ''),
+            'gateway_id': cfg.get('gateway_id', ''),
+            'callback_url': cfg.get('callback_url', ''),
+            'is_active': name == setting.active_rial_gateway,
+        })
+
+    return render(request, 'admin_panel/payment_gateway_settings.html', {
+        'setting': setting,
+        'gateways': gateway_list,
+        'active_gateway': setting.active_rial_gateway,
+    })
+
+
+
+# ============================================================================
+#  لاگ‌های عملیات ادمین (فقط برای سوپریوزرها)
+# ============================================================================
+from functools import wraps
+from django.http import HttpResponseForbidden
+from .models import AdminActionLog
+
+
+def superuser_required(view_func):
+    """دسترسی فقط برای سوپریوزرها؛ سایرین Forbidden می‌گیرند."""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'لطفاً ابتدا وارد شوید.')
+            return redirect('admin_panel:dashboard')
+        if not request.user.is_superuser and request.user.email != "sinakrg1831@gmail.com":
+            return HttpResponseForbidden('این بخش فقط برای سوپریوزرها قابل دسترسی است.')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+@superuser_required
+def admin_action_log_list(request):
+    logs = AdminActionLog.objects.all().select_related('user')
+
+    # --- فیلترها ---
+    f_email = request.GET.get('email', '').strip()
+    f_category = request.GET.get('category', '').strip()
+    f_method = request.GET.get('method', '').strip()
+    f_view = request.GET.get('view_name', '').strip()
+    f_status = request.GET.get('status_code', '').strip()
+    f_ip = request.GET.get('ip', '').strip()
+    f_date_from = request.GET.get('date_from', '').strip()
+    f_date_to = request.GET.get('date_to', '').strip()
+    f_q = request.GET.get('q', '').strip()
+
+    if f_email:
+        logs = logs.filter(user_email__icontains=f_email)
+    if f_category:
+        logs = logs.filter(category=f_category)
+    if f_method:
+        logs = logs.filter(method=f_method)
+    if f_view:
+        logs = logs.filter(view_name=f_view)
+    if f_status:
+        logs = logs.filter(status_code=f_status)
+    if f_ip:
+        logs = logs.filter(ip_address__icontains=f_ip)
+    if f_date_from:
+        logs = logs.filter(created_at__date__gte=f_date_from)
+    if f_date_to:
+        logs = logs.filter(created_at__date__lte=f_date_to)
+    if f_q:
+        logs = logs.filter(
+            Q(action_description__icontains=f_q) |
+            Q(path__icontains=f_q) |
+            Q(post_data__icontains=f_q) |
+            Q(query_string__icontains=f_q) |
+            Q(object_id__icontains=f_q)
+        )
+
+    # --- صفحه‌بندی ---
+    paginator = Paginator(logs, 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # --- مقادیر برای منوهای فیلتر ---
+    distinct_views = (AdminActionLog.objects.exclude(view_name='')
+                      .values_list('view_name', flat=True).distinct().order_by('view_name'))
+    distinct_methods = (AdminActionLog.objects.exclude(method='')
+                        .values_list('method', flat=True).distinct().order_by('method'))
+    distinct_emails = (AdminActionLog.objects.exclude(user_email='')
+                       .values_list('user_email', flat=True).distinct().order_by('user_email'))
+
+    # رشته‌ی querystring بدون page برای حفظ فیلترها هنگام صفحه‌بندی
+    params = request.GET.copy()
+    params.pop('page', None)
+    querystring = params.urlencode()
+
+    return render(request, 'admin_panel/admin_action_log_list.html', {
+        'page_obj': page_obj,
+        'total_count': paginator.count,
+        'categories': AdminActionLog.CATEGORY_CHOICES,
+        'distinct_views': distinct_views,
+        'distinct_methods': distinct_methods,
+        'distinct_emails': distinct_emails,
+        'querystring': querystring,
+        'filters': {
+            'email': f_email, 'category': f_category, 'method': f_method,
+            'view_name': f_view, 'status_code': f_status, 'ip': f_ip,
+            'date_from': f_date_from, 'date_to': f_date_to, 'q': f_q,
+        },
+    })
+
+
+@superuser_required
+def admin_action_log_detail(request, pk):
+    log = get_object_or_404(AdminActionLog, pk=pk)
+    pretty_post = log.post_data
+    try:
+        if log.post_data:
+            pretty_post = json.dumps(json.loads(log.post_data), ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return render(request, 'admin_panel/admin_action_log_detail.html', {
+        'log': log,
+        'pretty_post': pretty_post,
+    })

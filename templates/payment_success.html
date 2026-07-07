@@ -4,234 +4,33 @@
 {% block title %}پرداخت موفق - Apex Fx{% endblock %}
 
 {% block content %}
-<div class="success-container">
-    <div class="success-icon">
-        <i class="fas fa-check-circle"></i>
-    </div>
-    <h2 class="success-title">پرداخت با موفقیت انجام شد!</h2>
-    {% if order %}
-    <p class="success-order">سفارش شما با شماره <span>{{ order.order_number }}</span> تأیید شد.</p>
-    <div class="order-details">
-        <h3>جزئیات سفارش</h3>
-        <p><strong>نوع پلن:</strong> <span>{{ order.plan.get_name_display }}</span></p>
-        <p><strong>اندازه حساب:</strong> <span>{{ order.plan.account_size }} دلار</span></p>
-        <p><strong>بروکر:</strong> <span>{{ order.server }}</span></p>
-        <p><strong>لِوِل:</strong> <span>{{ order.plan.get_level_display }}</span></p>
-        <p><strong>قیمت اصلی:</strong> <span>{{ order.original_price_usd }} دلار</span></p>
-        {% if order.final_price_usd != order.original_price_usd %}
-        <p><strong>قیمت با تخفیف:</strong> <span>{{ order.final_price_usd }} دلار ({{ order.final_price_toman }} تومان)</span></p>
-        <p><strong>کد تخفیف:</strong> <span>{{ order.discount_code.code|default:'-' }}</span></p>
-        {% else %}
-        <p><strong>قیمت نهایی:</strong> <span>{{ order.final_price_usd }} دلار ({{ order.final_price_toman }} تومان)</span></p>
+<section class="status-wrap">
+    <div class="status-card">
+        <div class="status-icon status-icon--success">
+            <i class="fas fa-check"></i>
+        </div>
+        <h2 class="status-title">پرداخت با موفقیت انجام شد!</h2>
+        {% if order %}
+        <p class="status-text">سفارش شما با شماره <span>{{ order.order_number }}</span> تأیید شد.</p>
+        <div class="status-summary">
+            <div class="status-summary__title">جزئیات سفارش</div>
+            <div class="status-summary__row"><span>نوع پلن</span><span>{{ order.plan.get_name_display }}</span></div>
+            <div class="status-summary__row"><span>اندازه حساب</span><span>{{ order.plan.account_size }} دلار</span></div>
+            <div class="status-summary__row"><span>بروکر</span><span>{{ order.server }}</span></div>
+            <div class="status-summary__row"><span>لِوِل</span><span>{{ order.plan.get_level_display }}</span></div>
+            <div class="status-summary__row"><span>قیمت اصلی</span><span>{{ order.original_price_usd }} دلار</span></div>
+            {% if order.final_price_usd != order.original_price_usd %}
+            <div class="status-summary__row"><span>قیمت با تخفیف</span><span>{{ order.final_price_usd }} دلار ({{ order.final_price_toman }} تومان)</span></div>
+            <div class="status-summary__row"><span>کد تخفیف</span><span>{{ order.discount_code.code|default:'-' }}</span></div>
+            {% else %}
+            <div class="status-summary__row"><span>قیمت نهایی</span><span>{{ order.final_price_usd }} دلار ({{ order.final_price_toman }} تومان)</span></div>
+            {% endif %}
+        </div>
         {% endif %}
+        <div class="status-actions">
+            <a href="{% url 'prop_accounts' %}" class="status-btn status-btn--primary"><i class="fas fa-wallet"></i> حساب‌های من</a>
+            <a href="{% url 'dashboard' %}" class="status-btn status-btn--ghost">بازگشت به داشبورد</a>
+        </div>
     </div>
-    {% endif %}
-    <div class="success-actions">
-        <a href="{% url 'prop_accounts' %}" class="action-btn">مشاهده حساب‌های من</a>
-        <a href="{% url 'dashboard' %}" class="action-btn">بازگشت به داشبورد</a>
-    </div>
-</div>
-<style>
-    .success-container {
-        padding: 2rem;
-        max-width: 600px;
-        margin: 0 auto;
-        min-height: calc(100vh - 120px);
-        text-align: center;
-    }
-
-    .success-icon {
-        font-size: 3rem;
-        color: #10b981;
-        margin-bottom: 1rem;
-    }
-
-    .success-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #10b981;
-        margin-bottom: 1rem;
-    }
-
-    .success-message {
-        font-size: 1rem;
-        color: #b0b0b0;
-        margin-bottom: 1rem;
-    }
-
-    body.light-mode .success-message {
-        color: #4b5563;
-    }
-
-    .success-order {
-        font-size: 1.1rem;
-        color: #e0e0e0;
-        margin-bottom: 1.5rem;
-    }
-
-    body.light-mode .success-order {
-        color: #1f2a44;
-    }
-
-    .success-order span {
-        font-weight: 700;
-        color: #10b981;
-    }
-
-    .order-details {
-        background: linear-gradient(135deg, #1e2e4f, #0f1c33);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        margin-bottom: 2rem;
-        color: #e0e0e0;
-    }
-
-    body.light-mode .order-details {
-        background: linear-gradient(135deg, #d5e8f8, #a8c8e2);
-        color: #1f2a44;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
-
-    .order-details h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .order-details p {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .order-details span {
-        font-weight: 700;
-        color: #10b981;
-    }
-
-    .success-actions {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-    }
-
-    .action-btn {
-        padding: 0.8rem 1.5rem;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: #121212;
-        text-decoration: none;
-        font-weight: 600;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    body.light-mode .action-btn {
-        color: #ffffff;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 480px) {
-        .success-container {
-            padding: 1rem;
-        }
-
-        .success-icon {
-            font-size: 2rem;
-        }
-
-        .success-title {
-            font-size: 1.2rem;
-        }
-
-        .success-message {
-            font-size: 0.9rem;
-        }
-
-        .success-order {
-            font-size: 1rem;
-        }
-
-        .order-details {
-            padding: 1rem;
-        }
-
-        .order-details h3 {
-            font-size: 1.2rem;
-        }
-
-        .order-details p {
-            font-size: 0.9rem;
-        }
-
-        .action-btn {
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-        }
-    }
-
-    @media (min-width: 481px) and (max-width: 768px) {
-        .success-container {
-            padding: 1.5rem;
-        }
-
-        .success-title {
-            font-size: 1.5rem;
-        }
-
-        .order-details {
-            padding: 1.3rem;
-        }
-
-        .order-details h3 {
-            font-size: 1.3rem;
-        }
-
-        .action-btn {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-        }
-    }
-
-    @media (min-width: 769px) and (max-width: 1200px) {
-        .success-container {
-            padding: 2rem;
-        }
-
-        .success-title {
-            font-size: 1.7rem;
-        }
-
-        .order-details {
-            padding: 1.5rem;
-        }
-    }
-
-    @media (min-width: 1201px) {
-        .success-container {
-            padding: 2.5rem;
-        }
-
-        .success-title {
-            font-size: 2rem;
-        }
-
-        .order-details {
-            padding: 2rem;
-        }
-
-        .order-details h3 {
-            font-size: 1.6rem;
-        }
-
-        .action-btn {
-            padding: 0.9rem 1.7rem;
-        }
-    }
-</style>
+</section>
 {% endblock %}

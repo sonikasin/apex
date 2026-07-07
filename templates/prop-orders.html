@@ -1,274 +1,56 @@
 {% extends 'base_dashboard.html' %}
 {% block title %}سفارشات پراپ{% endblock %}
 {% block content %}
-
-<style>
-/* Orders Section */
-.orders-section {
-    margin-bottom: 40px;
-    text-align: right;
-    padding: 25px;
-    position: relative;
-}
-
-.orders-section h2 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #10b981;
-    margin-bottom: 25px;
-    position: relative;
-    display: inline-block;
-}
-
-.orders-section h2::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    right: 0;
-    width: 60%;
-    height: 3px;
-    background: linear-gradient(90deg, #10b981, #059669);
-    border-radius: 2px;
-}
-
-.new-order-btn {
-    background: linear-gradient(90deg, #10b981, #059669);
-    color: #ffffff;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-    margin-bottom: 20px;
-}
-
-.new-order-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.7);
-    background: linear-gradient(90deg, #059669, #10b981);
-}
-
-.new-order-btn i {
-    font-size: 18px;
-}
-
-.orders-table {
-    background: linear-gradient(145deg, #1c1c1c, #2c2c2c);
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    overflow-x: auto;
-    position: relative;
-    animation: fadeInUp 0.8s ease-out;
-}
-
-body.light-mode .orders-table {
-    background: linear-gradient(145deg, #ffffff, #f4f4f4);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.orders-table:hover {
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
-}
-
-body.light-mode .orders-table:hover {
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-}
-
-.orders-table table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    min-width: 600px;
-}
-
-.orders-table th,
-.orders-table td {
-    padding: 18px;
-    text-align: center;
-    font-size: 15px;
-    transition: background 0.3s ease, transform 0.3s ease;
-}
-
-.orders-table th {
-    background: linear-gradient(90deg, #10b981, #059669);
-    color: #ffffff;
-    font-weight: 600;
-    text-transform: uppercase;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-radius: 8px 8px 0 0;
-}
-
-body.light-mode .orders-table th {
-    color: #121212;
-}
-
-.orders-table td {
-    color: #e0e0e0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-body.light-mode .orders-table td {
-    color: #1f2a44;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.orders-table tr:hover td {
-    background: rgba(16, 185, 129, 0.1);
-    transform: scale(1.01);
-}
-
-.orders-table .order-id {
-    font-weight: 600;
-    color: #10b981;
-    position: relative;
-    cursor: pointer;
-}
-
-.orders-table .order-id:hover::after {
-    content: '🔍';
-    position: absolute;
-    right: -20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-}
-
-body.light-mode .orders-table .order-id {
-    color: #059669;
-}
-
-.orders-table .plan-type {
-    background: rgba(16, 185, 129, 0.2);
-    padding: 6px 12px;
-    border-radius: 12px;
-    display: inline-block;
-    font-size: 13px;
-    color: #10b981;
-}
-
-body.light-mode .orders-table .plan-type {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-    }
-}
-
-.new-order-btn:active {
-    animation: pulse 0.5s;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .orders-section {
-        padding: 15px;
-    }
-
-    .orders-section h2 {
-        font-size: 24px;
-    }
-
-    .new-order-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
-
-    .orders-table {
-        padding: 15px;
-    }
-
-    .orders-table table {
-        min-width: 100%;
-    }
-
-    .orders-table th,
-    .orders-table td {
-        padding: 12px;
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 480px) {
-    .orders-section h2 {
-        font-size: 20px;
-    }
-
-    .new-order-btn {
-        padding: 8px 16px;
-        font-size: 13px;
-    }
-
-    .orders-table th,
-    .orders-table td {
-        padding: 10px;
-        font-size: 12px;
-    }
-
-    .orders-table .order-id:hover::after {
-        display: none;
-    }
-}
-</style>
-
-<section class="orders-section">
-    <h2>لیست سفارشات پراپ</h2>
-    <a href="https://apexfx.net/#plans" class="new-order-btn"><i class="fas fa-plus"></i> خرید حساب پراپ</a>
-    <div class="orders-table">
-        <table>
-            <thead>
-                <tr>
-                    <th>شماره سفارش</th>
-                    <th>نوع پلن</th>
-                    <th>تاریخ خرید</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td class="order-id">{{ order.id }}</td>
-                    <td><span class="plan-type">{{ order.plan.get_name_display }}</span></td>
-                    <td>{{ order.purchase_date }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3">سفارشی یافت نشد.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="dash-container">
+    <!-- Hero -->
+    <div class="dash-hero">
+        <div class="dash-hero__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+        </div>
+        <div class="dash-hero__text">
+            <h2 class="dash-hero__title">سفارشات پراپ</h2>
+            <p class="dash-hero__sub">تاریخچه چالش‌ها و سفارش‌های خریداری‌شده شما.</p>
+        </div>
+        <div class="dash-hero__action">
+            <a href="https://apexfx.net/#plans" class="dash-btn dash-btn--primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                خرید حساب پراپ
+            </a>
+        </div>
     </div>
-</section>
+
+    <div class="dash-page-section">
+        <div class="dash-table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>نوع پلن</th>
+                        <th>تاریخ خرید</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><span style="color: var(--dash-primary); font-weight: 600;">#{{ order.id }}</span></td>
+                        <td><span class="dash-badge dash-badge--success">{{ order.plan.get_name_display }}</span></td>
+                        <td>{{ order.purchase_date }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">
+                            <div class="dash-empty">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+                                <p>هنوز سفارشی ثبت نکرده‌اید.</p>
+                                <a href="https://apexfx.net/#plans" class="dash-btn dash-btn--primary dash-btn--sm" style="margin-top:14px;">خرید چالش</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
+

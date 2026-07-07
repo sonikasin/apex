@@ -4,73 +4,113 @@
 {% block title %}احراز هویت{% endblock %}
 
 {% block content %}
-<div class="identity-verification">
-    <h2>احراز هویت</h2>
-    
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <p class="{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}">
-            {{ message }}
-        </p>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="verification-guide">
-        <h3>راهنمای احراز هویت</h3>
-        <p>برای تکمیل فرآیند احراز هویت، لطفاً مدارک زیر را با دقت آپلود کنید:</p>
-        <ul>
-            <li><strong>تصویر کارت ملی:</strong> تصویر واضح و خوانا از کارت ملی خود را آپلود کنید. مطمئن شوید که تمام اطلاعات (نام، کد ملی، تاریخ تولد و غیره) به وضوح قابل مشاهده است.</li>
-            <li><strong>سلفی با کارت ملی:</strong> عکسی از خودتان در حالی که کارت ملی را در دست دارید آپلود کنید. چهره شما و کارت ملی باید به وضوح قابل مشاهده باشند.</li>
-        </ul>
-        <p><strong>نکات مهم:</strong></p>
-        <ul>
-            <li>فقط فایل‌های با فرمت PNG، JPG یا JPEG پذیرفته می‌شوند.</li>
-            <li>حداکثر حجم هر فایل ۵ مگابایت است.</li>
-            <li>مدارک شما توسط تیم پشتیبانی بررسی شده و نتیجه از طریق ایمیل اطلاع‌رسانی خواهد شد.</li>
-        </ul>
+<div class="dash-container">
+    <!-- Hero -->
+    <div class="dash-hero">
+        <div class="dash-hero__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div class="dash-hero__text">
+            <h2 class="dash-hero__title">احراز هویت</h2>
+            <p class="dash-hero__sub">برای فعال‌سازی کامل حساب، مدارک هویتی خود را تأیید کنید.</p>
+        </div>
     </div>
 
-    {% if verification %}
-    <div class="verification-status">
-        <h3>وضعیت احراز هویت</h3>
-        <p>وضعیت: <span class="status {{ verification.status }}">{{ verification.get_status_display }}</span></p>
-        {% if verification.status == 'rejected' and verification.rejection_reason %}
-        <p>دلیل رد شدن: <span>{{ verification.rejection_reason }}</span></p>
+    <div class="dash-page-section">
+        {% if messages %}
+        <div class="dash-messages">
+            {% for message in messages %}
+            <div class="dash-message {% if message.tags == 'success' %}dash-message--success{% elif message.tags == 'error' %}dash-message--error{% else %}dash-message--info{% endif %}">
+                {% if message.tags == 'success' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                {% elif message.tags == 'error' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
         {% endif %}
-        <p>زمان ارسال: {{ verification.submitted_at|date:"Y/m/d - H:i" }}</p>
-        {% if verification.reviewed_at %}
-        <p>زمان بررسی: {{ verification.reviewed_at|date:"Y/m/d - H:i" }}</p>
-        {% endif %}
-        {% if verification.status == 'pending' or verification.status == 'rejected' %}
-        <p>می‌توانید مدارک جدیدی آپلود کنید:</p>
-        {% endif %}
-    </div>
-    {% endif %}
 
-    {% if not verification or verification.status == 'pending' or verification.status == 'rejected' %}
-    <div class="verification-form">
-        <h3>آپلود مدارک</h3>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="{{ form.national_id_image.id_for_label }}">{{ form.national_id_image.label }}</label>
-                {{ form.national_id_image }}
-                {% if form.national_id_image.errors %}
-                <p class="error">{{ form.national_id_image.errors.as_text }}</p>
+        <!-- Guide -->
+        <div class="dash-verification">
+            <div class="dash-verification__title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; vertical-align:middle; margin-left:8px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                راهنمای احراز هویت
+            </div>
+            <div class="dash-verification__guide">
+                <p>برای تکمیل فرآیند احراز هویت، لطفاً مدارک زیر را با دقت آپلود کنید:</p>
+                <ul>
+                    <li><strong>تصویر کارت ملی:</strong> تصویر واضح و خوانا از کارت ملی خود را آپلود کنید. مطمئن شوید که تمام اطلاعات به وضوح قابل مشاهده است.</li>
+                    <li><strong>سلفی با کارت ملی:</strong> عکسی از خودتان در حالی که کارت ملی را در دست دارید آپلود کنید.</li>
+                </ul>
+                <p><strong>نکات مهم:</strong></p>
+                <ul>
+                    <li>فقط فایل‌های با فرمت PNG، JPG یا JPEG پذیرفته می‌شوند.</li>
+                    <li>حداکثر حجم هر فایل ۵ مگابایت است.</li>
+                    <li>مدارک شما توسط تیم پشتیبانی بررسی شده و نتیجه از طریق ایمیل اطلاع‌رسانی خواهد شد.</li>
+                </ul>
+            </div>
+        </div>
+
+        {% if verification %}
+        <!-- Status -->
+        <div class="dash-verification" style="margin-bottom: 24px;">
+            <div class="dash-verification__title">وضعیت احراز هویت</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: var(--dash-text-muted); font-size: 14px;">وضعیت:</span>
+                    {% if verification.status == 'approved' %}
+                        <span class="dash-badge dash-badge--success">{{ verification.get_status_display }}</span>
+                    {% elif verification.status == 'rejected' %}
+                        <span class="dash-badge dash-badge--danger">{{ verification.get_status_display }}</span>
+                    {% else %}
+                        <span class="dash-badge dash-badge--warning">{{ verification.get_status_display }}</span>
+                    {% endif %}
+                </div>
+                {% if verification.status == 'rejected' and verification.rejection_reason %}
+                <p style="font-size: 14px; color: var(--dash-text-muted);">دلیل رد شدن: <span style="color: var(--dash-text);">{{ verification.rejection_reason }}</span></p>
+                {% endif %}
+                <p style="font-size: 14px; color: var(--dash-text-muted);">زمان ارسال: <span style="color: var(--dash-text);">{{ verification.submitted_at|date:"Y/m/d - H:i" }}</span></p>
+                {% if verification.reviewed_at %}
+                <p style="font-size: 14px; color: var(--dash-text-muted);">زمان بررسی: <span style="color: var(--dash-text);">{{ verification.reviewed_at|date:"Y/m/d - H:i" }}</span></p>
                 {% endif %}
             </div>
-            <div class="form-group">
-                <label for="{{ form.selfie_with_id_image.id_for_label }}">{{ form.selfie_with_id_image.label }}</label>
-                {{ form.selfie_with_id_image }}
-                {% if form.selfie_with_id_image.errors %}
-                <p class="error">{{ form.selfie_with_id_image.errors.as_text }}</p>
-                {% endif %}
-            </div>
-            <button type="submit" class="verification-submit">ارسال مدارک</button>
-        </form>
+        </div>
+        {% endif %}
+
+        {% if not verification or verification.status == 'pending' or verification.status == 'rejected' %}
+        <!-- Upload Form -->
+        <div class="dash-form">
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--dash-text); margin-bottom: 20px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; vertical-align:middle; margin-left:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                آپلود مدارک
+            </h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="dash-form__group">
+                    <label class="dash-form__label" for="{{ form.national_id_image.id_for_label }}">{{ form.national_id_image.label }}</label>
+                    {{ form.national_id_image }}
+                    {% if form.national_id_image.errors %}
+                    <p style="font-size: 13px; color: #ef4444; margin-top: 6px;">{{ form.national_id_image.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+                <div class="dash-form__group">
+                    <label class="dash-form__label" for="{{ form.selfie_with_id_image.id_for_label }}">{{ form.selfie_with_id_image.label }}</label>
+                    {{ form.selfie_with_id_image }}
+                    {% if form.selfie_with_id_image.errors %}
+                    <p style="font-size: 13px; color: #ef4444; margin-top: 6px;">{{ form.selfie_with_id_image.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+                <button type="submit" class="dash-btn dash-btn--primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                    ارسال مدارک
+                </button>
+            </form>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}

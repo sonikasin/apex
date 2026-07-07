@@ -1,35 +1,67 @@
-
 {% extends 'base_dashboard.html' %}
 {% block title %}جزئیات تیکت {{ ticket.ticket_number }}{% endblock %}
 {% block content %}
-<section class="ticket-detail">
-    <h2>جزئیات تیکت {{ ticket.ticket_number }}</h2>
-    <div class="detail-content">
-        <div class="info">
-            <p>موضوع: <span>{{ ticket.subject }}</span></p>
-            <p>دپارتمان: <span>{{ ticket.department }}</span></p>
-            <p>تاریخ: <span>{{ ticket.created_at|date:"Y/m/d" }}</span></p>
-            <p>وضعیت: <span class="status {{ ticket.status|lower }}">{{ ticket.get_status_display }}</span></p>
+<div class="dash-container">
+    <div class="dash-page-section">
+        <div class="dash-page-section__header">
+            <h2 class="dash-page-section__title">تیکت #{{ ticket.ticket_number }}</h2>
+            <a href="{% url 'ticket_list' %}" class="dash-btn dash-btn--secondary dash-btn--sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                بازگشت
+            </a>
         </div>
-        <div class="messages">
+
+        <!-- Ticket Info -->
+        <div class="dash-ticket-info">
+            <div class="dash-ticket-info__item">
+                <span class="dash-ticket-info__label">موضوع</span>
+                <span class="dash-ticket-info__value">{{ ticket.subject }}</span>
+            </div>
+            <div class="dash-ticket-info__item">
+                <span class="dash-ticket-info__label">دپارتمان</span>
+                <span class="dash-ticket-info__value">{{ ticket.department }}</span>
+            </div>
+            <div class="dash-ticket-info__item">
+                <span class="dash-ticket-info__label">تاریخ</span>
+                <span class="dash-ticket-info__value">{{ ticket.created_at|date:"Y/m/d" }}</span>
+            </div>
+            <div class="dash-ticket-info__item">
+                <span class="dash-ticket-info__label">وضعیت</span>
+                <span>
+                    {% if ticket.status == 'open' %}
+                        <span class="dash-badge dash-badge--success">{{ ticket.get_status_display }}</span>
+                    {% else %}
+                        <span class="dash-badge dash-badge--danger">{{ ticket.get_status_display }}</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="dash-chat">
             {% for message in ticket.messages %}
-            <div class="message {% if message.sender == 'user' %}user{% else %}support{% endif %}">
+            <div class="dash-chat__msg {% if message.sender == 'user' %}dash-chat__msg--user{% else %}dash-chat__msg--support{% endif %}">
                 <p>{{ message.text|default_if_none:"" }}</p>
-                <div class="timestamp">{{ message.timestamp }}</div>
+                <span class="dash-chat__time">{{ message.timestamp }}</span>
             </div>
             {% empty %}
-            <p>هنوز پیامی وجود ندارد.</p>
+            <div class="dash-chat__empty">هنوز پیامی وجود ندارد.</div>
             {% endfor %}
         </div>
+
+        <!-- Reply -->
         {% if ticket.status == 'open' %}
-        <form method="POST">
+        <form method="POST" class="dash-reply-form">
             {% csrf_token %}
-            <textarea name="message" placeholder="پاسخ شما" required></textarea>
-            <button type="submit">ارسال پاسخ</button>
+            <textarea name="message" placeholder="پاسخ شما..." required></textarea>
+            <button type="submit" class="dash-btn dash-btn--primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                ارسال
+            </button>
         </form>
         {% else %}
-        <p>این تیکت بسته شده است و نمی‌توانید پاسخ دهید.</p>
+        <div class="dash-ticket-closed">این تیکت بسته شده است و نمی‌توانید پاسخ دهید.</div>
         {% endif %}
     </div>
-</section>
+</div>
 {% endblock %}

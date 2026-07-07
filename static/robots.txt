@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin-panel/
+Disallow: /dashboard/
+Disallow: /tickets/
+Disallow: /prop-orders/
+Disallow: /prop-accounts/
+Disallow: /identity-verification/
+Disallow: /wallet/
+
+Sitemap: https://apexfx.net/sitemap.xml
