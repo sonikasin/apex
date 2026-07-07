@@ -67,6 +67,40 @@ body.light-mode {
     color: var(--apx-text); font-size: 15px; font-family: inherit;
 }
 .apx-form select:focus { outline: none; border-color: var(--apx-green); }
+.apx-date-lbl { display: flex; align-items: center; gap: 8px; color: var(--apx-muted); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.apx-date-lbl input { padding: 11px 12px; border-radius: 12px; border: 1px solid var(--apx-border); background: var(--apx-panel2); color: var(--apx-text); font-family: inherit; }
+.apx-form-hint { margin-top: 10px; font-size: 12.5px; color: var(--apx-muted); }
+
+/* بنر نقض قوانین */
+.apx-vio { display: flex; align-items: flex-start; gap: 12px; padding: 15px 18px; border-radius: 14px; margin-bottom: 12px;
+    background: linear-gradient(90deg, rgba(239,68,68,.16), rgba(239,68,68,.05)); border: 1px solid var(--apx-red); border-right: 5px solid var(--apx-red); }
+.apx-vio.ok { background: linear-gradient(90deg, rgba(16,185,129,.14), rgba(16,185,129,.04)); border-color: var(--apx-green); border-right-color: var(--apx-green); }
+.apx-vio.warn { background: linear-gradient(90deg, rgba(245,158,11,.14), rgba(245,158,11,.04)); border-color: var(--apx-amber); border-right-color: var(--apx-amber); }
+.apx-vio .ic { font-size: 22px; line-height: 1.2; }
+.apx-vio .body { flex: 1; }
+.apx-vio .body .h { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+.apx-vio .body .d { font-size: 13.5px; color: var(--apx-muted); line-height: 1.9; }
+.apx-vio .body .d b { color: var(--apx-text); }
+
+/* شبکه‌ی روز درخواستی */
+.apx-daygrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+.apx-daybox { padding: 15px; border-radius: 12px; background: var(--apx-panel2); border: 1px solid var(--apx-border); }
+.apx-daybox .t { font-size: 13px; color: var(--apx-muted); margin-bottom: 8px; }
+.apx-daybox .v { font-size: 21px; font-weight: 800; }
+.apx-daybox .sub { font-size: 12px; color: var(--apx-muted); margin-top: 4px; }
+
+/* کارت قانون */
+.apx-rule .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.apx-rule .head h4 { margin: 0; font-size: 16px; }
+.apx-rule .rows { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.apx-rule .rows .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(148,161,181,.14); }
+.apx-rule .rows .row span:last-child { font-weight: 700; }
+.apx-rule .list { margin-top: 10px; font-size: 13px; color: var(--apx-muted); }
+.apx-rule .list .li { padding: 8px 10px; border-radius: 8px; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); margin-bottom: 6px; color: var(--apx-text); }
+.pill { padding: 4px 12px; border-radius: 30px; font-size: 13px; font-weight: 800; }
+.pill.ok { background: rgba(16,185,129,.15); color: var(--apx-green); border: 1px solid var(--apx-green); }
+.pill.bad { background: rgba(239,68,68,.15); color: var(--apx-red); border: 1px solid var(--apx-red); }
+.pill.warn { background: rgba(245,158,11,.15); color: var(--apx-amber); border: 1px solid var(--apx-amber); }
 
 /* راهنما */
 .apx-guide summary { cursor: pointer; font-weight: 700; color: var(--apx-green); font-size: 16px; }
@@ -159,8 +193,12 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
                 <option value="{{ account.account_number }}" {% if selected_account.account_number == account.account_number %}selected{% endif %}>{{ account.account_number }}</option>
                 {% endfor %}
             </select>
+            <label class="apx-date-lbl">روز آنالیز:
+                <input type="date" name="requested_date" value="{{ requested_date }}">
+            </label>
             <button type="submit" class="apx-btn">نمایش آنالیز</button>
         </form>
+        <div class="apx-form-hint">آنالیز تا پایانِ «روز آنالیز» محاسبه می‌شود؛ برای بررسیِ یک روزِ خاص (مثلاً روزِ ذکرشده در تیکت) همان تاریخ را انتخاب کنید.</div>
     </div>
 
     <!-- راهنما -->
@@ -204,6 +242,13 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
             </div>
         </div>
 
+        <!-- بنر نقض قوانین -->
+        <div id="apx-violations"></div>
+
+        <!-- وضعیت روز آنالیز -->
+        <div class="apx-section-title">وضعیت روز آنالیز <span id="req-day-label" style="color:var(--apx-muted);font-weight:600;font-size:15px;"></span></div>
+        <div class="apx-card" style="margin-bottom:8px;"><div class="apx-daygrid" id="apx-daygrid"></div></div>
+
         <!-- گیج قوانین -->
         <div class="apx-section-title">پایبندی به قوانین</div>
         <div class="apx-card">
@@ -237,6 +282,13 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
                     <div class="foot" id="g-profit-foot"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- قوانین سود: ۸۰٪ و اسکالپ -->
+        <div class="apx-section-title">قوانین سود (قانون ۸۰٪ و اسکالپ)</div>
+        <div class="apx-charts">
+            <div class="apx-card apx-rule" id="rule-80"></div>
+            <div class="apx-card apx-rule" id="rule-scalp"></div>
         </div>
 
         <!-- KPI -->
@@ -412,6 +464,134 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
         return '<div class="apx-kpi"><div class="t">' + k.t + '</div><div class="v ' + (k.c || '') + '">' + k.v + '</div></div>';
     }).join('');
 
+    // ========== روزِ آنالیز، بنر نقض، و قوانینِ سود ==========
+    function fmtTime(iso) {
+        if (!iso) return '-';
+        var s = ('' + iso).replace('T', ' ');
+        return s.length >= 19 ? s.slice(0, 19) : s;
+    }
+    var reqDate = (CFG.requested_date || '').slice(0, 10);
+    if (!reqDate && daily.length) reqDate = daily[daily.length - 1].date;
+    var dailyLimitPct = num(CFG.daily_draw_percent) || 5;
+    var totalLimitPct = num(CFG.total_draw_percent) || 20;
+    var targetPct = num(CFG.profit_percent_target);
+    var targetAmount = num(CFG.profit_target_amount) || (num(M.initial_balance) * targetPct / 100);
+
+    // --- روزِ آنالیز ---
+    var isLastDay = daily.length ? (reqDate === daily[daily.length - 1].date) : true;
+    var dayM = null;
+    for (var di = 0; di < daily.length; di++) { if (daily[di].date === reqDate) { dayM = daily[di]; break; } }
+    if (!dayM && daily.length) dayM = daily[daily.length - 1];
+    el('req-day-label').textContent = reqDate ? ('(' + reqDate + ')') : '';
+
+    var dailyDDpct = 0, dayStart = num(M.initial_balance), dayLow = num(M.current_balance), dayBreached = false;
+    if (dayM) {
+        dailyDDpct = num(dayM.daily_drawdown_percent);
+        dayStart = num(dayM.start_balance);
+        dayLow = num(dayM.min_equity);
+        dayBreached = !!dayM.exceeds_threshold;
+    }
+    var dayFloor = dayStart * (1 - dailyLimitPct / 100);
+    var allowedLoss = dayStart * dailyLimitPct / 100;
+    var refEquity = isLastDay ? num(M.current_balance) : dayLow;
+    var remaining = refEquity - dayFloor;
+    var dayCells = [
+        { t: 'بالانس ابتدای روز', v: money(dayStart) },
+        { t: 'حد مجاز اکوییتی امروز', v: money(dayFloor), sub: 'نباید پایین‌تر برود' },
+        { t: 'حداکثر ضرر مجاز امروز', v: money(allowedLoss), sub: pct(dailyLimitPct) + ' بالانس ابتدای روز' },
+        { t: isLastDay ? 'کمترین اکوییتی امروز' : 'کمترین اکوییتی این روز', v: money(dayLow), sub: 'دراوداون: ' + pct(dailyDDpct) },
+        { t: isLastDay ? 'هنوز می‌توانید ضرر کنید' : 'فاصله تا حد مجاز', v: money(Math.max(0, remaining)), sub: remaining <= 0 ? 'حد رد شده' : 'باقی‌مانده', c: remaining <= 0 ? 'neg' : 'pos' }
+    ];
+    el('apx-daygrid').innerHTML = dayCells.map(function (c) {
+        return '<div class="apx-daybox"><div class="t">' + c.t + '</div><div class="v ' + (c.c || '') + '">' + c.v + '</div>' + (c.sub ? '<div class="sub">' + c.sub + '</div>' : '') + '</div>';
+    }).join('');
+
+    // --- بنر نقض قوانین ---
+    var vios = [];
+    daily.forEach(function (d) {
+        if (d.exceeds_threshold) {
+            var fl = num(d.start_balance) * (1 - dailyLimitPct / 100);
+            vios.push({ ic: '⛔', h: 'نقض دراوداون روزانه',
+                d: 'در تاریخ <b>' + d.date + '</b> ساعت <b>' + fmtTime(d.min_equity_time) + '</b> (تایم بروکر) دراوداون روزانه نقض شد. اکوییتی شما نباید پایین‌تر از <b>' + money(fl) + '</b> می‌رفت، اما به <b>' + money(d.min_equity) + '</b> رسید (دراوداون ' + pct(d.daily_drawdown_percent) + ' از حد مجاز ' + pct(dailyLimitPct) + ').' });
+        }
+    });
+    if (M.overall_drawdown_violated) {
+        var oFloor = num(M.initial_balance) * (1 - totalLimitPct / 100);
+        vios.push({ ic: '⛔', h: 'نقض دراوداون کل',
+            d: 'در <b>' + fmtTime(M.max_drawdown_date) + '</b> (تایم بروکر) دراوداون کل نقض شد. اکوییتی نباید پایین‌تر از <b>' + money(oFloor) + '</b> می‌رفت، اما به <b>' + money(M.min_equity_overall) + '</b> رسید (' + pct(M.max_drawdown_percent) + ' از حد مجاز ' + pct(totalLimitPct) + ').' });
+    }
+    (M.floating_risk_violations || []).slice(0, 5).forEach(function (f) {
+        vios.push({ cls: 'warn', ic: '⚠️', h: 'نقض ریسک شناور',
+            d: 'در <b>' + fmtTime(f.time) + '</b> ضرر شناور به <b>' + money(f.total_floating_loss) + '</b> رسید (' + pct(f.floating_loss_percent) + ' — ' + (f.type === 'single_trade' ? 'یک معامله' : 'چند معامله همزمان') + ').' });
+    });
+
+    // --- قانون ۸۰٪ (خوشه‌بندیِ معاملاتِ همزمان/کمتر از ۵ دقیقه) ---
+    var closedT = trades.filter(function (t) { return t.open_time && t.close_time; })
+        .sort(function (a, b) { return new Date(a.open_time) - new Date(b.open_time); });
+    var FIVE = 5 * 60 * 1000, clusters = [], cur = null, curCloseMax = 0;
+    closedT.forEach(function (t) {
+        var op = new Date(t.open_time).getTime(), cl = new Date(t.close_time).getTime();
+        if (cur && (op - curCloseMax) < FIVE) {
+            cur.trades.push(t); cur.profit += num(t.profit_loss); if (cl > curCloseMax) curCloseMax = cl;
+        } else {
+            cur = { trades: [t], profit: num(t.profit_loss), start: t.open_time }; clusters.push(cur); curCloseMax = cl;
+        }
+    });
+    var isReal = targetAmount <= 0;
+    var thr80 = isReal ? 0.8 * Math.max(0, netPL) : 0.8 * targetAmount;
+    var basis80 = isReal ? '۸۰٪ سود کل' : '۸۰٪ تارگت سود';
+    var maxCluster = clusters.length ? Math.max.apply(null, clusters.map(function (c) { return c.profit; })) : 0;
+    var viol80 = clusters.filter(function (c) { return thr80 > 0 && c.profit > thr80; }).sort(function (a, b) { return b.profit - a.profit; });
+    var rule80Ok = viol80.length === 0;
+    if (!rule80Ok) {
+        vios.push({ cls: 'warn', ic: '📛', h: 'نقض قانون ۸۰٪',
+            d: 'یک گروهِ معاملاتی (همزمان یا با فاصله‌ی کمتر از ۵ دقیقه) سودِ <b>' + money(viol80[0].profit) + '</b> کسب کرده که از حدِ مجاز <b>' + money(thr80) + '</b> (' + basis80 + ') بیشتر است.' });
+    }
+    el('rule-80').innerHTML =
+        '<div class="head"><h4>قانون ۸۰٪ سود</h4><span class="pill ' + (rule80Ok ? 'ok' : 'bad') + '">' + (rule80Ok ? 'رعایت شده' : 'نقض شده') + '</span></div>' +
+        '<div class="rows">' +
+        '<div class="row"><span>مبنا</span><span>' + basis80 + (thr80 > 0 ? '' : ' (نامشخص)') + '</span></div>' +
+        '<div class="row"><span>حدِ مجاز هر گروه</span><span>' + (thr80 > 0 ? money(thr80) : '—') + '</span></div>' +
+        '<div class="row"><span>بیشترین سودِ یک گروه</span><span>' + money(maxCluster) + '</span></div>' +
+        '<div class="row"><span>تعداد گروه‌های معاملاتی</span><span>' + clusters.length + '</span></div>' +
+        '</div>' +
+        (viol80.length ? '<div class="list">' + viol80.slice(0, 3).map(function (c) { return '<div class="li">گروهِ ' + fmtTime(c.start) + ' ← سود ' + money(c.profit) + ' (' + c.trades.length + ' معامله)</div>'; }).join('') + '</div>' : '') +
+        '<div class="list" style="background:none;border:none;padding:0;color:var(--apx-muted);">گروه = معاملاتی که فاصله‌ی کلوز تا اوپنِ بعدی‌شان کمتر از ۵ دقیقه است (یا همزمان).</div>';
+
+    // --- اسکالپ (زیر ۳۰ ثانیه) ---
+    var subTrades = trades.filter(function (t) { return num(t.duration_seconds) > 0 && num(t.duration_seconds) < 30; });
+    var subProfitTrades = subTrades.filter(function (t) { return num(t.profit_loss) > 0; });
+    var scalpProfit = subProfitTrades.reduce(function (a, t) { return a + num(t.profit_loss); }, 0);
+    var scalpLimit = targetAmount > 0 ? 0.1 * targetAmount : 0;
+    var scalpOver = scalpLimit > 0 && scalpProfit > scalpLimit;
+    if (scalpOver) {
+        vios.push({ cls: 'warn', ic: '⏱️', h: 'سودِ اسکالپِ غیرمجاز',
+            d: 'سودِ حاصل از معاملاتِ زیر ۳۰ ثانیه <b>' + money(scalpProfit) + '</b> است که از سقفِ مجاز <b>' + money(scalpLimit) + '</b> (۱۰٪ تارگت) بیشتر است و باید جبران شود.' });
+    }
+    if (subTrades.length) {
+        vios.push({ cls: 'warn', ic: '⏱️', h: 'معاملاتِ زیر ۳۰ ثانیه',
+            d: '<b>' + subTrades.length + '</b> معامله زیرِ حداقلِ زمانِ مجاز (۳۰ ثانیه) بسته شده‌اند؛ این می‌تواند منجر به پاس شدنِ زودهنگام یا حذفِ سود شود.' });
+    }
+    el('rule-scalp').innerHTML =
+        '<div class="head"><h4>معاملات اسکالپ (زیر ۳۰ ثانیه)</h4><span class="pill ' + (scalpOver ? 'bad' : (subTrades.length ? 'warn' : 'ok')) + '">' + (scalpOver ? 'سود غیرمجاز' : (subTrades.length ? 'هشدار' : 'رعایت شده')) + '</span></div>' +
+        '<div class="rows">' +
+        '<div class="row"><span>سود زیر ۳۰ ثانیه</span><span class="pos">' + money(scalpProfit) + '</span></div>' +
+        '<div class="row"><span>سقف مجاز (۱۰٪ تارگت)</span><span>' + (scalpLimit > 0 ? money(scalpLimit) : '—') + '</span></div>' +
+        '<div class="row"><span>تعداد معاملاتِ زیر ۳۰ ثانیه</span><span>' + subTrades.length + '</span></div>' +
+        '<div class="row"><span>از این تعداد، سودده</span><span>' + subProfitTrades.length + '</span></div>' +
+        '</div>' +
+        '<div class="list" style="background:none;border:none;padding:0;color:var(--apx-muted);">حداقل زمانِ مجازِ هر معامله ۳۰ ثانیه است و سودِ اسکالپ نباید از ۱۰٪ تارگت بیشتر شود.</div>';
+
+    // --- رندرِ بنر ---
+    var banner = el('apx-violations');
+    if (vios.length) {
+        banner.innerHTML = vios.map(function (v) {
+            return '<div class="apx-vio ' + (v.cls || '') + '"><div class="ic">' + v.ic + '</div><div class="body"><div class="h">' + v.h + '</div><div class="d">' + v.d + '</div></div></div>';
+        }).join('');
+    } else {
+        banner.innerHTML = '<div class="apx-vio ok"><div class="ic">✅</div><div class="body"><div class="h">تا این تاریخ نقضِ قانونی ثبت نشده است</div><div class="d">دراوداون روزانه، دراوداون کل، ریسک شناور، قانون ۸۰٪ و محدودیتِ اسکالپ رعایت شده‌اند.</div></div></div>';
+    }
+
     // ---------- گیج‌ها ----------
     function gauge(cid, usedPct, color, violatedFlag) {
         usedPct = Math.max(0, Math.min(100, usedPct));
@@ -425,17 +605,14 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
             }
         });
     }
-    // دراوداون روزانه: بدترین درصد روزانه نسبت به حد
-    var worstDaily = daily.reduce(function (m, d) { return Math.max(m, num(d.daily_drawdown_percent)); }, 0);
-    var dailyLimit = num(CFG.daily_draw_percent) || 5;
-    gauge('g-daily', worstDaily / dailyLimit * 100, GREEN, M.daily_drawdown_violated);
-    el('g-daily-v').textContent = pct(worstDaily);
-    el('g-daily-foot').textContent = 'حد مجاز: ' + pct(dailyLimit) + (M.daily_drawdown_violated ? ' — نقض شد' : '');
+    // دراوداون روزانه: مربوط به «روزِ آنالیز» (نه بدترین/آخرین روز)
+    gauge('g-daily', dailyLimitPct ? (dailyDDpct / dailyLimitPct * 100) : 0, GREEN, dayBreached);
+    el('g-daily-v').textContent = pct(dailyDDpct);
+    el('g-daily-foot').textContent = 'حد مجاز: ' + pct(dailyLimitPct) + (dayBreached ? ' — نقض شد' : '');
 
-    var totalLimit = num(CFG.total_draw_percent) || 20;
-    gauge('g-total', num(M.max_drawdown_percent) / totalLimit * 100, CYAN, M.overall_drawdown_violated);
+    gauge('g-total', num(M.max_drawdown_percent) / totalLimitPct * 100, CYAN, M.overall_drawdown_violated);
     el('g-total-v').textContent = pct(M.max_drawdown_percent);
-    el('g-total-foot').textContent = 'حد مجاز: ' + pct(totalLimit) + (M.overall_drawdown_violated ? ' — نقض شد' : '');
+    el('g-total-foot').textContent = 'حد مجاز: ' + pct(totalLimitPct) + (M.overall_drawdown_violated ? ' — نقض شد' : '');
 
     var frCount = (M.floating_risk_violations || []).length;
     gauge('g-float', frCount > 0 ? 100 : 0, GREEN, frCount > 0);

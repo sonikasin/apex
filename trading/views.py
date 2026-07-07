@@ -1286,13 +1286,18 @@ def analytics(request):
     total_draw_percent = 20.0
     floating_risk_percent = 2.0
     profit_percent_target = 0.0
+    profit_target_amount = 0.0
+    # روزِ درخواستی برای آنالیز (پیش‌فرض امروز)
+    requested_date = timezone.now().strftime("%Y-%m-%d")
 
     if request.method == 'POST':
         account_number = request.POST.get('account_number')
         if account_number:
             try:
                 current_time = timezone.now()
-                formatted_time = current_time.strftime("%Y-%m-%dT23:59:59")
+                # روزی که کاربر می‌خواهد آنالیز شود (پیش‌فرض امروز)
+                requested_date = request.POST.get('requested_date') or current_time.strftime("%Y-%m-%d")
+                formatted_time = f"{requested_date}T23:59:59"
                 selected_account = accounts.get(account_number=account_number)
                 
                 # درخواست به API
@@ -1381,6 +1386,8 @@ def analytics(request):
                 profit_target_value = initial_balance * (profit_percent / 100) + initial_balance if profit_percent > 0 else 0.0
                 profit_target_progress = (current_profit_percent / profit_percent) * 100 if profit_percent > 0 and current_profit_percent >= 0 else 0.0
                 profit_percent_target = profit_percent
+                # مبلغِ دلاریِ تارگت سود (برای قانون ۸۰٪ و سقفِ اسکالپ)
+                profit_target_amount = initial_balance * (profit_percent / 100) if profit_percent > 0 else 0.0
 
                 # تعیین وضعیت حساب
                 is_violated = metrics.get('daily_drawdown_violated', False) or \
@@ -1429,15 +1436,18 @@ def analytics(request):
         'account_status': account_status,
         'trading_days_count': trading_days_count,
         # پیکربندیِ حدود ریسک برای گیج‌ها/نمودارهای سمتِ کلاینت
+        'requested_date': requested_date,
         'analysis_config': {
             'daily_draw_percent': daily_draw_percent,
             'total_draw_percent': total_draw_percent,
             'floating_risk_percent': floating_risk_percent,
             'profit_percent_target': profit_percent_target,
+            'profit_target_amount': profit_target_amount,
             'daily_drawdown_limit_value': daily_drawdown_value,
             'total_drawdown_limit_value': total_drawdown_value,
             'profit_target_value': profit_target_value,
             'account_status': account_status,
+            'requested_date': requested_date,
         },
     })
 
