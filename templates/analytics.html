@@ -45,19 +45,14 @@ body.light-mode {
 /* کارت شیشه‌ای */
 .apx-card {
     background: var(--apx-panel);
-    backdrop-filter: blur(14px);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--apx-border);
-    border-radius: 18px; padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.28);
+    border-radius: 14px; padding: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
     position: relative; overflow: hidden;
 }
-.apx-card::before {
-    content: ''; position: absolute; inset: 0 0 auto 0; height: 3px;
-    background: linear-gradient(90deg, var(--apx-green), var(--apx-cyan), transparent);
-    opacity: .8;
-}
-.apx-section-title { font-size: 20px; font-weight: 800; margin: 26px 0 14px; display: flex; align-items: center; gap: 10px; }
-.apx-section-title::before { content: ''; width: 5px; height: 22px; border-radius: 4px; background: linear-gradient(180deg, var(--apx-green), var(--apx-cyan)); }
+.apx-section-title { font-size: 17px; font-weight: 700; margin: 22px 0 12px; display: flex; align-items: center; gap: 9px; letter-spacing: -.2px; }
+.apx-section-title::before { content: ''; width: 3px; height: 18px; border-radius: 3px; background: var(--apx-green); }
 
 /* فرم انتخاب حساب */
 .apx-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -179,8 +174,25 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     .apx-hero { grid-template-columns: 1fr 1fr; }
     .apx-charts { grid-template-columns: 1fr; }
 }
-@media (max-width: 560px) {
-    .apx-hero { grid-template-columns: 1fr; }
+@media (max-width: 640px) {
+    .apx-analytics { padding: 12px; }
+    .apx-toolbar { gap: 8px; }
+    .apx-toolbar .apx-btn { flex: 1; justify-content: center; padding: 11px 14px; font-size: 14px; }
+    .apx-form { flex-direction: column; align-items: stretch; }
+    .apx-form select, .apx-form .apx-btn { width: 100%; }
+    .apx-card { padding: 15px; border-radius: 12px; }
+    .apx-hero { grid-template-columns: 1fr; gap: 10px; }
+    .apx-gauges { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .apx-gauge .wrap { height: 110px; }
+    .apx-kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .apx-kpi .v { font-size: 18px; }
+    .apx-daygrid { grid-template-columns: 1fr 1fr; }
+    .apx-chart-box, .apx-chart-box.sm { height: 240px; }
+    .apx-section-title { font-size: 15.5px; }
+    .apx-hero .big-num { font-size: 24px; }
+}
+@media (max-width: 380px) {
+    .apx-gauges, .apx-kpis, .apx-daygrid { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -202,12 +214,9 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
                 <option value="{{ account.account_number }}" {% if selected_account.account_number == account.account_number %}selected{% endif %}>{{ account.account_number }}</option>
                 {% endfor %}
             </select>
-            <label class="apx-date-lbl">روز آنالیز:
-                <input type="date" name="requested_date" value="{{ requested_date }}">
-            </label>
             <button type="submit" class="apx-btn">نمایش آنالیز</button>
         </form>
-        <div class="apx-form-hint">آنالیز تا پایانِ «روز آنالیز» محاسبه می‌شود؛ برای بررسیِ یک روزِ خاص (مثلاً روزِ ذکرشده در تیکت) همان تاریخ را انتخاب کنید.</div>
+        <div class="apx-form-hint">آنالیز تا پایانِ روزِ جاری (تاریخِ سرور) محاسبه می‌شود. هر بار برای به‌روزرسانی، دوباره «نمایش آنالیز» را بزنید.</div>
     </div>
 
     <!-- راهنما -->

@@ -562,9 +562,11 @@ def payment_callback(request):
                 try:
                     referral = Referral.objects.get(referred=transaction.user)
                     referrer = referral.referrer
-                    referral_bonus_usd = (expected_amount / TETHER_TO_TOMAN_RATE) * Decimal('0.05')
-                    referral.earnings += referral_bonus_usd
-                    referral.save()
+                    # فقط اگر معرفِ واقعی وجود داشته باشد و خودِ کاربر نباشد، پاداش رفرال ثبت می‌شود
+                    if referrer and referrer != transaction.user:
+                        referral_bonus_usd = (expected_amount / TETHER_TO_TOMAN_RATE) * Decimal('0.05')
+                        referral.earnings += referral_bonus_usd
+                        referral.save()
                 except Referral.DoesNotExist:
                     logger.info(f"No referral found for user {transaction.user.email}")
 
@@ -610,9 +612,11 @@ def payment_callback(request):
                 try:
                     referral = Referral.objects.get(referred=order.user)
                     referrer = referral.referrer
-                    referral_bonus_usd = order.original_price_usd * Decimal('0.05')
-                    referral.earnings += referral_bonus_usd
-                    referral.save()
+                    # فقط اگر معرفِ واقعی وجود داشته باشد و خودِ کاربر نباشد، پاداش رفرال ثبت می‌شود
+                    if referrer and referrer != order.user:
+                        referral_bonus_usd = order.original_price_usd * Decimal('0.05')
+                        referral.earnings += referral_bonus_usd
+                        referral.save()
                 except Referral.DoesNotExist:
                     logger.info(f"No referral found for user {order.user.email}")
 
@@ -731,10 +735,10 @@ def dashboard(request):
         )
         messages.info(request, 'رفرال پیش‌فرض برای شما ایجاد شد.')
     
-    # درآمد رفرال
-    total_referral_earnings = Decimal('0.00')
-    if hasattr(request.user, 'referral_received'):
-        total_referral_earnings = request.user.referral_received.earnings or Decimal('0.00')
+    # درآمد رفرال = فقط از خریدِ کسانی که این کاربر معرفی کرده (نه خریدِ خودِ کاربر)
+    total_referral_earnings = Referral.objects.filter(referrer=request.user).exclude(
+        referred=request.user
+    ).aggregate(total=Sum('earnings'))['total'] or Decimal('0.00')
 
     # مدیریت ظرفیت اکانت رایگان
     today = timezone.now().date()
@@ -2148,24 +2152,25 @@ def personal_analytics(request):
 def affiliate_panel(request):
     user = request.user
     # دریافت رفرال‌های کاربر
-    referrals = Referral.objects.filter(referrer=user)
+    referrals = Referral.objects.filter(referrer=user).exclude(referred=user).select_related('referred')
     referral_count = referrals.count()
     
     # دریافت سفارش‌های موفق رفرال‌ها
     referred_users = [referral.referred for referral in referrals]
-    successful_orders = PropOrder.objects.filter(user__in=referred_users, status='completed')
+    successful_orders = PropOrder.objects.filter(
+        user__in=referred_users, status='completed'
+    ).exclude(user=user).select_related('user', 'plan').order_by('-purchase_date')
     order_count = successful_orders.count()
-    
-    # محاسبه درآمد رفرال
-    total_earnings = Decimal('0.00')
+
     orders_with_earnings = []
     for order in successful_orders:
-        earnings = order.final_price_usd * (Decimal(user.affiliate_percentage) / Decimal(100))
-        total_earnings += earnings
+        earnings = (order.final_price_usd or Decimal('0.00')) * Decimal('0.05')
         orders_with_earnings.append({
             'order': order,
             'earnings': earnings
         })
+    # درآمد کل = مجموع درآمد ثبت‌شده روی رکوردهای رفرال (منبع دقیق و واقعی)
+    total_earnings = referrals.aggregate(t=Sum('earnings'))['t'] or Decimal('0.00')
     
     # محاسبه تعداد خریدهای موفق برای هر رفرال
     referrals_with_counts = []
@@ -2173,15 +2178,16 @@ def affiliate_panel(request):
         successful_order_count = PropOrder.objects.filter(user=referral.referred, status='completed').count()
         referrals_with_counts.append({
             'referral': referral,
-            'successful_order_count': successful_order_count
+            'successful_order_count': successful_order_count,
+            'earnings': referral.earnings or Decimal('0.00')
         })
     
     # دریافت موجودی کیف پول
     wallet, created = Wallet.objects.get_or_create(user=user)
     
     # لینک رفرال
-    referral_link = f"{request.build_absolute_uri('/')[:-1]}?referral_code={user.id}"
-    
+    referral_link = f"{request.scheme}://{request.get_host()}{reverse('register')}?referral_code={user.id}"
+
     return render(request, 'affiliate_panel.html', {
         'referral_count': referral_count,
         'order_count': order_count,
@@ -2189,10 +2195,11 @@ def affiliate_panel(request):
         'wallet_balance': wallet.balance_usd,
         'referral_code': user.id,
         'affiliate_percentage': user.affiliate_percentage,
+        'referral_rate_percent': 5,
         'referrals': referrals_with_counts,
         'successful_orders': orders_with_earnings,
         'referral_link': referral_link,
-        'home_url': '/',  # لینک دستی برای بازگشت به صفحه اصلی (لطفاً لینک دقیق را ارائه دهید)
+        'home_url': '/',
     })
     
     

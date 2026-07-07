@@ -68,6 +68,8 @@ class AdminActionLog(models.Model):
     query_string = models.TextField(blank=True, verbose_name="پارامترهای کوئری")
     post_data = models.TextField(blank=True, verbose_name="داده‌های ارسالی")
     object_id = models.CharField(max_length=100, blank=True, verbose_name="شناسه آبجکت")
+    # جزئیاتِ تغییرِ آبجکت‌ها (قبل/بعد) به‌صورت JSON — برای ویرایش/حذف/ایجاد
+    changes = models.TextField(blank=True, verbose_name="جزئیات تغییرات (قبل/بعد)")
 
     status_code = models.PositiveIntegerField(null=True, blank=True, db_index=True, verbose_name="کد وضعیت پاسخ")
     ip_address = models.CharField(max_length=45, blank=True, db_index=True, verbose_name="آدرس IP")

@@ -1,174 +1,155 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
 
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل همکاری</title>
-    <style>
-        body {
-            font-family: 'IRANSans', sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            direction: rtl;
-        }
-        .affiliate-panel {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #1a73e8;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        .card p {
-            margin: 10px 0;
-            font-size: 16px;
-            color: #333;
-        }
-        .card p strong {
-            color: #1a73e8;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: right;
-        }
-        .table th {
-            background: #1a73e8;
-            color: #fff;
-        }
-        .table td {
-            background: #fff;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #1a73e8;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-        .btn:hover {
-            background: #1557b0;
-        }
-        .return-btn {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .copy-btn {
-            background: #28a745;
-            border: none;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .copy-btn:hover {
-            background: #218838;
-        }
-    </style>
-</head>
-<body>
-    <section class="affiliate-panel">
-        <h2>پنل همکاری</h2>
-        <div class="card">
-            <h3>اطلاعات رفرال</h3>
-            <p><strong>کد رفرال شما:</strong> {{ referral_code }}</p>
-            <p><strong>لینک رفرال:</strong> 
-                <span id="referral-link">{{ referral_link }}</span>
-                <button class="btn copy-btn" onclick="copyToClipboard('referral-link')">کپی</button>
-            </p>
-            <p><strong>درصد همکاری:</strong> {{ affiliate_percentage }}%</p>
-            <p><strong>تعداد رفرال‌ها:</strong> {{ referral_count }}</p>
-            <p><strong>تعداد خریدهای موفق:</strong> {{ order_count }}</p>
-            <p><strong>درآمد کل (دلار):</strong> {{ total_earnings|floatformat:2 }}</p>
-            <p><strong>موجودی کیف پول (دلار):</strong> {{ wallet_balance|floatformat:2 }}</p>
+{% block title %}پنل همکاری - Apex Fx{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --afx-green:#10b981; --afx-green2:#059669; --afx-cyan:#22d3ee;
+    --afx-bg:#0b0f14; --afx-panel:rgba(26,32,44,.72); --afx-panel2:rgba(38,48,66,.6);
+    --afx-border:rgba(16,185,129,.20); --afx-text:#e8eef5; --afx-muted:#93a1b5;
+}
+body.light-mode {
+    --afx-bg:#f3f5f9; --afx-panel:rgba(255,255,255,.92); --afx-panel2:rgba(248,250,252,.95);
+    --afx-border:rgba(16,185,129,.22); --afx-text:#16202e; --afx-muted:#5b6b80;
+}
+.afx { padding:18px; color:var(--afx-text); }
+.afx * { box-sizing:border-box; }
+.afx h1 { font-size:22px; font-weight:800; margin:0 0 4px; }
+.afx .lead { color:var(--afx-muted); font-size:13.5px; margin-bottom:20px; }
+.afx-card { background:var(--afx-panel); backdrop-filter:blur(12px); border:1px solid var(--afx-border);
+    border-radius:16px; padding:20px; margin-bottom:18px; }
+.afx-title { font-size:17px; font-weight:800; margin:0 0 14px; display:flex; align-items:center; gap:9px; }
+.afx-title::before { content:''; width:4px; height:20px; border-radius:4px; background:linear-gradient(180deg,var(--afx-green),var(--afx-cyan)); }
+
+.afx-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:18px; }
+.afx-stat { background:var(--afx-panel); border:1px solid var(--afx-border); border-radius:14px; padding:18px; }
+.afx-stat .t { font-size:13px; color:var(--afx-muted); margin-bottom:8px; }
+.afx-stat .v { font-size:26px; font-weight:900; }
+.afx-stat .v.g { color:var(--afx-green); }
+
+.afx-link-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0; }
+.afx-link-row .lbl { color:var(--afx-muted); font-size:13.5px; min-width:90px; }
+.afx-link-box { flex:1; min-width:200px; background:var(--afx-panel2); border:1px solid var(--afx-border);
+    border-radius:10px; padding:11px 13px; direction:ltr; text-align:left; overflow:auto; white-space:nowrap; font-size:13px; }
+.afx-copy { background:linear-gradient(90deg,var(--afx-green),var(--afx-green2)); color:#fff; border:none;
+    padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.afx-copy:hover { filter:brightness(1.08); }
+
+.afx-table-wrap { overflow-x:auto; }
+table.afx-table { width:100%; border-collapse:separate; border-spacing:0; min-width:520px; }
+table.afx-table th { background:linear-gradient(90deg,var(--afx-green),var(--afx-green2)); color:#fff;
+    padding:12px 10px; font-size:13px; font-weight:700; text-align:center; white-space:nowrap; }
+table.afx-table td { padding:11px 10px; text-align:center; font-size:13.5px; border-bottom:1px solid rgba(148,161,181,.14); color:var(--afx-text); }
+table.afx-table tr:hover td { background:rgba(16,185,129,.06); }
+.afx-empty-row td { color:var(--afx-muted); padding:22px; }
+.afx-pos { color:var(--afx-green); font-weight:700; }
+.afx-note { font-size:12.5px; color:var(--afx-muted); margin-top:10px; line-height:1.9; }
+
+@media (max-width:640px){
+    .afx { padding:12px; }
+    .afx-stat .v { font-size:22px; }
+    .afx-link-row .lbl { min-width:100%; }
+}
+</style>
+
+<div class="afx" dir="rtl">
+    <h1>پنل همکاری (رفرال)</h1>
+    <div class="lead">با معرفی دوستان خود، از هر خریدِ موفقِ آن‌ها {{ referral_rate_percent }}٪ پاداش بگیرید. درآمدِ نمایش‌داده‌شده فقط از خریدِ رفرال‌های شماست (نه خریدِ خودتان).</div>
+
+    <!-- آمار -->
+    <div class="afx-stats">
+        <div class="afx-stat"><div class="t">تعداد رفرال‌ها</div><div class="v">{{ referral_count }}</div></div>
+        <div class="afx-stat"><div class="t">خریدهای موفقِ رفرال‌ها</div><div class="v">{{ order_count }}</div></div>
+        <div class="afx-stat"><div class="t">درآمد کل رفرال</div><div class="v g">${{ total_earnings|floatformat:2 }}</div></div>
+        <div class="afx-stat"><div class="t">موجودی کیف پول</div><div class="v">${{ wallet_balance|floatformat:2 }}</div></div>
+    </div>
+
+    <!-- لینک رفرال -->
+    <div class="afx-card">
+        <div class="afx-title">لینک و کد دعوت شما</div>
+        <div class="afx-link-row">
+            <span class="lbl">کد رفرال:</span>
+            <span class="afx-link-box" id="afx-code">{{ referral_code }}</span>
+            <button class="afx-copy" onclick="afxCopy('afx-code')">کپی کد</button>
         </div>
-        
-        <h3>لیست رفرال‌ها</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ایمیل معرفی‌شده</th>
-                    <th>تاریخ ثبت‌نام</th>
-                    <th>تعداد خریدهای موفق</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in referrals %}
-                <tr>
-                    <td>{{ item.referral.referred.email }}</td>
-                    <td>{{ item.referral.created_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{ item.successful_order_count }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3">هیچ رفرالی یافت نشد.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        <h3>خریدهای موفق رفرال‌ها</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>شماره سفارش</th>
-                    <th>کاربر</th>
-                    <th>پلن</th>
-                    <th>مبلغ (دلار)</th>
-                    <th>درآمد شما (دلار)</th>
-                    <th>تاریخ خرید</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in successful_orders %}
-                <tr>
-                    <td>{{ item.order.order_number }}</td>
-                    <td>{{ item.order.user.email }}</td>
-                    <td>{{ item.order.plan.name|default:'-' }}</td>
-                    <td>{{ item.order.final_price_usd|floatformat:2 }}</td>
-                    <td>{{ item.earnings|floatformat:2 }}</td>
-                    <td>{{ item.order.purchase_date|date:"Y-m-d" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6">هیچ خرید موفقی یافت نشد.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        <div class="return-btn">
-            <a href="{{ home_url }}" class="btn">بازگشت به صفحه اصلی</a>
+        <div class="afx-link-row">
+            <span class="lbl">لینک دعوت:</span>
+            <span class="afx-link-box" id="afx-link">{{ referral_link }}</span>
+            <button class="afx-copy" onclick="afxCopy('afx-link')">کپی لینک</button>
         </div>
-    </section>
-    <script>
-        function copyToClipboard(elementId) {
-            var text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(function() {
-                alert('لینک رفرال کپی شد!');
-            }, function(err) {
-                alert('خطا در کپی لینک: ' + err);
-            });
-        }
-    </script>
-</body>
-</html>
+        <div class="afx-note">درصد همکاری شما: {{ referral_rate_percent }}٪ — این لینک را برای دوستانتان بفرستید؛ هر کس با آن ثبت‌نام کند، رفرالِ شما می‌شود.</div>
+    </div>
+
+    <!-- لیست رفرال‌ها -->
+    <div class="afx-card">
+        <div class="afx-title">رفرال‌های شما (این ایمیل‌ها با دعوتِ شما ثبت‌نام کرده‌اند)</div>
+        <div class="afx-table-wrap">
+            <table class="afx-table">
+                <thead>
+                    <tr>
+                        <th>ایمیل رفرال</th>
+                        <th>تاریخ ثبت‌نام</th>
+                        <th>خریدهای موفق</th>
+                        <th>درآمد شما از این رفرال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in referrals %}
+                    <tr>
+                        <td style="direction:ltr;">{{ item.referral.referred.email }}</td>
+                        <td>{{ item.referral.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ item.successful_order_count }}</td>
+                        <td class="afx-pos">${{ item.earnings|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr class="afx-empty-row"><td colspan="4">هنوز هیچ رفرالی ندارید. لینک دعوت خود را به اشتراک بگذارید.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- خریدهای رفرال‌ها -->
+    <div class="afx-card">
+        <div class="afx-title">خریدهای موفقِ رفرال‌ها</div>
+        <div class="afx-table-wrap">
+            <table class="afx-table">
+                <thead>
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>کاربر</th>
+                        <th>پلن</th>
+                        <th>مبلغ ($)</th>
+                        <th>پاداش شما ($)</th>
+                        <th>تاریخ خرید</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in successful_orders %}
+                    <tr>
+                        <td>{{ item.order.order_number }}</td>
+                        <td style="direction:ltr;">{{ item.order.user.email }}</td>
+                        <td>{{ item.order.plan.name|default:'-' }}</td>
+                        <td>{{ item.order.final_price_usd|floatformat:2 }}</td>
+                        <td class="afx-pos">{{ item.earnings|floatformat:2 }}</td>
+                        <td>{{ item.order.purchase_date|date:"Y-m-d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr class="afx-empty-row"><td colspan="6">هنوز خریدِ موفقی از رفرال‌های شما ثبت نشده است.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="afx-note">درآمد کل ({{ total_earnings|floatformat:2 }}$) بر مبنای پاداشِ ثبت‌شده در سیستم محاسبه شده و شاملِ پاداشِ شارژِ کیف‌پولِ رفرال‌ها هم می‌شود.</div>
+    </div>
+</div>
+
+<script>
+function afxCopy(id){
+    var t = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(t).then(function(){ alert('کپی شد!'); }, function(){ alert('کپی نشد.'); });
+}
+</script>
+{% endblock %}
