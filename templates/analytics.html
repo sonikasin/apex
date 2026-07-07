@@ -77,6 +77,26 @@ body.light-mode {
 .apx-vio .body .d { font-size: 13.5px; color: var(--apx-muted); line-height: 1.9; }
 .apx-vio .body .d b { color: var(--apx-text); }
 
+/* میزان مجاز افت حساب */
+.apx-rr-cur { text-align: center; font-size: 13.5px; color: var(--apx-muted); margin-bottom: 16px; }
+.apx-rr-cur b { font-size: 27px; color: var(--apx-text); display: block; margin-top: 4px; font-weight: 900; }
+.apx-rr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.apx-rr-box { background: var(--apx-panel2); border: 1px solid var(--apx-border); border-radius: 12px; padding: 16px; text-align: center; }
+.apx-rr-box.daily { border-top: 3px solid var(--apx-green); }
+.apx-rr-box.total { border-top: 3px solid var(--apx-cyan); }
+.apx-rr-box .h { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.apx-rr-box .floor { font-size: 13px; color: var(--apx-muted); }
+.apx-rr-box .floor b { color: var(--apx-text); }
+.apx-rr-box .buf { font-size: 12.5px; color: var(--apx-muted); margin-top: 12px; }
+.apx-rr-box .buf .amt { font-size: 24px; font-weight: 900; color: var(--apx-green); display: block; margin-top: 4px; }
+.apx-rr-safe { text-align: center; padding: 16px; border-radius: 12px; background: rgba(16,185,129,.1); border: 1px solid var(--apx-green); }
+.apx-rr-safe.bad { background: rgba(239,68,68,.1); border-color: var(--apx-red); }
+.apx-rr-safe .lbl { font-size: 13.5px; color: var(--apx-muted); }
+.apx-rr-safe .amt { font-size: 28px; font-weight: 900; color: var(--apx-green); margin: 4px 0; }
+.apx-rr-safe.bad .amt { color: var(--apx-red); }
+.apx-rr-safe .note { font-size: 12.5px; color: var(--apx-muted); }
+@media (max-width: 640px) { .apx-rr-grid { grid-template-columns: 1fr; } }
+
 /* شبکه‌ی روز درخواستی */
 .apx-daygrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .apx-daybox { padding: 15px; border-radius: 12px; background: var(--apx-panel2); border: 1px solid var(--apx-border); }
@@ -266,6 +286,10 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
         <!-- وضعیت روز آنالیز -->
         <div class="apx-section-title">وضعیت روز آنالیز <span id="req-day-label" style="color:var(--apx-muted);font-weight:600;font-size:15px;"></span></div>
         <div class="apx-card" style="margin-bottom:8px;"><div class="apx-daygrid" id="apx-daygrid"></div></div>
+
+        <!-- میزان مجاز افت حساب -->
+        <div class="apx-section-title">میزان مجاز افت حساب — چقدر می‌توانید ضرر کنید؟</div>
+        <div class="apx-card" id="apx-riskroom"></div>
 
         <!-- گیج قوانین -->
         <div class="apx-section-title">پایبندی به قوانین</div>
@@ -543,6 +567,36 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     el('apx-daygrid').innerHTML = dayCells.map(function (c) {
         return '<div class="apx-daybox"><div class="t">' + c.t + '</div><div class="v ' + (c.c || '') + '">' + c.v + '</div>' + (c.sub ? '<div class="sub">' + c.sub + '</div>' : '') + '</div>';
     }).join('');
+
+    // ===== میزان مجاز افت حساب (نسبت به بالانسِ فعلی) =====
+    // کف دراوداون کل = بالانسِ اولیه × (۱ − درصدِ کل)؛ کف روزانه = بالانسِ ابتدای روز × (۱ − درصدِ روزانه)
+    var curBal = num(M.current_balance);
+    var overallFloor = dbInitial * (1 - totalLimitPct / 100);
+    var overallBuffer = Math.max(0, curBal - overallFloor);   // چقدر تا نقضِ کل می‌تواند ضرر کند
+    var dailyBuffer = Math.max(0, curBal - dayFloor);         // چقدر تا نقضِ روزانه می‌تواند ضرر کند
+    var safeNow = Math.min(dailyBuffer, overallBuffer);       // ضررِ امن = تنگ‌ترین قید
+    var binding = dailyBuffer <= overallBuffer ? 'روزانه' : 'کل';
+    var breached = (curBal <= overallFloor) || (curBal <= dayFloor) || dayBreached || overallViolated;
+
+    el('apx-riskroom').innerHTML =
+        '<div class="apx-rr-cur">بالانس فعلی حساب<b>' + money(curBal) + '</b></div>' +
+        '<div class="apx-rr-grid">' +
+            '<div class="apx-rr-box daily">' +
+                '<div class="h">دراوداون روزانه (' + pct(dailyLimitPct) + ')</div>' +
+                '<div class="floor">کف مجاز امروز (نباید پایین‌تر برود): <b>' + money(dayFloor) + '</b></div>' +
+                '<div class="buf">امروز تا این مقدار می‌توانید ضرر کنید<span class="amt">' + money(dailyBuffer) + '</span></div>' +
+            '</div>' +
+            '<div class="apx-rr-box total">' +
+                '<div class="h">دراوداون کل (' + pct(totalLimitPct) + ')</div>' +
+                '<div class="floor">کف مجاز کل (نباید پایین‌تر برود): <b>' + money(overallFloor) + '</b></div>' +
+                '<div class="buf">در مجموع تا این مقدار می‌توانید ضرر کنید<span class="amt">' + money(overallBuffer) + '</span></div>' +
+            '</div>' +
+        '</div>' +
+        (breached
+            ? '<div class="apx-rr-safe bad"><div class="lbl">وضعیت</div><div class="amt">حساب نقض شده یا در آستانه‌ی نقض است</div></div>'
+            : '<div class="apx-rr-safe"><div class="lbl">✅ ضررِ امنِ فعلی (بدون نقضِ هیچ قانونی)</div>' +
+              '<div class="amt">تا ' + money(safeNow) + '</div>' +
+              '<div class="note">اگر بیش از این ضرر کنید، ابتدا دراوداون <b>' + binding + '</b> نقض می‌شود. (کف روزانه: ' + money(dayFloor) + ' | کف کل: ' + money(overallFloor) + ')</div></div>');
 
     // --- بنر نقض قوانین ---
     var vios = [];
