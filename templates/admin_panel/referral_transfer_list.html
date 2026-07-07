@@ -1,0 +1,69 @@
+{% extends 'admin_panel/base.html' %}
+{% block header_title %}انتقال‌های درآمد رفرال{% endblock %}
+{% block title %}انتقال‌های درآمد رفرال{% endblock %}
+
+{% block content %}
+<style>
+    .rt-top { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+    .rt-sum { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 20px; font-weight:700; }
+    .rt-sum b { color:#059669; font-size:18px; }
+    .rt-filter { display:flex; gap:8px; }
+    .rt-filter input { padding:9px 12px; border:1px solid var(--border); border-radius:8px; min-width:200px; }
+    .rt-filter button { padding:9px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; }
+    .rt-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:14px; }
+    .rt-head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+    .rt-amount { background:rgba(16,185,129,.14); color:#059669; border:1px solid #10b981; padding:5px 14px; border-radius:30px; font-weight:800; }
+    .rt-email { font-weight:700; direction:ltr; }
+    .rt-meta { color:var(--text-muted); font-size:13px; }
+    .rt-table { width:100%; border-collapse:collapse; margin:8px 0 0; box-shadow:none; }
+    .rt-table th, .rt-table td { border:1px solid var(--border); padding:8px 10px; font-size:13px; text-align:right; }
+    .rt-table th { background:rgba(148,163,184,.14); font-weight:700; }
+    .rt-table td.ltr { direction:ltr; text-align:left; }
+    .rt-empty { color:var(--text-muted); padding:30px; text-align:center; }
+    .rt-wallet { font-size:12.5px; color:var(--text-muted); margin-top:6px; }
+</style>
+
+<div class="rt-top">
+    <div class="rt-sum">مجموع کلِ انتقال‌ها: <b>${{ total_all|floatformat:2 }}</b> — تعداد: {{ total_count }}</div>
+    <form method="get" class="rt-filter">
+        <input type="text" name="email" value="{{ email }}" placeholder="جستجوی ایمیل کاربر...">
+        <button type="submit">جستجو</button>
+    </form>
+</div>
+
+{% for item in items %}
+<div class="rt-card">
+    <div class="rt-head">
+        <span class="rt-amount">+${{ item.t.amount_usd|floatformat:2 }}</span>
+        <span class="rt-email">{{ item.t.user.email }}</span>
+        <span class="rt-meta">#{{ item.t.id }} — {{ item.t.created_at|date:"Y/m/d H:i:s" }}</span>
+    </div>
+    <div class="rt-wallet">موجودی کیف‌پول: {{ item.t.wallet_before|floatformat:2 }}$ ← {{ item.t.wallet_after|floatformat:2 }}$</div>
+    <table class="rt-table">
+        <thead>
+            <tr><th>ریز درآمد از رفرال (ایمیل)</th><th>مبلغ ($)</th></tr>
+        </thead>
+        <tbody>
+            {% for b in item.breakdown %}
+            <tr>
+                <td class="ltr">{{ b.referred_email }}</td>
+                <td>{{ b.amount }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" class="rt-empty" style="padding:12px;">ریز درآمدی ثبت نشده است.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% empty %}
+<div class="rt-card"><div class="rt-empty">هیچ انتقالِ درآمد رفرالی ثبت نشده است.</div></div>
+{% endfor %}
+
+{% if page_obj.has_other_pages %}
+<div style="display:flex;gap:8px;justify-content:center;margin-top:16px;">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if email %}&email={{ email }}{% endif %}" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;text-decoration:none;">قبلی</a>{% endif %}
+    <span style="padding:8px 14px;">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if email %}&email={{ email }}{% endif %}" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;text-decoration:none;">بعدی</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

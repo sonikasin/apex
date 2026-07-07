@@ -2,7 +2,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import logging
 from django.shortcuts import render, redirect
-from .models import PropAccount, PropOrder,FreeAccountQuota, Ticket,Wallet,WalletTransaction, CustomUser,DiscountCode, PlanStage,PropPlan,Referral,Wallet,StageUpgradeRequest
+from .models import PropAccount, PropOrder,FreeAccountQuota, Ticket,Wallet,WalletTransaction, CustomUser,DiscountCode, PlanStage,PropPlan,Referral,Wallet,StageUpgradeRequest,ReferralTransfer
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
@@ -2149,6 +2149,67 @@ def personal_analytics(request):
     
 
 @login_required
+def transfer_referral_to_wallet(request):
+    """کلِ موجودیِ درآمدِ رفرال را به کیف‌پول منتقل و درآمدِ رفرال را صفر می‌کند."""
+    if request.method != 'POST':
+        return redirect('affiliate_panel')
+
+    user = request.user
+    import json as _json
+    from django.db import transaction as _dbtx
+
+    try:
+        with _dbtx.atomic():
+            referrals = Referral.objects.select_for_update().filter(referrer=user).exclude(referred=user)
+            breakdown = []
+            total = Decimal('0.00')
+            for r in referrals:
+                amt = r.earnings or Decimal('0.00')
+                if amt > 0:
+                    breakdown.append({'referred_email': r.referred.email, 'amount': str(amt)})
+                    total += amt
+
+            if total <= 0:
+                messages.error(request, 'موجودی درآمد رفرالی برای انتقال وجود ندارد.')
+                return redirect('affiliate_panel')
+
+            wallet, _ = Wallet.objects.select_for_update().get_or_create(user=user)
+            wallet_before = wallet.balance_usd or Decimal('0.00')
+            wallet.balance_usd = wallet_before + total
+            wallet.save()
+
+            # صفر کردن درآمدِ همه‌ی رفرال‌ها پس از انتقال
+            referrals.update(earnings=Decimal('0.00'))
+
+            # ثبتِ رکوردِ انتقال (برای بازبینیِ ادمین)
+            ReferralTransfer.objects.create(
+                user=user,
+                amount_usd=total,
+                breakdown=_json.dumps(breakdown, ensure_ascii=False),
+                wallet_before=wallet_before,
+                wallet_after=wallet.balance_usd,
+            )
+
+        # ثبتِ تراکنشِ کیف‌پول برای شفافیت (خارج از اتمیک؛ اختیاری)
+        try:
+            WalletTransaction.objects.create(
+                user=user, transaction_type='deposit', amount_toman=0, amount_usd=total,
+                status='completed',
+                transaction_id=f"REF-{user.id}-{int(timezone.now().timestamp() * 1000)}",
+                payment_gateway='referral',
+            )
+        except Exception:
+            pass
+
+        messages.success(request, f'مبلغ {total}$ از درآمد رفرال با موفقیت به کیف پول شما منتقل شد.')
+    except Exception as e:
+        logger.error(f"Referral transfer error for {user.email}: {e}")
+        messages.error(request, 'خطا در انتقال درآمد رفرال. لطفاً دوباره تلاش کنید.')
+
+    return redirect('affiliate_panel')
+
+
+@login_required
 def affiliate_panel(request):
     user = request.user
     # دریافت رفرال‌های کاربر
@@ -2184,7 +2245,8 @@ def affiliate_panel(request):
     
     # دریافت موجودی کیف پول
     wallet, created = Wallet.objects.get_or_create(user=user)
-    
+    total_transferred = ReferralTransfer.objects.filter(user=user).aggregate(t=Sum('amount_usd'))['t'] or Decimal('0.00')
+
     # لینک رفرال
     referral_link = f"{request.scheme}://{request.get_host()}{reverse('register')}?referral_code={user.id}"
 
@@ -2192,6 +2254,7 @@ def affiliate_panel(request):
         'referral_count': referral_count,
         'order_count': order_count,
         'total_earnings': total_earnings,
+        'total_transferred': total_transferred,
         'wallet_balance': wallet.balance_usd,
         'referral_code': user.id,
         'affiliate_percentage': user.affiliate_percentage,

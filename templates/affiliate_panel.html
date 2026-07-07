@@ -62,8 +62,21 @@ table.afx-table tr:hover td { background:rgba(16,185,129,.06); }
     <div class="afx-stats">
         <div class="afx-stat"><div class="t">تعداد رفرال‌ها</div><div class="v">{{ referral_count }}</div></div>
         <div class="afx-stat"><div class="t">خریدهای موفقِ رفرال‌ها</div><div class="v">{{ order_count }}</div></div>
-        <div class="afx-stat"><div class="t">درآمد کل رفرال</div><div class="v g">${{ total_earnings|floatformat:2 }}</div></div>
+        <div class="afx-stat"><div class="t">موجودی قابل انتقال</div><div class="v g">${{ total_earnings|floatformat:2 }}</div></div>
+        <div class="afx-stat"><div class="t">کل منتقل‌شده تا کنون</div><div class="v">${{ total_transferred|floatformat:2 }}</div></div>
         <div class="afx-stat"><div class="t">موجودی کیف پول</div><div class="v">${{ wallet_balance|floatformat:2 }}</div></div>
+    </div>
+
+    <!-- انتقال به کیف پول -->
+    <div class="afx-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+        <div>
+            <div style="font-weight:800;font-size:16px;">انتقال درآمد رفرال به کیف پول</div>
+            <div class="afx-note" style="margin-top:4px;">موجودی قابل انتقال: <b style="color:var(--afx-green);">${{ total_earnings|floatformat:2 }}</b> — با انتقال، این مبلغ به کیف پول اضافه و درآمد رفرالِ شما صفر می‌شود.</div>
+        </div>
+        <form method="post" action="{% url 'transfer_referral_to_wallet' %}" onsubmit="return confirm('کل موجودی درآمد رفرال ({{ total_earnings|floatformat:2 }}$) به کیف پول منتقل و صفر می‌شود. مطمئن هستید؟');">
+            {% csrf_token %}
+            <button type="submit" class="afx-copy" style="padding:13px 26px;font-size:15px;">انتقال به کیف پول</button>
+        </form>
     </div>
 
     <!-- لینک رفرال -->

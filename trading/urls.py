@@ -32,6 +32,7 @@ urlpatterns = [
     path('payment-error/', views.payment_error, name='payment_error'),
     path('personal-analytics/', views.personal_analytics, name='personal_analytics'),
     path('affiliate-panel/', views.affiliate_panel, name='affiliate_panel'),
+    path('referral/transfer/', views.transfer_referral_to_wallet, name='transfer_referral_to_wallet'),
     path('submission/', views.user_submission_form, name='user_submission_form'),
     path('stage-upgrade-request/', views.stage_upgrade_request, name='stage_upgrade_request'),
 
