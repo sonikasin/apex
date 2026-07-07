@@ -163,6 +163,15 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
 
 .apx-empty { text-align: center; padding: 60px 20px; color: var(--apx-muted); }
 .apx-empty .ic { font-size: 46px; margin-bottom: 12px; }
+
+/* پوشش بارگذاری */
+.apx-loading { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; background: rgba(6,10,16,.8); backdrop-filter: blur(5px); }
+.apx-loading.show { display: flex; }
+.apx-loading-box { text-align: center; background: var(--apx-panel); border: 1px solid var(--apx-border); border-radius: 18px; padding: 34px 40px; max-width: 430px; margin: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+.apx-loading-box .h { font-size: 18px; font-weight: 800; margin: 18px 0 8px; color: var(--apx-text); }
+.apx-loading-box .s { font-size: 13.5px; color: var(--apx-muted); line-height: 1.95; }
+.apx-spinner { width: 54px; height: 54px; margin: 0 auto; border: 5px solid var(--apx-border); border-top-color: var(--apx-green); border-radius: 50%; animation: apxspin 1s linear infinite; }
+@keyframes apxspin { to { transform: rotate(360deg); } }
 .apx-alert { padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-weight: 600; }
 .apx-alert.warn { background: rgba(245,158,11,.12); border: 1px solid var(--apx-amber); color: var(--apx-amber); }
 
@@ -185,7 +194,7 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     <!-- انتخاب حساب -->
     <div class="apx-card" style="margin-bottom:16px;">
         <div class="apx-section-title" style="margin-top:0;">انتخاب حساب</div>
-        <form method="POST" class="apx-form">
+        <form method="POST" class="apx-form" id="apx-form">
             {% csrf_token %}
             <select id="account-select" name="account_number">
                 <option value="">-- حساب را انتخاب کنید --</option>
@@ -267,19 +276,12 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
                     </div>
                     <div class="foot" id="g-total-foot"></div>
                 </div>
-                <div class="apx-gauge">
+                <div class="apx-gauge" id="gauge-float">
                     <h4>ریسک شناور</h4>
                     <div class="wrap"><canvas id="g-float"></canvas>
                         <div class="center"><div class="v" id="g-float-v">-</div><div class="s">نقض‌ها</div></div>
                     </div>
                     <div class="foot" id="g-float-foot"></div>
-                </div>
-                <div class="apx-gauge">
-                    <h4>تارگت سود</h4>
-                    <div class="wrap"><canvas id="g-profit"></canvas>
-                        <div class="center"><div class="v" id="g-profit-v">-</div><div class="s">پیشرفت</div></div>
-                    </div>
-                    <div class="foot" id="g-profit-foot"></div>
                 </div>
             </div>
         </div>
@@ -360,6 +362,15 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
         </div>
     </div>
 
+    <!-- پوشش بارگذاری -->
+    <div id="apx-loading" class="apx-loading">
+        <div class="apx-loading-box">
+            <div class="apx-spinner"></div>
+            <div class="h">پنل در حال بررسی دیتای حساب شماست</div>
+            <div class="s">این فرایند ممکن است چند ثانیه تا یک دقیقه طول بکشد. لطفاً صبر کنید و صفحه را نبندید.</div>
+        </div>
+    </div>
+
     <!-- حالت خالی -->
     <div id="apx-empty" class="apx-card apx-empty">
         <div class="ic">📊</div>
@@ -377,6 +388,13 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     var M = null, CFG = {};
     try { M = JSON.parse(document.getElementById('apx-metrics').textContent); } catch (e) {}
     try { CFG = JSON.parse(document.getElementById('apx-config').textContent) || {}; } catch (e) {}
+
+    // نمایشِ پوششِ بارگذاری هنگام ارسالِ فرم (همیشه، حتی در حالت خالی)
+    var _form = document.getElementById('apx-form');
+    var _loading = document.getElementById('apx-loading');
+    if (_form && _loading) {
+        _form.addEventListener('submit', function () { _loading.classList.add('show'); });
+    }
 
     if (!M) { return; } // حالت خالی
 
@@ -427,12 +445,24 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     });
     var avgDur = trades.length ? trades.reduce(function (a, t) { return a + num(t.duration_seconds); }, 0) / trades.length : 0;
 
+    // ===== دراوداونِ کل: بالانس‌محور نسبت به بالانسِ اولیه‌ی دیتابیس =====
+    // (نه شناورِ لحظه‌ای/MAE؛ چون کاربر می‌خواهد دراوداونِ کل از روی افتِ واقعیِ بالانس باشد)
+    var totalLimitPct = num(CFG.total_draw_percent) || 20;
+    var floatEnabled = !!M.floating_risk_enabled;
+    var dbInitial = num(CFG.db_initial_balance) || num(M.initial_balance);
+    var _cbc = trades.filter(function (t) { return t.close_time; })
+        .sort(function (a, b) { return new Date(a.close_time) - new Date(b.close_time); });
+    var _run = dbInitial, balLow = dbInitial, balLowTime = null;
+    _cbc.forEach(function (t) { _run += num(t.profit_loss); if (_run < balLow) { balLow = _run; balLowTime = t.close_time; } });
+    var overallDDpct = dbInitial ? Math.max(0, (dbInitial - balLow) / dbInitial * 100) : 0;
+    var overallDDval = Math.max(0, dbInitial - balLow);
+    var overallViolated = overallDDpct >= totalLimitPct;
+
     // ---------- هیرو ----------
-    var violated = M.daily_drawdown_violated || M.overall_drawdown_violated || M.floating_risk_violated;
+    var violated = M.daily_drawdown_violated || overallViolated || (floatEnabled && M.floating_risk_violated);
     var vEl = el('hero-verdict');
     if (violated) { vEl.className = 'apx-badge bad'; vEl.textContent = '✗ نقض قانون'; }
-    else if (M.profit_target_reached) { vEl.className = 'apx-badge ok'; vEl.textContent = '✓ تارگت سود رسیده'; }
-    else { vEl.className = 'apx-badge wait'; vEl.textContent = '● در حال بررسی'; }
+    else { vEl.className = 'apx-badge ok'; vEl.textContent = '✓ بدون نقض تا این تاریخ'; }
     el('hero-balance').textContent = money(M.current_balance);
     el('hero-initial').textContent = money(M.initial_balance);
     el('hero-netpl').textContent = money(netPL);
@@ -473,7 +503,6 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     var reqDate = (CFG.requested_date || '').slice(0, 10);
     if (!reqDate && daily.length) reqDate = daily[daily.length - 1].date;
     var dailyLimitPct = num(CFG.daily_draw_percent) || 5;
-    var totalLimitPct = num(CFG.total_draw_percent) || 20;
     var targetPct = num(CFG.profit_percent_target);
     var targetAmount = num(CFG.profit_target_amount) || (num(M.initial_balance) * targetPct / 100);
 
@@ -515,15 +544,17 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
                 d: 'در تاریخ <b>' + d.date + '</b> ساعت <b>' + fmtTime(d.min_equity_time) + '</b> (تایم بروکر) دراوداون روزانه نقض شد. اکوییتی شما نباید پایین‌تر از <b>' + money(fl) + '</b> می‌رفت، اما به <b>' + money(d.min_equity) + '</b> رسید (دراوداون ' + pct(d.daily_drawdown_percent) + ' از حد مجاز ' + pct(dailyLimitPct) + ').' });
         }
     });
-    if (M.overall_drawdown_violated) {
-        var oFloor = num(M.initial_balance) * (1 - totalLimitPct / 100);
+    if (overallViolated) {
+        var oFloor = dbInitial * (1 - totalLimitPct / 100);
         vios.push({ ic: '⛔', h: 'نقض دراوداون کل',
-            d: 'در <b>' + fmtTime(M.max_drawdown_date) + '</b> (تایم بروکر) دراوداون کل نقض شد. اکوییتی نباید پایین‌تر از <b>' + money(oFloor) + '</b> می‌رفت، اما به <b>' + money(M.min_equity_overall) + '</b> رسید (' + pct(M.max_drawdown_percent) + ' از حد مجاز ' + pct(totalLimitPct) + ').' });
+            d: 'دراوداون کل نقض شد' + (balLowTime ? ' (حدوداً ' + fmtTime(balLowTime) + ' تایم بروکر)' : '') + '. بالانس نباید پایین‌تر از <b>' + money(oFloor) + '</b> می‌رفت، اما به <b>' + money(balLow) + '</b> رسید (' + pct(overallDDpct) + ' از حد مجاز ' + pct(totalLimitPct) + ').' });
     }
-    (M.floating_risk_violations || []).slice(0, 5).forEach(function (f) {
-        vios.push({ cls: 'warn', ic: '⚠️', h: 'نقض ریسک شناور',
-            d: 'در <b>' + fmtTime(f.time) + '</b> ضرر شناور به <b>' + money(f.total_floating_loss) + '</b> رسید (' + pct(f.floating_loss_percent) + ' — ' + (f.type === 'single_trade' ? 'یک معامله' : 'چند معامله همزمان') + ').' });
-    });
+    if (floatEnabled) {
+        (M.floating_risk_violations || []).slice(0, 5).forEach(function (f) {
+            vios.push({ cls: 'warn', ic: '⚠️', h: 'نقض ریسک شناور',
+                d: 'در <b>' + fmtTime(f.time) + '</b> ضرر شناور به <b>' + money(f.total_floating_loss) + '</b> رسید (' + pct(f.floating_loss_percent) + ' — ' + (f.type === 'single_trade' ? 'یک معامله' : 'چند معامله همزمان') + ').' });
+        });
+    }
 
     // --- قانون ۸۰٪ (خوشه‌بندیِ معاملاتِ همزمان/کمتر از ۵ دقیقه) ---
     var closedT = trades.filter(function (t) { return t.open_time && t.close_time; })
@@ -610,20 +641,21 @@ table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
     el('g-daily-v').textContent = pct(dailyDDpct);
     el('g-daily-foot').textContent = 'حد مجاز: ' + pct(dailyLimitPct) + (dayBreached ? ' — نقض شد' : '');
 
-    gauge('g-total', num(M.max_drawdown_percent) / totalLimitPct * 100, CYAN, M.overall_drawdown_violated);
-    el('g-total-v').textContent = pct(M.max_drawdown_percent);
-    el('g-total-foot').textContent = 'حد مجاز: ' + pct(totalLimitPct) + (M.overall_drawdown_violated ? ' — نقض شد' : '');
+    // دراوداون کل: بالانس‌محور نسبت به بالانسِ اولیه‌ی دیتابیس
+    gauge('g-total', totalLimitPct ? (overallDDpct / totalLimitPct * 100) : 0, CYAN, overallViolated);
+    el('g-total-v').textContent = pct(overallDDpct);
+    el('g-total-foot').textContent = 'حد مجاز: ' + pct(totalLimitPct) + (overallViolated ? ' — نقض شد' : '');
 
-    var frCount = (M.floating_risk_violations || []).length;
-    gauge('g-float', frCount > 0 ? 100 : 0, GREEN, frCount > 0);
-    el('g-float-v').textContent = M.floating_risk_enabled ? frCount : '—';
-    el('g-float-foot').textContent = M.floating_risk_enabled ? ('سقف: ' + money(M.floating_risk_threshold_value)) : 'در این مرحله غیرفعال';
-
-    var profTarget = num(CFG.profit_percent_target);
-    var profProg = profTarget > 0 ? Math.max(0, netPct / profTarget * 100) : 0;
-    gauge('g-profit', profProg, AMBER, false);
-    el('g-profit-v').textContent = profTarget > 0 ? pct(profProg) : '—';
-    el('g-profit-foot').textContent = profTarget > 0 ? ('هدف: ' + pct(profTarget)) : 'بدون تارگت';
+    // ریسک شناور: فقط برای حساب‌های ریل نمایش داده می‌شود
+    if (floatEnabled) {
+        var frCount = (M.floating_risk_violations || []).length;
+        gauge('g-float', frCount > 0 ? 100 : 0, GREEN, frCount > 0);
+        el('g-float-v').textContent = frCount;
+        el('g-float-foot').textContent = 'سقف: ' + money(M.floating_risk_threshold_value);
+    } else {
+        var fg = document.getElementById('gauge-float');
+        if (fg) { fg.style.display = 'none'; }
+    }
 
     // ---------- نمودارها ----------
     function grad(ctx, c1, c2) {

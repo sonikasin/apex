@@ -1287,6 +1287,8 @@ def analytics(request):
     floating_risk_percent = 2.0
     profit_percent_target = 0.0
     profit_target_amount = 0.0
+    account_phase = 'phase1'
+    db_initial_balance = 0.0
     # روزِ درخواستی برای آنالیز (پیش‌فرض امروز)
     requested_date = timezone.now().strftime("%Y-%m-%d")
 
@@ -1299,7 +1301,19 @@ def analytics(request):
                 requested_date = request.POST.get('requested_date') or current_time.strftime("%Y-%m-%d")
                 formatted_time = f"{requested_date}T23:59:59"
                 selected_account = accounts.get(account_number=account_number)
-                
+
+                # بالانسِ اولیه‌ی ثبت‌شده در دیتابیس (مبنای دراوداونِ کل)
+                db_initial_balance = float(selected_account.balance) if selected_account.balance is not None else 0.0
+
+                # تعیین مرحله‌ی حساب: ریسکِ شناور فقط برای حساب‌های ریل چک می‌شود
+                acc_level = selected_account.level
+                if acc_level == 'Real':
+                    account_phase = 'real'
+                elif acc_level == 'level2':
+                    account_phase = 'phase2'
+                else:
+                    account_phase = 'phase1'
+
                 # درخواست به API
                 api_url = 'http://91.107.144.126:80/metrics'
                 payload = {
@@ -1308,12 +1322,14 @@ def analytics(request):
                     'server': selected_account.server,
                     'from_date': '2025-06-27',
                     'to_date': formatted_time,
+                    'phase': account_phase,
                     'daily_drawdown_threshold': float(selected_account.daily_draw_percent or 5.0),
                     'overall_drawdown_threshold': float(selected_account.total_draw_percent or 20.0),
                     'floating_risk_threshold': float(selected_account.floating_risk_percent or 2.0),
                     'profit_target_percent': float(selected_account.profit_percent or 10.0)
                 }
-                response = requests.post(api_url, json=payload, timeout=60)
+                # مهلتِ بالا چون واکشیِ تیک‌به‌تیک ممکن است تا چند دقیقه طول بکشد
+                response = requests.post(api_url, json=payload, timeout=300)
                 response.raise_for_status()
                 metrics = response.json()
 
@@ -1448,6 +1464,8 @@ def analytics(request):
             'profit_target_value': profit_target_value,
             'account_status': account_status,
             'requested_date': requested_date,
+            'db_initial_balance': db_initial_balance,
+            'phase': account_phase,
         },
     })
 
