@@ -1281,6 +1281,11 @@ def analytics(request):
     trades_paginated = None
     account_status = "در انتظار انتخاب حساب"
     trading_days_count = 0
+    # درصدهای حدود ریسک (برای گیج‌ها و نمودارهای پنل)
+    daily_draw_percent = 5.0
+    total_draw_percent = 20.0
+    floating_risk_percent = 2.0
+    profit_percent_target = 0.0
 
     if request.method == 'POST':
         account_number = request.POST.get('account_number')
@@ -1332,6 +1337,7 @@ def analytics(request):
 
                 # محاسبه دراوداون روزانه
                 daily_draw_percent = float(selected_account.daily_draw_percent or 5.0)
+                floating_risk_percent = float(selected_account.floating_risk_percent or 2.0)
                 if metrics.get('daily_metrics'):
                     last_metric = metrics['daily_metrics'][-1]
                     day_balance = float(last_metric['start_balance'])
@@ -1374,6 +1380,7 @@ def analytics(request):
                 # محاسبه مقدار تارگت سود
                 profit_target_value = initial_balance * (profit_percent / 100) + initial_balance if profit_percent > 0 else 0.0
                 profit_target_progress = (current_profit_percent / profit_percent) * 100 if profit_percent > 0 and current_profit_percent >= 0 else 0.0
+                profit_percent_target = profit_percent
 
                 # تعیین وضعیت حساب
                 is_violated = metrics.get('daily_drawdown_violated', False) or \
@@ -1421,6 +1428,17 @@ def analytics(request):
         'trades_paginated': trades_paginated,
         'account_status': account_status,
         'trading_days_count': trading_days_count,
+        # پیکربندیِ حدود ریسک برای گیج‌ها/نمودارهای سمتِ کلاینت
+        'analysis_config': {
+            'daily_draw_percent': daily_draw_percent,
+            'total_draw_percent': total_draw_percent,
+            'floating_risk_percent': floating_risk_percent,
+            'profit_percent_target': profit_percent_target,
+            'daily_drawdown_limit_value': daily_drawdown_value,
+            'total_drawdown_limit_value': total_drawdown_value,
+            'profit_target_value': profit_target_value,
+            'account_status': account_status,
+        },
     })
 
 def user_register(request):
