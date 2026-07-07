@@ -117,6 +117,13 @@
                     <span class="dash-card__referral-label">درآمد کل:</span>
                     <span class="dash-card__referral-value dash-card__referral-value--highlight">${{ total_referral_earnings|floatformat:2 }}</span>
                 </div>
+                <div class="dash-card__referral-row" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+                    <a href="{% url 'affiliate_panel' %}" style="flex:1;min-width:140px;text-align:center;background:transparent;color:#10b981;border:1px solid #10b981;padding:10px 14px;border-radius:10px;font-weight:700;text-decoration:none;font-size:13.5px;">مشاهده پنل همکاری</a>
+                    <form method="post" action="{% url 'transfer_referral_to_wallet' %}" style="flex:1;min-width:140px;margin:0;" onsubmit="return confirm('کل موجودی درآمد رفرال به کیف پول شما منتقل و صفر می‌شود. مطمئن هستید؟');">
+                        {% csrf_token %}
+                        <button type="submit" style="width:100%;background:linear-gradient(90deg,#10b981,#059669);color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13.5px;">انتقال به کیف پول</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

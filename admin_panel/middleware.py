@@ -104,6 +104,15 @@ class AdminActionLogMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # فقط برای مسیرهای پنل ادمین، ردیابیِ تغییراتِ مدل‌ها را فعال می‌کنیم
+        is_admin_path = request.path.startswith('/admin-panel/')
+        if is_admin_path:
+            try:
+                from . import audit
+                audit.start(request)
+            except Exception:
+                pass
+
         # داده‌های POST را قبل از اجرای ویو نگه می‌داریم (بعضی ویوها request را مصرف می‌کنند)
         post_snapshot = None
         if request.method in ('POST', 'PUT', 'PATCH'):
@@ -115,6 +124,13 @@ class AdminActionLogMiddleware:
             self._log(request, response, post_snapshot)
         except Exception as exc:  # pragma: no cover - لاگ نباید هرگز ریکوئست را خراب کند
             logger.warning("AdminActionLog failed: %s", exc)
+        finally:
+            if is_admin_path:
+                try:
+                    from . import audit
+                    audit.stop()
+                except Exception:
+                    pass
 
         return response
 
@@ -141,6 +157,16 @@ class AdminActionLogMiddleware:
         if object_id:
             label = f"{label} (#{object_id})"
 
+        # جزئیاتِ تغییراتِ مدل‌ها (قبل/بعد) که در طولِ این درخواست جمع شده‌اند
+        changes_json = ''
+        try:
+            from . import audit
+            change_list = audit.collected()
+            if change_list:
+                changes_json = json.dumps(change_list, ensure_ascii=False)[:20000]
+        except Exception:
+            changes_json = ''
+
         AdminActionLog.objects.create(
             user=user,
             user_email=getattr(user, 'email', '') or str(user),
@@ -153,6 +179,7 @@ class AdminActionLogMiddleware:
             query_string=request.META.get('QUERY_STRING', '')[:2000],
             post_data=post_snapshot or '',
             object_id=object_id[:100],
+            changes=changes_json,
             status_code=getattr(response, 'status_code', None),
             ip_address=_client_ip(request),
             user_agent=request.META.get('HTTP_USER_AGENT', '')[:1000],

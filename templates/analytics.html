@@ -5,560 +5,228 @@
 
 {% block content %}
 <style>
-/* Analytics Section */
-.analytics-section {
-    margin-bottom: 35px;
-    text-align: right;
-    padding: 20px;
-}
-
-/* Button Container */
-.personal-analytics-btn-container {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    justify-content: flex-end;
-}
-
-.btn-personal-analytics {
-    background: linear-gradient(90deg, #10b981, #059669);
-    color: #ffffff;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-}
-
-.btn-personal-analytics:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-}
-
-/* Account Selection */
-.account-selection {
-    margin-bottom: 35px;
-}
-
-.account-selection h2 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #10b981;
-    margin-bottom: 15px;
-}
-
-.account-selection form {
-    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-body.light-mode .account-selection form {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.account-selection form:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-}
-
-body.light-mode .account-selection form:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-}
-
-.account-selection select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    background-color: #3a3a3a;
-    color: #e0e0e0;
-    font-size: 14px;
-    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
-}
-
-body.light-mode .account-selection select {
-    border: 1px solid #d1d5db;
-    background-color: #ffffff;
-    color: #1f2a44;
-}
-
-.account-selection select:focus {
-    outline: none;
-    border-color: #10b981;
-    background-color: #4a4a4a;
-    transform: scale(1.02);
-}
-
-body.light-mode .account-selection select:focus {
-    background-color: #f9fafb;
-}
-
-.account-selection .trade-now-btn {
-    background: linear-gradient(90deg, #10b981, #059669);
-    color: #ffffff;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-}
-
-.account-selection .trade-now-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-}
-
-/* Guidance Box */
-.guidance-box {
-    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 30px;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-}
-
-body.light-mode .guidance-box {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.guidance-box h3 {
-    font-size: 20px;
-    color: #10b981;
-    margin-bottom: 15px;
-}
-
-.guidance-box ul {
-    list-style-type: decimal;
-    padding-right: 20px;
-    color: #e0e0e0;
-    line-height: 1.8;
-}
-
-body.light-mode .guidance-box ul {
-    color: #4b5563;
-}
-
-/* Analysis Panel */
-.analysis-panel {
-    margin-bottom: 35px;
-}
-
-.analysis-panel h2 {
-    font-size: 26px;
-    font-weight: 700;
-    color: #10b981;
-    margin-bottom: 20px;
-}
-
-.analysis-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.analysis-item {
-    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: fadeInUp 0.8s ease-out;
-}
-
-body.light-mode .analysis-item {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.analysis-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-}
-
-body.light-mode .analysis-item:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-}
-
-.analysis-item h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #10b981;
-    margin-bottom: 15px;
-}
-
-.chart-container {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.chart-label {
-    font-size: 32px;
-    font-weight: 700;
-    color: #10b981;
-}
-
-.stats p {
-    font-size: 16px;
-    color: #b0b0b0;
-    margin-bottom: 10px;
-}
-
-body.light-mode .stats p {
-    color: #4b5563;
-}
-
-.stats p span {
-    color: #e0e0e0;
-    font-weight: 500;
-}
-
-body.light-mode .stats p span {
-    color: #1f2a44;
-}
-
-.profit-under-30s p,
-.current-balance p,
-.trading-days p {
-    font-size: 16px;
-    color: #b0b0b0;
-    margin-bottom: 10px;
-}
-
-body.light-mode .profit-under-30s p,
-body.light-mode .current-balance p,
-body.light-mode .trading-days p {
-    color: #4b5563;
-}
-
-.profit-under-30s p span,
-.current-balance p span,
-.trading-days p span {
-    color: #e0e0e0;
-    font-weight: 500;
-}
-
-body.light-mode .profit-under-30s p span,
-body.light-mode .current-balance p span,
-body.light-mode .trading-days p span {
-    color: #1f2a44;
-}
-
-.status-indicator {
-    font-size: 20px;
-    font-weight: 700;
-    color: #10b981;
-    text-align: center;
-}
-
-.status-indicator.drawdown {
-    color: #dc2626;
-}
-
-.status-indicator.passed {
-    color: #10b981;
-}
-
-.status-indicator.pending {
-    color: #6b7280;
-}
-
-/* Daily Equity Chart */
-.daily-equity-chart {
-    margin-bottom: 35px;
-}
-
-.daily-equity-chart h3 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #10b981;
-    margin-bottom: 15px;
-}
-
-.daily-equity-chart canvas {
-    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-body.light-mode .daily-equity-chart canvas {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.daily-equity-chart canvas:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-}
-
-body.light-mode .daily-equity-chart canvas:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-}
-
-/* Trade History Table */
-.trade-history {
-    margin-bottom: 35px;
-}
-
-.trade-history h3 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #10b981;
-    margin-bottom: 15px;
-}
-
-#trade-history-table {
-    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    overflow-x: auto;
-}
-
-body.light-mode #trade-history-table {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-#trade-history-table table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    min-width: 800px;
-}
-
-#trade-history-table th,
-#trade-history-table td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 14px;
-}
-
-body.light-mode #trade-history-table th,
-body.light-mode #trade-history-table td {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-#trade-history-table th {
-    background: linear-gradient(90deg, #10b981, #059669);
-    color: #ffffff;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-body.light-mode #trade-history-table th {
-    color: #121212;
-}
-
-#trade-history-table td {
-    color: #e0e0e0;
-}
-
-body.light-mode #trade-history-table td {
-    color: #1f2a44;
-}
-
-#trade-history-table .profit {
-    color: #10b981;
-}
-
-#trade-history-table .loss {
-    color: #dc2626;
-}
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.pagination .pagination-btn {
-    background: linear-gradient(90deg, #10b981, #059669);
-    color: #ffffff;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-}
-
-.pagination .pagination-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-}
-
-.pagination .pagination-btn.disabled {
-    background: linear-gradient(90deg, #6b7280, #4b5563);
-    color: #b0b0b0;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-.pagination .pagination-info {
-    color: #e0e0e0;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-body.light-mode .pagination .pagination-info {
-    color: #1f2a44;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .analytics-section {
-        padding: 15px;
-    }
-
-    .personal-analytics-btn-container {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .btn-personal-analytics {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
-
-    .analysis-panel h2,
-    .account-selection h2,
-    .daily-equity-chart h3,
-    .trade-history h3 {
-        font-size: 20px;
-    }
-
-    .analysis-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .analysis-item {
-        padding: 15px;
-    }
-
-    #trade-history-table {
-        padding: 15px;
-    }
-
-    #trade-history-table table {
-        min-width: 100%;
-    }
-
-    #trade-history-table th,
-    #trade-history-table td {
-        padding: 10px;
-        font-size: 12px;
-    }
-
-    .account-selection .trade-now-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
-
-    .daily-equity-chart canvas {
-        min-height: 200px;
-    }
-}
-
-@media (max-width: 480px) {
-    .analysis-panel h2,
-    .account-selection h2,
-    .daily-equity-chart h3,
-    .trade-history h3 {
-        font-size: 18px;
-    }
-
-    .analysis-item {
-        padding: 12px;
-    }
-
-    .analysis-item h3 {
-        font-size: 16px;
-    }
-
-    .stats p,
-    .profit-under-30s p,
-    .current-balance p,
-    .trading-days p {
-        font-size: 14px;
-    }
-
-    #trade-history-table th,
-    #trade-history-table td {
-        padding: 8px;
-        font-size: 11px;
-    }
-
-    .pagination .pagination-btn,
-    .pagination .pagination-info {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
-
-    .daily-equity-chart canvas {
-        min-height: 150px;
-    }
+:root {
+    --apx-green: #10b981;
+    --apx-green2: #059669;
+    --apx-cyan: #22d3ee;
+    --apx-red: #ef4444;
+    --apx-amber: #f59e0b;
+    --apx-bg: #0b0f14;
+    --apx-panel: rgba(26, 32, 44, 0.72);
+    --apx-panel2: rgba(38, 48, 66, 0.65);
+    --apx-border: rgba(16, 185, 129, 0.22);
+    --apx-text: #e8eef5;
+    --apx-muted: #93a1b5;
+}
+body.light-mode {
+    --apx-bg: #f3f5f9;
+    --apx-panel: rgba(255, 255, 255, 0.9);
+    --apx-panel2: rgba(248, 250, 252, 0.95);
+    --apx-border: rgba(16, 185, 129, 0.25);
+    --apx-text: #16202e;
+    --apx-muted: #5b6b80;
+}
+
+.apx-analytics { padding: 18px; color: var(--apx-text); }
+.apx-analytics * { box-sizing: border-box; }
+
+/* ابزار بالا */
+.apx-toolbar { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; margin-bottom: 18px; }
+.apx-btn {
+    background: linear-gradient(90deg, var(--apx-green), var(--apx-green2));
+    color: #fff; padding: 11px 26px; border: none; border-radius: 40px;
+    font-weight: 700; font-size: 15px; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 6px 20px rgba(16,185,129,.35); transition: transform .25s, box-shadow .25s;
+}
+.apx-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 28px rgba(16,185,129,.5); }
+.apx-btn.ghost { background: var(--apx-panel); color: var(--apx-green); border: 1px solid var(--apx-border); box-shadow: none; }
+
+/* کارت شیشه‌ای */
+.apx-card {
+    background: var(--apx-panel);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--apx-border);
+    border-radius: 14px; padding: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    position: relative; overflow: hidden;
+}
+.apx-section-title { font-size: 17px; font-weight: 700; margin: 22px 0 12px; display: flex; align-items: center; gap: 9px; letter-spacing: -.2px; }
+.apx-section-title::before { content: ''; width: 3px; height: 18px; border-radius: 3px; background: var(--apx-green); }
+
+/* فرم انتخاب حساب */
+.apx-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.apx-form select {
+    flex: 1; min-width: 220px; padding: 13px 14px; border-radius: 12px;
+    border: 1px solid var(--apx-border); background: var(--apx-panel2);
+    color: var(--apx-text); font-size: 15px; font-family: inherit;
+}
+.apx-form select:focus { outline: none; border-color: var(--apx-green); }
+.apx-date-lbl { display: flex; align-items: center; gap: 8px; color: var(--apx-muted); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.apx-date-lbl input { padding: 11px 12px; border-radius: 12px; border: 1px solid var(--apx-border); background: var(--apx-panel2); color: var(--apx-text); font-family: inherit; }
+.apx-form-hint { margin-top: 10px; font-size: 12.5px; color: var(--apx-muted); }
+
+/* بنر نقض قوانین */
+.apx-vio { display: flex; align-items: flex-start; gap: 12px; padding: 15px 18px; border-radius: 14px; margin-bottom: 12px;
+    background: linear-gradient(90deg, rgba(239,68,68,.16), rgba(239,68,68,.05)); border: 1px solid var(--apx-red); border-right: 5px solid var(--apx-red); }
+.apx-vio.ok { background: linear-gradient(90deg, rgba(16,185,129,.14), rgba(16,185,129,.04)); border-color: var(--apx-green); border-right-color: var(--apx-green); }
+.apx-vio.warn { background: linear-gradient(90deg, rgba(245,158,11,.14), rgba(245,158,11,.04)); border-color: var(--apx-amber); border-right-color: var(--apx-amber); }
+.apx-vio .ic { font-size: 22px; line-height: 1.2; }
+.apx-vio .body { flex: 1; }
+.apx-vio .body .h { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+.apx-vio .body .d { font-size: 13.5px; color: var(--apx-muted); line-height: 1.9; }
+.apx-vio .body .d b { color: var(--apx-text); }
+
+/* میزان مجاز افت حساب */
+.apx-rr-cur { text-align: center; font-size: 13.5px; color: var(--apx-muted); margin-bottom: 16px; }
+.apx-rr-cur b { font-size: 27px; color: var(--apx-text); display: block; margin-top: 4px; font-weight: 900; }
+.apx-rr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.apx-rr-box { background: var(--apx-panel2); border: 1px solid var(--apx-border); border-radius: 12px; padding: 16px; text-align: center; }
+.apx-rr-box.daily { border-top: 3px solid var(--apx-green); }
+.apx-rr-box.total { border-top: 3px solid var(--apx-cyan); }
+.apx-rr-box .h { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.apx-rr-box .floor { font-size: 13px; color: var(--apx-muted); }
+.apx-rr-box .floor b { color: var(--apx-text); }
+.apx-rr-box .buf { font-size: 12.5px; color: var(--apx-muted); margin-top: 12px; }
+.apx-rr-box .buf .amt { font-size: 24px; font-weight: 900; color: var(--apx-green); display: block; margin-top: 4px; }
+.apx-rr-safe { text-align: center; padding: 16px; border-radius: 12px; background: rgba(16,185,129,.1); border: 1px solid var(--apx-green); }
+.apx-rr-safe.bad { background: rgba(239,68,68,.1); border-color: var(--apx-red); }
+.apx-rr-safe .lbl { font-size: 13.5px; color: var(--apx-muted); }
+.apx-rr-safe .amt { font-size: 28px; font-weight: 900; color: var(--apx-green); margin: 4px 0; }
+.apx-rr-safe.bad .amt { color: var(--apx-red); }
+.apx-rr-safe .note { font-size: 12.5px; color: var(--apx-muted); }
+@media (max-width: 640px) { .apx-rr-grid { grid-template-columns: 1fr; } }
+
+/* شبکه‌ی روز درخواستی */
+.apx-daygrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+.apx-daybox { padding: 15px; border-radius: 12px; background: var(--apx-panel2); border: 1px solid var(--apx-border); }
+.apx-daybox .t { font-size: 13px; color: var(--apx-muted); margin-bottom: 8px; }
+.apx-daybox .v { font-size: 21px; font-weight: 800; }
+.apx-daybox .sub { font-size: 12px; color: var(--apx-muted); margin-top: 4px; }
+
+/* کارت قانون */
+.apx-rule .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.apx-rule .head h4 { margin: 0; font-size: 16px; }
+.apx-rule .rows { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.apx-rule .rows .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(148,161,181,.14); }
+.apx-rule .rows .row span:last-child { font-weight: 700; }
+.apx-rule .list { margin-top: 10px; font-size: 13px; color: var(--apx-muted); }
+.apx-rule .list .li { padding: 8px 10px; border-radius: 8px; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); margin-bottom: 6px; color: var(--apx-text); }
+.pill { padding: 4px 12px; border-radius: 30px; font-size: 13px; font-weight: 800; }
+.pill.ok { background: rgba(16,185,129,.15); color: var(--apx-green); border: 1px solid var(--apx-green); }
+.pill.bad { background: rgba(239,68,68,.15); color: var(--apx-red); border: 1px solid var(--apx-red); }
+.pill.warn { background: rgba(245,158,11,.15); color: var(--apx-amber); border: 1px solid var(--apx-amber); }
+
+/* راهنما */
+.apx-guide summary { cursor: pointer; font-weight: 700; color: var(--apx-green); font-size: 16px; }
+.apx-guide ul { margin: 12px 0 0; padding-right: 20px; color: var(--apx-muted); line-height: 2; }
+
+/* هیرو وضعیت */
+.apx-hero { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 14px; margin-bottom: 8px; }
+.apx-hero .verdict { display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.apx-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 40px; font-weight: 800; font-size: 15px; width: fit-content; }
+.apx-badge.ok { background: rgba(16,185,129,.15); color: var(--apx-green); border: 1px solid var(--apx-green); }
+.apx-badge.bad { background: rgba(239,68,68,.15); color: var(--apx-red); border: 1px solid var(--apx-red); }
+.apx-badge.wait { background: rgba(245,158,11,.15); color: var(--apx-amber); border: 1px solid var(--apx-amber); }
+.apx-hero .big-num { font-size: 30px; font-weight: 900; letter-spacing: -.5px; }
+.apx-hero .lbl { font-size: 13px; color: var(--apx-muted); }
+.pos { color: var(--apx-green); } .neg { color: var(--apx-red); }
+
+/* گیج قوانین */
+.apx-gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.apx-gauge { text-align: center; }
+.apx-gauge h4 { font-size: 15px; margin: 0 0 10px; color: var(--apx-muted); font-weight: 700; }
+.apx-gauge .wrap { position: relative; height: 130px; }
+.apx-gauge .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 14px; }
+.apx-gauge .center .v { font-size: 24px; font-weight: 900; }
+.apx-gauge .center .s { font-size: 12px; color: var(--apx-muted); }
+.apx-gauge .foot { margin-top: 6px; font-size: 12px; color: var(--apx-muted); }
+
+/* کارت‌های KPI */
+.apx-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.apx-kpi { padding: 16px; border-radius: 14px; background: var(--apx-panel2); border: 1px solid var(--apx-border); }
+.apx-kpi .t { font-size: 13px; color: var(--apx-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.apx-kpi .v { font-size: 22px; font-weight: 800; }
+
+/* شبکه نمودار */
+.apx-charts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.apx-charts .full { grid-column: 1 / -1; }
+.apx-chart-card h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+.apx-chart-box { position: relative; height: 300px; }
+.apx-chart-box.sm { height: 260px; }
+
+/* جدول معاملات */
+.apx-tbl-tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.apx-tbl-tools input, .apx-tbl-tools select {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--apx-border);
+    background: var(--apx-panel2); color: var(--apx-text); font-family: inherit; font-size: 14px;
+}
+.apx-tbl-tools input { flex: 1; min-width: 160px; }
+.apx-table-scroll { overflow-x: auto; }
+table.apx-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 760px; }
+table.apx-table th {
+    background: linear-gradient(90deg, var(--apx-green), var(--apx-green2));
+    color: #fff; padding: 13px 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+table.apx-table th:first-child { border-radius: 0 10px 0 0; }
+table.apx-table th:last-child { border-radius: 10px 0 0 0; }
+table.apx-table td { padding: 12px 10px; text-align: center; font-size: 13px; border-bottom: 1px solid rgba(148,161,181,.15); color: var(--apx-text); }
+table.apx-table tr:hover td { background: rgba(16,185,129,.06); }
+.apx-pager { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 16px; }
+.apx-pager button { background: linear-gradient(90deg, var(--apx-green), var(--apx-green2)); color:#fff; border:none; padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+.apx-pager button:disabled { opacity: .4; cursor: not-allowed; }
+
+.apx-empty { text-align: center; padding: 60px 20px; color: var(--apx-muted); }
+.apx-empty .ic { font-size: 46px; margin-bottom: 12px; }
+
+/* پوشش بارگذاری */
+.apx-loading { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; background: rgba(6,10,16,.8); backdrop-filter: blur(5px); }
+.apx-loading.show { display: flex; }
+.apx-loading-box { text-align: center; background: var(--apx-panel); border: 1px solid var(--apx-border); border-radius: 18px; padding: 34px 40px; max-width: 430px; margin: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+.apx-loading-box .h { font-size: 18px; font-weight: 800; margin: 18px 0 8px; color: var(--apx-text); }
+.apx-loading-box .s { font-size: 13.5px; color: var(--apx-muted); line-height: 1.95; }
+.apx-spinner { width: 54px; height: 54px; margin: 0 auto; border: 5px solid var(--apx-border); border-top-color: var(--apx-green); border-radius: 50%; animation: apxspin 1s linear infinite; }
+@keyframes apxspin { to { transform: rotate(360deg); } }
+.apx-alert { padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; font-weight: 600; }
+.apx-alert.warn { background: rgba(245,158,11,.12); border: 1px solid var(--apx-amber); color: var(--apx-amber); }
+
+@media (max-width: 900px) {
+    .apx-hero { grid-template-columns: 1fr 1fr; }
+    .apx-charts { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .apx-analytics { padding: 12px; }
+    .apx-toolbar { gap: 8px; }
+    .apx-toolbar .apx-btn { flex: 1; justify-content: center; padding: 11px 14px; font-size: 14px; }
+    .apx-form { flex-direction: column; align-items: stretch; }
+    .apx-form select, .apx-form .apx-btn { width: 100%; }
+    .apx-card { padding: 15px; border-radius: 12px; }
+    .apx-hero { grid-template-columns: 1fr; gap: 10px; }
+    .apx-gauges { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .apx-gauge .wrap { height: 110px; }
+    .apx-kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .apx-kpi .v { font-size: 18px; }
+    .apx-daygrid { grid-template-columns: 1fr 1fr; }
+    .apx-chart-box, .apx-chart-box.sm { height: 240px; }
+    .apx-section-title { font-size: 15.5px; }
+    .apx-hero .big-num { font-size: 24px; }
+}
+@media (max-width: 380px) {
+    .apx-gauges, .apx-kpis, .apx-daygrid { grid-template-columns: 1fr; }
 }
 </style>
 
-<div class="analytics-section">
-    <div class="personal-analytics-btn-container">
-        <a href="https://apexfx.net/#plans" class="btn-personal-analytics">خرید چالش </a>
-        <a href="{% url 'personal_analytics' %}" class="btn-personal-analytics">آنالیز حساب شخصی</a>
+<div class="apx-analytics" dir="rtl">
+
+    <div class="apx-toolbar">
+        <a href="https://apexfx.net/#plans" class="apx-btn ghost">خرید چالش</a>
+        <a href="{% url 'personal_analytics' %}" class="apx-btn">آنالیز حساب شخصی</a>
     </div>
-<div class="guidance-box">
-        <h3>راهنمای استفاده از پنل آنالیز</h3>
-        <ul>
-            <li>پنل آنالیز حتما بعد بسته شدن هر معامله آپدیت میشه.</li>
-            <li>برای آپدیت شدن هربار باید دکمه "نمایش آنالیز" دوباره بزنید تا آپدیت بشه؛ خودکار آپدیت نمیشه.</li>
-            <li>ممکنه بعد بستن معامله تا بشینه روی دیتابیس، پنل آنالیز نیم ساعت طول بکشه.</li>
-            <li>اگر معامله آخر تازه ثبت کرده بودید و پنل آپدیت نشده بود، 1 ساعت منتظر بمونید بعد آپدیت کنید.</li>
-            <li>پنل آنالیز صرفا یه دستیار کمکی میباشد و نظر نهایی توسط کارشناس مجموعه بعد بررسی دقیق حساب گرفته میشود.</li>
-        </ul>
-    </div>
-    <div class="account-selection">
-        <h2>انتخاب حساب</h2>
-        <form method="POST">
+
+    <!-- انتخاب حساب -->
+    <div class="apx-card" style="margin-bottom:16px;">
+        <div class="apx-section-title" style="margin-top:0;">انتخاب حساب</div>
+        <form method="POST" class="apx-form" id="apx-form">
             {% csrf_token %}
             <select id="account-select" name="account_number">
                 <option value="">-- حساب را انتخاب کنید --</option>
@@ -566,191 +234,614 @@ body.light-mode .pagination .pagination-info {
                 <option value="{{ account.account_number }}" {% if selected_account.account_number == account.account_number %}selected{% endif %}>{{ account.account_number }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="trade-now-btn">نمایش آنالیز</button>
+            <button type="submit" class="apx-btn">نمایش آنالیز</button>
         </form>
+        <div class="apx-form-hint">آنالیز تا پایانِ روزِ جاری (تاریخِ سرور) محاسبه می‌شود. هر بار برای به‌روزرسانی، دوباره «نمایش آنالیز» را بزنید.</div>
     </div>
 
-    
+    <!-- راهنما -->
+    <div class="apx-card apx-guide" style="margin-bottom:16px;">
+        <details>
+            <summary>راهنمای استفاده از پنل آنالیز</summary>
+            <ul>
+                <li>پنل آنالیز حتماً بعد از بسته شدن هر معامله آپدیت می‌شود.</li>
+                <li>برای آپدیت، هر بار دکمه «نمایش آنالیز» را دوباره بزنید؛ خودکار آپدیت نمی‌شود.</li>
+                <li>ممکن است بعد از بستن معامله تا نشستن روی دیتابیس، نیم ساعت طول بکشد.</li>
+                <li>اگر معامله‌ی آخر تازه ثبت شده و پنل آپدیت نشده، ۱ ساعت صبر کنید.</li>
+                <li>این پنل صرفاً دستیار کمکی است؛ نظر نهایی توسط کارشناس مجموعه گرفته می‌شود.</li>
+            </ul>
+        </details>
+    </div>
 
-    <div class="analysis-panel">
-        <h2>پنل آنالیز حساب پراپ</h2>
-        <div class="analysis-grid">
-            <div class="analysis-item">
-                <h3>دراوداون روزانه</h3>
-                <div class="chart-container">
-                    <div class="chart-label" id="daily-drawdown-result">
-                        {{ daily_drawdown_result|floatformat:2 }} دلار
+    <!-- نتایج (توسط JS پر می‌شود) -->
+    <div id="apx-results" style="display:none;">
+
+        <!-- هیرو وضعیت -->
+        <div class="apx-hero">
+            <div class="apx-card verdict">
+                <span class="lbl">وضعیت حساب</span>
+                <span id="hero-verdict" class="apx-badge wait">در حال بررسی</span>
+                <span class="lbl" id="hero-account"></span>
+            </div>
+            <div class="apx-card">
+                <div class="lbl">بالانس فعلی</div>
+                <div class="big-num" id="hero-balance">-</div>
+                <div class="lbl">اولیه: <span id="hero-initial">-</span></div>
+            </div>
+            <div class="apx-card">
+                <div class="lbl">سود / زیان خالص</div>
+                <div class="big-num" id="hero-netpl">-</div>
+                <div class="lbl" id="hero-netpct">-</div>
+            </div>
+            <div class="apx-card">
+                <div class="lbl">نرخ برد</div>
+                <div class="big-num" id="hero-winrate">-</div>
+                <div class="lbl"><span id="hero-wins">0</span> برد / <span id="hero-losses">0</span> باخت</div>
+            </div>
+        </div>
+
+        <!-- بنر نقض قوانین -->
+        <div id="apx-violations"></div>
+
+        <!-- وضعیت روز آنالیز -->
+        <div class="apx-section-title">وضعیت روز آنالیز <span id="req-day-label" style="color:var(--apx-muted);font-weight:600;font-size:15px;"></span></div>
+        <div class="apx-card" style="margin-bottom:8px;"><div class="apx-daygrid" id="apx-daygrid"></div></div>
+
+        <!-- میزان مجاز افت حساب -->
+        <div class="apx-section-title">میزان مجاز افت حساب — چقدر می‌توانید ضرر کنید؟</div>
+        <div class="apx-card" id="apx-riskroom"></div>
+
+        <!-- گیج قوانین -->
+        <div class="apx-section-title">پایبندی به قوانین</div>
+        <div class="apx-card">
+            <div class="apx-gauges">
+                <div class="apx-gauge">
+                    <h4>دراوداون روزانه</h4>
+                    <div class="wrap"><canvas id="g-daily"></canvas>
+                        <div class="center"><div class="v" id="g-daily-v">-</div><div class="s">از حد مجاز</div></div>
                     </div>
+                    <div class="foot" id="g-daily-foot"></div>
                 </div>
-            </div>
-            <div class="analysis-item">
-                <h3>دراوداون کل</h3>
-                <div class="chart-container">
-                    <div class="chart-label" id="total-drawdown-result">
-                        {{ total_drawdown_result|floatformat:2 }} دلار
+                <div class="apx-gauge">
+                    <h4>دراوداون کل</h4>
+                    <div class="wrap"><canvas id="g-total"></canvas>
+                        <div class="center"><div class="v" id="g-total-v">-</div><div class="s">از حد مجاز</div></div>
                     </div>
+                    <div class="foot" id="g-total-foot"></div>
                 </div>
-            </div>
-            <div class="analysis-item">
-                <h3>تارگت سود</h3>
-                <div class="chart-container">
-                    <div class="chart-label" id="profit-target-value">
-                        {{ profit_target_value|floatformat:2 }} دلار
+                <div class="apx-gauge" id="gauge-float">
+                    <h4>ریسک شناور</h4>
+                    <div class="wrap"><canvas id="g-float"></canvas>
+                        <div class="center"><div class="v" id="g-float-v">-</div><div class="s">نقض‌ها</div></div>
                     </div>
-                </div>
-            </div>
-            <div class="analysis-item">
-                <h3>سود زیر 30 ثانیه</h3>
-                <div class="profit-under-30s">
-                    <p>عدد: <span id="short-profit-value">
-                        {{ metrics.short_profit_value|floatformat:2 }} دلار
-                    </span></p>
-                </div>
-            </div>
-          
-            <div class="analysis-item">
-                <h3>بالانس فعلی</h3>
-                <div class="current-balance">
-                    <p>مقدار: <span id="current-balance-value">
-                        {{ metrics.current_balance|floatformat:2 }} دلار
-                    </span></p>
-                </div>
-            </div>
-            <div class="analysis-item">
-                <h3>تعداد روزهای معاملاتی</h3>
-                <div class="trading-days">
-                    <p>تعداد: <span id="trading-days-count">
-                        {{ trading_days_count }} روز
-                    </span></p>
+                    <div class="foot" id="g-float-foot"></div>
                 </div>
             </div>
         </div>
 
-        <div class="daily-equity-chart">
-            <h3>نمودار کمترین اکوئیتی روزانه</h3>
-            <canvas id="dailyEquityChart"></canvas>
+        <!-- قوانین سود: ۸۰٪ و اسکالپ -->
+        <div class="apx-section-title">قوانین سود (قانون ۸۰٪ و اسکالپ)</div>
+        <div class="apx-charts">
+            <div class="apx-card apx-rule" id="rule-80"></div>
+            <div class="apx-card apx-rule" id="rule-scalp"></div>
         </div>
 
-        <div class="trade-history">
-            <h3>هیستوری معاملات</h3>
-            <table id="trade-history-table">
-                <thead>
-                    <tr>
-                        <th>نماد</th>
-                        <th>تاریخ</th>
-                        <th>قیمت باز شدن</th>
-                        <th>قیمت بسته شدن</th>
-                        <th>نوع معامله</th>
-                        <th>حجم</th>
-                        <th>سود/زیان</th>
-                        <th>مدت زمان</th>
-                    </tr>
-                </thead>
-                <tbody id="trade-history-body">
-                    {% if trades_paginated %}
-                        {% for trade in trades_paginated %}
+        <!-- KPI -->
+        <div class="apx-section-title">شاخص‌های کلیدی معاملاتی</div>
+        <div class="apx-kpis" id="apx-kpis"></div>
+
+        <!-- نمودارها -->
+        <div class="apx-section-title">نمودارها</div>
+        <div class="apx-charts">
+            <div class="apx-card apx-chart-card full">
+                <h4>منحنی اکوئیتی / بالانس</h4>
+                <div class="apx-chart-box"><canvas id="c-equity"></canvas></div>
+            </div>
+            <div class="apx-card apx-chart-card">
+                <h4>سود/زیان تجمعی</h4>
+                <div class="apx-chart-box sm"><canvas id="c-cumpl"></canvas></div>
+            </div>
+            <div class="apx-card apx-chart-card">
+                <h4>کمترین اکوئیتی روزانه</h4>
+                <div class="apx-chart-box sm"><canvas id="c-daily"></canvas></div>
+            </div>
+            <div class="apx-card apx-chart-card">
+                <h4>سود/زیان روزانه</h4>
+                <div class="apx-chart-box sm"><canvas id="c-dailypl"></canvas></div>
+            </div>
+            <div class="apx-card apx-chart-card">
+                <h4>نسبت برد به باخت</h4>
+                <div class="apx-chart-box sm"><canvas id="c-winloss"></canvas></div>
+            </div>
+            <div class="apx-card apx-chart-card full">
+                <h4>سود/زیان به تفکیک نماد</h4>
+                <div class="apx-chart-box sm"><canvas id="c-symbols"></canvas></div>
+            </div>
+        </div>
+
+        <!-- جدول معاملات -->
+        <div class="apx-section-title">هیستوری معاملات</div>
+        <div class="apx-card">
+            <div class="apx-tbl-tools">
+                <input type="text" id="tbl-search" placeholder="جستجوی نماد...">
+                <select id="tbl-filter">
+                    <option value="all">همه‌ی معاملات</option>
+                    <option value="win">فقط بردها</option>
+                    <option value="loss">فقط باخت‌ها</option>
+                </select>
+            </div>
+            <div class="apx-table-scroll">
+                <table class="apx-table">
+                    <thead>
                         <tr>
-                            <td>{{ trade.symbol }}</td>
-                            <td>{{ trade.date }}</td>
-                            <td>{{ trade.open_price|floatformat:4 }}</td>
-                            <td>{{ trade.close_price|default:"-"|floatformat:4 }}</td>
-                            <td>{{ trade.trade_type|capfirst|default:"-" }}</td>
-                            <td>{{ trade.volume|floatformat:2 }} لات</td>
-                            <td class="{% if trade.profit_loss >= 0 %}profit{% else %}loss{% endif %}">{{ trade.profit_loss|floatformat:2 }} دلار</td>
-                            <td>{{ trade.duration_seconds|default:"-" }} ثانیه</td>
+                            <th data-k="symbol">نماد</th>
+                            <th data-k="date">تاریخ</th>
+                            <th data-k="open_price">قیمت ورود</th>
+                            <th data-k="close_price">قیمت خروج</th>
+                            <th data-k="trade_type">نوع</th>
+                            <th data-k="volume">حجم</th>
+                            <th data-k="profit_loss">سود/زیان</th>
+                            <th data-k="duration_seconds">مدت</th>
                         </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="8">هیچ معامله‌ای یافت نشد.</td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="8">هیچ معامله‌ای یافت نشد. لطفاً حساب را انتخاب کنید.</td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-            {% if trades_paginated %}
-            <div class="pagination">
-                <form method="POST" class="pagination-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="account_number" value="{{ selected_account.account_number }}">
-                    {% if trades_paginated.has_previous %}
-                        <button type="submit" name="page" value="{{ trades_paginated.previous_page_number }}" class="pagination-btn">قبلی</button>
-                    {% else %}
-                        <button type="submit" class="pagination-btn disabled" disabled>قبلی</button>
-                    {% endif %}
-                    <span class="pagination-info">صفحه {{ trades_paginated.number }} از {{ trades_paginated.paginator.num_pages }}</span>
-                    {% if trades_paginated.has_next %}
-                        <button type="submit" name="page" value="{{ trades_paginated.next_page_number }}" class="pagination-btn">بعدی</button>
-                    {% else %}
-                        <button type="submit" class="pagination-btn disabled" disabled>بعدی</button>
-                    {% endif %}
-                </form>
+                    </thead>
+                    <tbody id="tbl-body"></tbody>
+                </table>
             </div>
-            {% endif %}
+            <div class="apx-pager">
+                <button id="pg-prev">قبلی</button>
+                <span id="pg-info"></span>
+                <button id="pg-next">بعدی</button>
+            </div>
         </div>
+    </div>
+
+    <!-- پوشش بارگذاری -->
+    <div id="apx-loading" class="apx-loading">
+        <div class="apx-loading-box">
+            <div class="apx-spinner"></div>
+            <div class="h">پنل در حال بررسی دیتای حساب شماست</div>
+            <div class="s">این فرایند ممکن است چند ثانیه تا یک دقیقه طول بکشد. لطفاً صبر کنید و صفحه را نبندید.</div>
+        </div>
+    </div>
+
+    <!-- حالت خالی -->
+    <div id="apx-empty" class="apx-card apx-empty">
+        <div class="ic">📊</div>
+        <div>برای مشاهده‌ی آنالیز، یک حساب انتخاب کنید و «نمایش آنالیز» را بزنید.</div>
     </div>
 </div>
 
+{{ metrics|json_script:"apx-metrics" }}
+{{ analysis_config|json_script:"apx-config" }}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const themeToggle = document.querySelector('.theme-toggle');
-    const hamburger = document.querySelector('.hamburger');
-    const navUl = document.querySelector('nav ul');
+(function () {
+    "use strict";
+    var M = null, CFG = {};
+    try { M = JSON.parse(document.getElementById('apx-metrics').textContent); } catch (e) {}
+    try { CFG = JSON.parse(document.getElementById('apx-config').textContent) || {}; } catch (e) {}
 
-    // Theme Toggle
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('light-mode');
-        });
+    // نمایشِ پوششِ بارگذاری هنگام ارسالِ فرم (همیشه، حتی در حالت خالی)
+    var _form = document.getElementById('apx-form');
+    var _loading = document.getElementById('apx-loading');
+    if (_form && _loading) {
+        _form.addEventListener('submit', function () { _loading.classList.add('show'); });
     }
 
-    // Hamburger Menu
-    if (hamburger) {
-        hamburger.addEventListener('click', function() {
-            navUl.classList.toggle('active');
-            this.textContent = navUl.classList.contains('active') ? '✕' : '☰';
-        });
-    }
+    if (!M) { return; } // حالت خالی
 
-    // Daily Equity Chart
-    const dailyEquityData = {{ metrics.daily_min_equities|safe|default:"[]" }};
-    const ctx = document.getElementById('dailyEquityChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dailyEquityData.map(item => item.date),
-            datasets: [{
-                label: 'کمترین اکوئیتی روزانه (دلار)',
-                data: dailyEquityData.map(item => item.min_equity),
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    title: {
-                        display: true,
-                        text: 'اکوئیتی (دلار)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'تاریخ'
-                    }
-                }
-            }
+    document.getElementById('apx-empty').style.display = 'none';
+    document.getElementById('apx-results').style.display = 'block';
+
+    var isLight = document.body.classList.contains('light-mode');
+    var GRID = isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.08)';
+    var TXT = isLight ? '#16202e' : '#e8eef5';
+    var GREEN = '#10b981', RED = '#ef4444', CYAN = '#22d3ee', AMBER = '#f59e0b';
+
+    // ---------- کمکی‌ها ----------
+    function num(x) { x = parseFloat(x); return isNaN(x) ? 0 : x; }
+    function money(x) { return num(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $'; }
+    function pct(x) { return num(x).toFixed(2) + '%'; }
+    function fmtDur(s) {
+        s = num(s); if (!s) return '-';
+        if (s < 60) return Math.round(s) + ' ثانیه';
+        if (s < 3600) return Math.round(s / 60) + ' دقیقه';
+        if (s < 86400) return (s / 3600).toFixed(1) + ' ساعت';
+        return (s / 86400).toFixed(1) + ' روز';
+    }
+    function el(id) { return document.getElementById(id); }
+
+    var trades = (M.trades || []).slice();
+    var daily = (M.daily_metrics || []).slice();
+
+    // ---------- محاسبه‌ی شاخص‌ها ----------
+    var wins = trades.filter(function (t) { return num(t.profit_loss) > 0; });
+    var losses = trades.filter(function (t) { return num(t.profit_loss) < 0; });
+    var grossProfit = wins.reduce(function (a, t) { return a + num(t.profit_loss); }, 0);
+    var grossLoss = Math.abs(losses.reduce(function (a, t) { return a + num(t.profit_loss); }, 0));
+    var netPL = num(M.current_balance) - num(M.initial_balance);
+    var winRate = trades.length ? (wins.length / trades.length * 100) : 0;
+    var profitFactor = grossLoss > 0 ? (grossProfit / grossLoss) : (grossProfit > 0 ? 99 : 0);
+    var avgWin = wins.length ? grossProfit / wins.length : 0;
+    var avgLoss = losses.length ? grossLoss / losses.length : 0;
+    var expectancy = trades.length ? (netPL / trades.length) : 0;
+    var rr = avgLoss > 0 ? (avgWin / avgLoss) : 0;
+    var best = trades.reduce(function (m, t) { return num(t.profit_loss) > num(m.profit_loss) ? t : m; }, { profit_loss: -1e9 });
+    var worst = trades.reduce(function (m, t) { return num(t.profit_loss) < num(m.profit_loss) ? t : m; }, { profit_loss: 1e9 });
+    // استریک
+    var maxWinStreak = 0, maxLossStreak = 0, cw = 0, cl = 0;
+    trades.forEach(function (t) {
+        var p = num(t.profit_loss);
+        if (p > 0) { cw++; cl = 0; if (cw > maxWinStreak) maxWinStreak = cw; }
+        else if (p < 0) { cl++; cw = 0; if (cl > maxLossStreak) maxLossStreak = cl; }
+    });
+    var avgDur = trades.length ? trades.reduce(function (a, t) { return a + num(t.duration_seconds); }, 0) / trades.length : 0;
+
+    // ===== دراوداونِ کل: بالانس‌محور نسبت به بالانسِ اولیه‌ی دیتابیس =====
+    // (نه شناورِ لحظه‌ای/MAE؛ چون کاربر می‌خواهد دراوداونِ کل از روی افتِ واقعیِ بالانس باشد)
+    var totalLimitPct = num(CFG.total_draw_percent) || 20;
+    var floatEnabled = !!M.floating_risk_enabled;
+    var dbInitial = num(CFG.db_initial_balance) || num(M.initial_balance);
+    var _cbc = trades.filter(function (t) { return t.close_time; })
+        .sort(function (a, b) { return new Date(a.close_time) - new Date(b.close_time); });
+    var _run = dbInitial, balLow = dbInitial, balLowTime = null;
+    _cbc.forEach(function (t) { _run += num(t.profit_loss); if (_run < balLow) { balLow = _run; balLowTime = t.close_time; } });
+    var overallDDpct = dbInitial ? Math.max(0, (dbInitial - balLow) / dbInitial * 100) : 0;
+    var overallDDval = Math.max(0, dbInitial - balLow);
+    var overallViolated = overallDDpct >= totalLimitPct;
+
+    // ---------- هیرو ----------
+    var violated = M.daily_drawdown_violated || overallViolated || (floatEnabled && M.floating_risk_violated);
+    var vEl = el('hero-verdict');
+    if (violated) { vEl.className = 'apx-badge bad'; vEl.textContent = '✗ نقض قانون'; }
+    else { vEl.className = 'apx-badge ok'; vEl.textContent = '✓ بدون نقض تا این تاریخ'; }
+    el('hero-balance').textContent = money(M.current_balance);
+    el('hero-initial').textContent = money(M.initial_balance);
+    el('hero-netpl').textContent = money(netPL);
+    el('hero-netpl').className = 'big-num ' + (netPL >= 0 ? 'pos' : 'neg');
+    var netPct = num(M.initial_balance) ? (netPL / num(M.initial_balance) * 100) : 0;
+    el('hero-netpct').textContent = (netPct >= 0 ? '+' : '') + pct(netPct);
+    el('hero-winrate').textContent = pct(winRate);
+    el('hero-wins').textContent = wins.length;
+    el('hero-losses').textContent = losses.length;
+
+    // ---------- KPI ----------
+    var kpis = [
+        { t: 'تعداد کل معاملات', v: trades.length },
+        { t: 'ضریب سود (PF)', v: profitFactor >= 99 ? '∞' : profitFactor.toFixed(2) },
+        { t: 'میانگین سود', v: money(avgWin), c: 'pos' },
+        { t: 'میانگین زیان', v: money(-avgLoss), c: 'neg' },
+        { t: 'نسبت سود به زیان', v: rr ? rr.toFixed(2) : '-' },
+        { t: 'انتظار ریاضی/معامله', v: money(expectancy), c: expectancy >= 0 ? 'pos' : 'neg' },
+        { t: 'بهترین معامله', v: money(best.profit_loss > -1e9 ? best.profit_loss : 0), c: 'pos' },
+        { t: 'بدترین معامله', v: money(worst.profit_loss < 1e9 ? worst.profit_loss : 0), c: 'neg' },
+        { t: 'بیشترین برد پیاپی', v: maxWinStreak },
+        { t: 'بیشترین باخت پیاپی', v: maxLossStreak },
+        { t: 'میانگین مدت معامله', v: fmtDur(avgDur) },
+        { t: 'روزهای معاملاتی', v: daily.length },
+        { t: 'سود زیر ۳۰ ثانیه', v: money(M.short_profit_value), c: 'pos' },
+        { t: 'کمترین اکوئیتی کل', v: money(M.min_equity_overall) },
+    ];
+    el('apx-kpis').innerHTML = kpis.map(function (k) {
+        return '<div class="apx-kpi"><div class="t">' + k.t + '</div><div class="v ' + (k.c || '') + '">' + k.v + '</div></div>';
+    }).join('');
+
+    // ========== روزِ آنالیز، بنر نقض، و قوانینِ سود ==========
+    function fmtTime(iso) {
+        if (!iso) return '-';
+        var s = ('' + iso).replace('T', ' ');
+        return s.length >= 19 ? s.slice(0, 19) : s;
+    }
+    var reqDate = (CFG.requested_date || '').slice(0, 10);
+    if (!reqDate && daily.length) reqDate = daily[daily.length - 1].date;
+    var dailyLimitPct = num(CFG.daily_draw_percent) || 5;
+    var targetPct = num(CFG.profit_percent_target);
+    var targetAmount = num(CFG.profit_target_amount) || (num(M.initial_balance) * targetPct / 100);
+
+    // --- روزِ آنالیز ---
+    var isLastDay = daily.length ? (reqDate === daily[daily.length - 1].date) : true;
+    var dayM = null;
+    for (var di = 0; di < daily.length; di++) { if (daily[di].date === reqDate) { dayM = daily[di]; break; } }
+    if (!dayM && daily.length) dayM = daily[daily.length - 1];
+    el('req-day-label').textContent = reqDate ? ('(' + reqDate + ')') : '';
+
+    var dailyDDpct = 0, dayStart = num(M.initial_balance), dayLow = num(M.current_balance), dayBreached = false;
+    if (dayM) {
+        dailyDDpct = num(dayM.daily_drawdown_percent);
+        dayStart = num(dayM.start_balance);
+        dayLow = num(dayM.min_equity);
+        dayBreached = !!dayM.exceeds_threshold;
+    }
+    var dayFloor = dayStart * (1 - dailyLimitPct / 100);
+    var allowedLoss = dayStart * dailyLimitPct / 100;
+    var refEquity = isLastDay ? num(M.current_balance) : dayLow;
+    var remaining = refEquity - dayFloor;
+    var dayCells = [
+        { t: 'بالانس ابتدای روز', v: money(dayStart) },
+        { t: 'حد مجاز اکوییتی امروز', v: money(dayFloor), sub: 'نباید پایین‌تر برود' },
+        { t: 'حداکثر ضرر مجاز امروز', v: money(allowedLoss), sub: pct(dailyLimitPct) + ' بالانس ابتدای روز' },
+        { t: isLastDay ? 'کمترین اکوییتی امروز' : 'کمترین اکوییتی این روز', v: money(dayLow), sub: 'دراوداون: ' + pct(dailyDDpct) },
+        { t: isLastDay ? 'هنوز می‌توانید ضرر کنید' : 'فاصله تا حد مجاز', v: money(Math.max(0, remaining)), sub: remaining <= 0 ? 'حد رد شده' : 'باقی‌مانده', c: remaining <= 0 ? 'neg' : 'pos' }
+    ];
+    el('apx-daygrid').innerHTML = dayCells.map(function (c) {
+        return '<div class="apx-daybox"><div class="t">' + c.t + '</div><div class="v ' + (c.c || '') + '">' + c.v + '</div>' + (c.sub ? '<div class="sub">' + c.sub + '</div>' : '') + '</div>';
+    }).join('');
+
+    // ===== میزان مجاز افت حساب (نسبت به بالانسِ فعلی) =====
+    // کف دراوداون کل = بالانسِ اولیه × (۱ − درصدِ کل)؛ کف روزانه = بالانسِ ابتدای روز × (۱ − درصدِ روزانه)
+    var curBal = num(M.current_balance);
+    var overallFloor = dbInitial * (1 - totalLimitPct / 100);
+    var overallBuffer = Math.max(0, curBal - overallFloor);   // چقدر تا نقضِ کل می‌تواند ضرر کند
+    var dailyBuffer = Math.max(0, curBal - dayFloor);         // چقدر تا نقضِ روزانه می‌تواند ضرر کند
+    var safeNow = Math.min(dailyBuffer, overallBuffer);       // ضررِ امن = تنگ‌ترین قید
+    var binding = dailyBuffer <= overallBuffer ? 'روزانه' : 'کل';
+    var breached = (curBal <= overallFloor) || (curBal <= dayFloor) || dayBreached || overallViolated;
+
+    el('apx-riskroom').innerHTML =
+        '<div class="apx-rr-cur">بالانس فعلی حساب<b>' + money(curBal) + '</b></div>' +
+        '<div class="apx-rr-grid">' +
+            '<div class="apx-rr-box daily">' +
+                '<div class="h">دراوداون روزانه (' + pct(dailyLimitPct) + ')</div>' +
+                '<div class="floor">کف مجاز امروز (نباید پایین‌تر برود): <b>' + money(dayFloor) + '</b></div>' +
+                '<div class="buf">امروز تا این مقدار می‌توانید ضرر کنید<span class="amt">' + money(dailyBuffer) + '</span></div>' +
+            '</div>' +
+            '<div class="apx-rr-box total">' +
+                '<div class="h">دراوداون کل (' + pct(totalLimitPct) + ')</div>' +
+                '<div class="floor">کف مجاز کل (نباید پایین‌تر برود): <b>' + money(overallFloor) + '</b></div>' +
+                '<div class="buf">در مجموع تا این مقدار می‌توانید ضرر کنید<span class="amt">' + money(overallBuffer) + '</span></div>' +
+            '</div>' +
+        '</div>' +
+        (breached
+            ? '<div class="apx-rr-safe bad"><div class="lbl">وضعیت</div><div class="amt">حساب نقض شده یا در آستانه‌ی نقض است</div></div>'
+            : '<div class="apx-rr-safe"><div class="lbl">✅ ضررِ امنِ فعلی (بدون نقضِ هیچ قانونی)</div>' +
+              '<div class="amt">تا ' + money(safeNow) + '</div>' +
+              '<div class="note">اگر بیش از این ضرر کنید، ابتدا دراوداون <b>' + binding + '</b> نقض می‌شود. (کف روزانه: ' + money(dayFloor) + ' | کف کل: ' + money(overallFloor) + ')</div></div>');
+
+    // --- بنر نقض قوانین ---
+    var vios = [];
+    daily.forEach(function (d) {
+        if (d.exceeds_threshold) {
+            var fl = num(d.start_balance) * (1 - dailyLimitPct / 100);
+            vios.push({ ic: '⛔', h: 'نقض دراوداون روزانه',
+                d: 'در تاریخ <b>' + d.date + '</b> ساعت <b>' + fmtTime(d.min_equity_time) + '</b> (تایم بروکر) دراوداون روزانه نقض شد. اکوییتی شما نباید پایین‌تر از <b>' + money(fl) + '</b> می‌رفت، اما به <b>' + money(d.min_equity) + '</b> رسید (دراوداون ' + pct(d.daily_drawdown_percent) + ' از حد مجاز ' + pct(dailyLimitPct) + ').' });
         }
     });
-});
+    if (overallViolated) {
+        var oFloor = dbInitial * (1 - totalLimitPct / 100);
+        vios.push({ ic: '⛔', h: 'نقض دراوداون کل',
+            d: 'دراوداون کل نقض شد' + (balLowTime ? ' (حدوداً ' + fmtTime(balLowTime) + ' تایم بروکر)' : '') + '. بالانس نباید پایین‌تر از <b>' + money(oFloor) + '</b> می‌رفت، اما به <b>' + money(balLow) + '</b> رسید (' + pct(overallDDpct) + ' از حد مجاز ' + pct(totalLimitPct) + ').' });
+    }
+    if (floatEnabled) {
+        (M.floating_risk_violations || []).slice(0, 5).forEach(function (f) {
+            vios.push({ cls: 'warn', ic: '⚠️', h: 'نقض ریسک شناور',
+                d: 'در <b>' + fmtTime(f.time) + '</b> ضرر شناور به <b>' + money(f.total_floating_loss) + '</b> رسید (' + pct(f.floating_loss_percent) + ' — ' + (f.type === 'single_trade' ? 'یک معامله' : 'چند معامله همزمان') + ').' });
+        });
+    }
+
+    // --- قانون ۸۰٪ (خوشه‌بندیِ معاملاتِ همزمان/کمتر از ۵ دقیقه) ---
+    var closedT = trades.filter(function (t) { return t.open_time && t.close_time; })
+        .sort(function (a, b) { return new Date(a.open_time) - new Date(b.open_time); });
+    var FIVE = 5 * 60 * 1000, clusters = [], cur = null, curCloseMax = 0;
+    closedT.forEach(function (t) {
+        var op = new Date(t.open_time).getTime(), cl = new Date(t.close_time).getTime();
+        if (cur && (op - curCloseMax) < FIVE) {
+            cur.trades.push(t); cur.profit += num(t.profit_loss); if (cl > curCloseMax) curCloseMax = cl;
+        } else {
+            cur = { trades: [t], profit: num(t.profit_loss), start: t.open_time }; clusters.push(cur); curCloseMax = cl;
+        }
+    });
+    var isReal = targetAmount <= 0;
+    var thr80 = isReal ? 0.8 * Math.max(0, netPL) : 0.8 * targetAmount;
+    var basis80 = isReal ? '۸۰٪ سود کل' : '۸۰٪ تارگت سود';
+    var maxCluster = clusters.length ? Math.max.apply(null, clusters.map(function (c) { return c.profit; })) : 0;
+    var viol80 = clusters.filter(function (c) { return thr80 > 0 && c.profit > thr80; }).sort(function (a, b) { return b.profit - a.profit; });
+    var rule80Ok = viol80.length === 0;
+    if (!rule80Ok) {
+        vios.push({ cls: 'warn', ic: '📛', h: 'نقض قانون ۸۰٪',
+            d: 'یک گروهِ معاملاتی (همزمان یا با فاصله‌ی کمتر از ۵ دقیقه) سودِ <b>' + money(viol80[0].profit) + '</b> کسب کرده که از حدِ مجاز <b>' + money(thr80) + '</b> (' + basis80 + ') بیشتر است.' });
+    }
+    el('rule-80').innerHTML =
+        '<div class="head"><h4>قانون ۸۰٪ سود</h4><span class="pill ' + (rule80Ok ? 'ok' : 'bad') + '">' + (rule80Ok ? 'رعایت شده' : 'نقض شده') + '</span></div>' +
+        '<div class="rows">' +
+        '<div class="row"><span>مبنا</span><span>' + basis80 + (thr80 > 0 ? '' : ' (نامشخص)') + '</span></div>' +
+        '<div class="row"><span>حدِ مجاز هر گروه</span><span>' + (thr80 > 0 ? money(thr80) : '—') + '</span></div>' +
+        '<div class="row"><span>بیشترین سودِ یک گروه</span><span>' + money(maxCluster) + '</span></div>' +
+        '<div class="row"><span>تعداد گروه‌های معاملاتی</span><span>' + clusters.length + '</span></div>' +
+        '</div>' +
+        (viol80.length ? '<div class="list">' + viol80.slice(0, 3).map(function (c) { return '<div class="li">گروهِ ' + fmtTime(c.start) + ' ← سود ' + money(c.profit) + ' (' + c.trades.length + ' معامله)</div>'; }).join('') + '</div>' : '') +
+        '<div class="list" style="background:none;border:none;padding:0;color:var(--apx-muted);">گروه = معاملاتی که فاصله‌ی کلوز تا اوپنِ بعدی‌شان کمتر از ۵ دقیقه است (یا همزمان).</div>';
+
+    // --- اسکالپ (زیر ۳۰ ثانیه) ---
+    var subTrades = trades.filter(function (t) { return num(t.duration_seconds) > 0 && num(t.duration_seconds) < 30; });
+    var subProfitTrades = subTrades.filter(function (t) { return num(t.profit_loss) > 0; });
+    var scalpProfit = subProfitTrades.reduce(function (a, t) { return a + num(t.profit_loss); }, 0);
+    var scalpLimit = targetAmount > 0 ? 0.1 * targetAmount : 0;
+    var scalpOver = scalpLimit > 0 && scalpProfit > scalpLimit;
+    if (scalpOver) {
+        vios.push({ cls: 'warn', ic: '⏱️', h: 'سودِ اسکالپِ غیرمجاز',
+            d: 'سودِ حاصل از معاملاتِ زیر ۳۰ ثانیه <b>' + money(scalpProfit) + '</b> است که از سقفِ مجاز <b>' + money(scalpLimit) + '</b> (۱۰٪ تارگت) بیشتر است و باید جبران شود.' });
+    }
+    if (subTrades.length) {
+        vios.push({ cls: 'warn', ic: '⏱️', h: 'معاملاتِ زیر ۳۰ ثانیه',
+            d: '<b>' + subTrades.length + '</b> معامله زیرِ حداقلِ زمانِ مجاز (۳۰ ثانیه) بسته شده‌اند؛ این می‌تواند منجر به پاس شدنِ زودهنگام یا حذفِ سود شود.' });
+    }
+    el('rule-scalp').innerHTML =
+        '<div class="head"><h4>معاملات اسکالپ (زیر ۳۰ ثانیه)</h4><span class="pill ' + (scalpOver ? 'bad' : (subTrades.length ? 'warn' : 'ok')) + '">' + (scalpOver ? 'سود غیرمجاز' : (subTrades.length ? 'هشدار' : 'رعایت شده')) + '</span></div>' +
+        '<div class="rows">' +
+        '<div class="row"><span>سود زیر ۳۰ ثانیه</span><span class="pos">' + money(scalpProfit) + '</span></div>' +
+        '<div class="row"><span>سقف مجاز (۱۰٪ تارگت)</span><span>' + (scalpLimit > 0 ? money(scalpLimit) : '—') + '</span></div>' +
+        '<div class="row"><span>تعداد معاملاتِ زیر ۳۰ ثانیه</span><span>' + subTrades.length + '</span></div>' +
+        '<div class="row"><span>از این تعداد، سودده</span><span>' + subProfitTrades.length + '</span></div>' +
+        '</div>' +
+        '<div class="list" style="background:none;border:none;padding:0;color:var(--apx-muted);">حداقل زمانِ مجازِ هر معامله ۳۰ ثانیه است و سودِ اسکالپ نباید از ۱۰٪ تارگت بیشتر شود.</div>';
+
+    // --- رندرِ بنر ---
+    var banner = el('apx-violations');
+    if (vios.length) {
+        banner.innerHTML = vios.map(function (v) {
+            return '<div class="apx-vio ' + (v.cls || '') + '"><div class="ic">' + v.ic + '</div><div class="body"><div class="h">' + v.h + '</div><div class="d">' + v.d + '</div></div></div>';
+        }).join('');
+    } else {
+        banner.innerHTML = '<div class="apx-vio ok"><div class="ic">✅</div><div class="body"><div class="h">تا این تاریخ نقضِ قانونی ثبت نشده است</div><div class="d">دراوداون روزانه، دراوداون کل، ریسک شناور، قانون ۸۰٪ و محدودیتِ اسکالپ رعایت شده‌اند.</div></div></div>';
+    }
+
+    // ---------- گیج‌ها ----------
+    function gauge(cid, usedPct, color, violatedFlag) {
+        usedPct = Math.max(0, Math.min(100, usedPct));
+        var track = isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.10)';
+        return new Chart(el(cid).getContext('2d'), {
+            type: 'doughnut',
+            data: { datasets: [{ data: [usedPct, 100 - usedPct], backgroundColor: [violatedFlag ? RED : color, track], borderWidth: 0 }] },
+            options: {
+                rotation: -90, circumference: 180, cutout: '72%', responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+    }
+    // دراوداون روزانه: مربوط به «روزِ آنالیز» (نه بدترین/آخرین روز)
+    gauge('g-daily', dailyLimitPct ? (dailyDDpct / dailyLimitPct * 100) : 0, GREEN, dayBreached);
+    el('g-daily-v').textContent = pct(dailyDDpct);
+    el('g-daily-foot').textContent = 'حد مجاز: ' + pct(dailyLimitPct) + (dayBreached ? ' — نقض شد' : '');
+
+    // دراوداون کل: بالانس‌محور نسبت به بالانسِ اولیه‌ی دیتابیس
+    gauge('g-total', totalLimitPct ? (overallDDpct / totalLimitPct * 100) : 0, CYAN, overallViolated);
+    el('g-total-v').textContent = pct(overallDDpct);
+    el('g-total-foot').textContent = 'حد مجاز: ' + pct(totalLimitPct) + (overallViolated ? ' — نقض شد' : '');
+
+    // ریسک شناور: فقط برای حساب‌های ریل نمایش داده می‌شود
+    if (floatEnabled) {
+        var frCount = (M.floating_risk_violations || []).length;
+        gauge('g-float', frCount > 0 ? 100 : 0, GREEN, frCount > 0);
+        el('g-float-v').textContent = frCount;
+        el('g-float-foot').textContent = 'سقف: ' + money(M.floating_risk_threshold_value);
+    } else {
+        var fg = document.getElementById('gauge-float');
+        if (fg) { fg.style.display = 'none'; }
+    }
+
+    // ---------- نمودارها ----------
+    function grad(ctx, c1, c2) {
+        var g = ctx.createLinearGradient(0, 0, 0, 280);
+        g.addColorStop(0, c1); g.addColorStop(1, c2); return g;
+    }
+    Chart.defaults.color = TXT;
+    Chart.defaults.font.family = 'Tahoma, sans-serif';
+
+    // ترتیب معاملات بر اساس زمان بسته‌شدن
+    var closed = trades.filter(function (t) { return t.close_time; })
+        .sort(function (a, b) { return new Date(a.close_time) - new Date(b.close_time); });
+    var eqLabels = [], eqData = [], cum = num(M.initial_balance), cumPL = 0, cumPLData = [];
+    closed.forEach(function (t, i) {
+        cum += num(t.profit_loss); cumPL += num(t.profit_loss);
+        eqLabels.push('#' + (i + 1)); eqData.push(cum.toFixed(2)); cumPLData.push(cumPL.toFixed(2));
+    });
+
+    // منحنی اکوئیتی/بالانس
+    var eqCtx = el('c-equity').getContext('2d');
+    new Chart(eqCtx, {
+        type: 'line',
+        data: { labels: eqLabels, datasets: [{ label: 'بالانس', data: eqData, borderColor: GREEN, backgroundColor: grad(eqCtx, 'rgba(16,185,129,.35)', 'rgba(16,185,129,0)'), fill: true, tension: .35, pointRadius: 0, borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID } } } }
+    });
+
+    // سود/زیان تجمعی
+    var cpCtx = el('c-cumpl').getContext('2d');
+    new Chart(cpCtx, {
+        type: 'line',
+        data: { labels: eqLabels, datasets: [{ label: 'P/L تجمعی', data: cumPLData, borderColor: CYAN, backgroundColor: grad(cpCtx, 'rgba(34,211,238,.3)', 'rgba(34,211,238,0)'), fill: true, tension: .35, pointRadius: 0, borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID } } } }
+    });
+
+    // کمترین اکوئیتی روزانه
+    new Chart(el('c-daily').getContext('2d'), {
+        type: 'line',
+        data: { labels: daily.map(function (d) { return d.date; }), datasets: [{ label: 'کمترین اکوئیتی', data: daily.map(function (d) { return num(d.min_equity).toFixed(2); }), borderColor: GREEN, backgroundColor: 'rgba(16,185,129,.15)', fill: true, tension: .3, pointRadius: 3, pointBackgroundColor: GREEN }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID } } } }
+    });
+
+    // سود/زیان روزانه (تجمیع معاملات بر اساس تاریخ بسته‌شدن)
+    var byDay = {};
+    closed.forEach(function (t) {
+        var d = (t.close_time || '').slice(0, 10);
+        byDay[d] = (byDay[d] || 0) + num(t.profit_loss);
+    });
+    var dayKeys = Object.keys(byDay).sort();
+    new Chart(el('c-dailypl').getContext('2d'), {
+        type: 'bar',
+        data: { labels: dayKeys, datasets: [{ data: dayKeys.map(function (k) { return byDay[k].toFixed(2); }), backgroundColor: dayKeys.map(function (k) { return byDay[k] >= 0 ? GREEN : RED; }), borderRadius: 5 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID } } } }
+    });
+
+    // برد/باخت
+    new Chart(el('c-winloss').getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: ['برد', 'باخت'], datasets: [{ data: [wins.length, losses.length], backgroundColor: [GREEN, RED], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // سود/زیان به تفکیک نماد
+    var bySym = {};
+    trades.forEach(function (t) { var s = t.symbol || '?'; bySym[s] = (bySym[s] || 0) + num(t.profit_loss); });
+    var symKeys = Object.keys(bySym).sort(function (a, b) { return bySym[b] - bySym[a]; });
+    new Chart(el('c-symbols').getContext('2d'), {
+        type: 'bar',
+        data: { labels: symKeys, datasets: [{ data: symKeys.map(function (k) { return bySym[k].toFixed(2); }), backgroundColor: symKeys.map(function (k) { return bySym[k] >= 0 ? GREEN : RED; }), borderRadius: 5 }] },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: GRID } }, y: { grid: { color: GRID } } } }
+    });
+
+    // ---------- جدول معاملات ----------
+    var page = 1, perPage = 10, sortKey = 'close_time', sortDir = -1, view = trades.slice();
+    function applyView() {
+        var q = (el('tbl-search').value || '').trim().toLowerCase();
+        var f = el('tbl-filter').value;
+        view = trades.filter(function (t) {
+            if (q && (t.symbol || '').toLowerCase().indexOf(q) === -1) return false;
+            if (f === 'win' && num(t.profit_loss) <= 0) return false;
+            if (f === 'loss' && num(t.profit_loss) >= 0) return false;
+            return true;
+        });
+        view.sort(function (a, b) {
+            var av = a[sortKey], bv = b[sortKey];
+            if (sortKey === 'profit_loss' || sortKey === 'volume' || sortKey === 'open_price' || sortKey === 'close_price' || sortKey === 'duration_seconds') { av = num(av); bv = num(bv); }
+            else { av = (av || '').toString(); bv = (bv || '').toString(); }
+            return (av < bv ? -1 : av > bv ? 1 : 0) * sortDir;
+        });
+        page = 1; render();
+    }
+    function render() {
+        var pages = Math.max(1, Math.ceil(view.length / perPage));
+        if (page > pages) page = pages;
+        var rows = view.slice((page - 1) * perPage, page * perPage);
+        el('tbl-body').innerHTML = rows.length ? rows.map(function (t) {
+            var p = num(t.profit_loss);
+            return '<tr>' +
+                '<td>' + (t.symbol || '-') + '</td>' +
+                '<td>' + (t.date || (t.open_time || '').slice(0, 10)) + '</td>' +
+                '<td>' + num(t.open_price).toFixed(4) + '</td>' +
+                '<td>' + (t.close_price != null ? num(t.close_price).toFixed(4) : '-') + '</td>' +
+                '<td>' + (t.trade_type === 'buy' ? 'خرید' : t.trade_type === 'sell' ? 'فروش' : (t.trade_type || '-')) + '</td>' +
+                '<td>' + num(t.volume).toFixed(2) + '</td>' +
+                '<td class="' + (p >= 0 ? 'pos' : 'neg') + '">' + money(p) + '</td>' +
+                '<td>' + fmtDur(t.duration_seconds) + '</td>' +
+                '</tr>';
+        }).join('') : '<tr><td colspan="8">معامله‌ای یافت نشد.</td></tr>';
+        el('pg-info').textContent = 'صفحه ' + page + ' از ' + pages + ' (' + view.length + ' معامله)';
+        el('pg-prev').disabled = page <= 1;
+        el('pg-next').disabled = page >= pages;
+    }
+    el('tbl-search').addEventListener('input', applyView);
+    el('tbl-filter').addEventListener('change', applyView);
+    el('pg-prev').addEventListener('click', function () { if (page > 1) { page--; render(); } });
+    el('pg-next').addEventListener('click', function () { page++; render(); });
+    document.querySelectorAll('table.apx-table th').forEach(function (th) {
+        th.addEventListener('click', function () {
+            var k = th.getAttribute('data-k');
+            if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = 1; }
+            applyView();
+        });
+    });
+    applyView();
+})();
 </script>
 {% endblock %}

@@ -502,3 +502,22 @@ class PaymentGatewaySetting(models.Model):
     @classmethod
     def get_active_gateway(cls):
         return cls.load().active_rial_gateway
+
+
+
+class ReferralTransfer(models.Model):
+    """ثبتِ انتقالِ درآمدِ رفرال به کیف‌پول (برای بازبینیِ ادمین و جلوگیری از تقلب)."""
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='referral_transfers', verbose_name="کاربر")
+    amount_usd = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="مبلغ منتقل‌شده (دلار)")
+    breakdown = models.TextField(blank=True, verbose_name="ریز درآمد (JSON)")
+    wallet_before = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="موجودی کیف‌پول قبل")
+    wallet_after = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="موجودی کیف‌پول بعد")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ انتقال")
+
+    class Meta:
+        verbose_name = 'انتقال درآمد رفرال'
+        verbose_name_plural = 'انتقال‌های درآمد رفرال'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"انتقال {self.amount_usd}$ - {self.user.email}"

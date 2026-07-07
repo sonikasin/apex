@@ -36,4 +36,61 @@
 
 <h3 style="margin:22px 0 10px;">داده‌های ارسالی (POST)</h3>
 <pre class="post-pre">{{ pretty_post|default:"—" }}</pre>
+
+<h3 style="margin:22px 0 10px;">تغییرات ثبت‌شده (قبل / بعد)</h3>
+{% if changes %}
+<style>
+    .chg-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin:0 0 14px; max-width:860px; }
+    .chg-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+    .chg-badge { padding:4px 12px; border-radius:30px; font-size:12.5px; font-weight:700; }
+    .chg-badge.create { background:rgba(16,185,129,.14); color:#059669; border:1px solid #10b981; }
+    .chg-badge.update { background:rgba(59,130,246,.14); color:#2563eb; border:1px solid #3b82f6; }
+    .chg-badge.delete { background:rgba(239,68,68,.14); color:#dc2626; border:1px solid #ef4444; }
+    .chg-model { font-weight:800; }
+    .chg-repr { color:var(--text-muted); font-size:13px; }
+    .chg-table { width:100%; border-collapse:collapse; margin:0; box-shadow:none; }
+    .chg-table th, .chg-table td { border:1px solid var(--border); padding:8px 10px; font-size:13px; text-align:right; vertical-align:top; word-break:break-word; }
+    .chg-table th { background:rgba(148,163,184,.12); width:200px; font-weight:700; }
+    .chg-before { color:#dc2626; direction:ltr; text-align:left; }
+    .chg-after { color:#059669; direction:ltr; text-align:left; }
+    .chg-val { direction:ltr; text-align:left; }
+    .chg-cols th { text-align:center; background:rgba(148,163,184,.16); width:auto; }
+</style>
+{% for c in changes %}
+<div class="chg-card">
+    <div class="chg-head">
+        {% if c.action == 'create' %}<span class="chg-badge create">➕ ایجاد شد</span>
+        {% elif c.action == 'delete' %}<span class="chg-badge delete">🗑 حذف شد</span>
+        {% else %}<span class="chg-badge update">✏ ویرایش شد</span>{% endif %}
+        <span class="chg-model">{{ c.model }}</span>
+        <span class="chg-repr">#{{ c.pk }} — {{ c.repr }}</span>
+    </div>
+    {% if c.action == 'update' %}
+    <table class="chg-table">
+        <thead><tr class="chg-cols"><th>فیلد</th><th>مقدار قبلی</th><th>مقدار جدید</th></tr></thead>
+        <tbody>
+            {% for field, vals in c.changes.items %}
+            <tr>
+                <th>{{ field }}</th>
+                <td class="chg-before">{{ vals.before|default_if_none:"—" }}</td>
+                <td class="chg-after">{{ vals.after|default_if_none:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <table class="chg-table">
+        <thead><tr class="chg-cols"><th>فیلد</th><th>{% if c.action == 'delete' %}مقدار حذف‌شده{% else %}مقدار{% endif %}</th></tr></thead>
+        <tbody>
+            {% for field, val in c.fields.items %}
+            <tr><th>{{ field }}</th><td class="chg-val">{{ val|default_if_none:"—" }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endfor %}
+{% else %}
+<p style="color:var(--text-muted);">برای این عملیات، تغییرِ داده‌ایِ ثبت‌شده‌ای وجود ندارد (مثلاً فقط مشاهده بوده است).</p>
+{% endif %}
 {% endblock %}

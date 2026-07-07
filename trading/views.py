@@ -2,7 +2,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import logging
 from django.shortcuts import render, redirect
-from .models import PropAccount, PropOrder,FreeAccountQuota, Ticket,Wallet,WalletTransaction, CustomUser,DiscountCode, PlanStage,PropPlan,Referral,Wallet,StageUpgradeRequest
+from .models import PropAccount, PropOrder,FreeAccountQuota, Ticket,Wallet,WalletTransaction, CustomUser,DiscountCode, PlanStage,PropPlan,Referral,Wallet,StageUpgradeRequest,ReferralTransfer
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
@@ -562,9 +562,11 @@ def payment_callback(request):
                 try:
                     referral = Referral.objects.get(referred=transaction.user)
                     referrer = referral.referrer
-                    referral_bonus_usd = (expected_amount / TETHER_TO_TOMAN_RATE) * Decimal('0.05')
-                    referral.earnings += referral_bonus_usd
-                    referral.save()
+                    # فقط اگر معرفِ واقعی وجود داشته باشد و خودِ کاربر نباشد، پاداش رفرال ثبت می‌شود
+                    if referrer and referrer != transaction.user:
+                        referral_bonus_usd = (expected_amount / TETHER_TO_TOMAN_RATE) * Decimal('0.05')
+                        referral.earnings += referral_bonus_usd
+                        referral.save()
                 except Referral.DoesNotExist:
                     logger.info(f"No referral found for user {transaction.user.email}")
 
@@ -610,9 +612,11 @@ def payment_callback(request):
                 try:
                     referral = Referral.objects.get(referred=order.user)
                     referrer = referral.referrer
-                    referral_bonus_usd = order.original_price_usd * Decimal('0.05')
-                    referral.earnings += referral_bonus_usd
-                    referral.save()
+                    # فقط اگر معرفِ واقعی وجود داشته باشد و خودِ کاربر نباشد، پاداش رفرال ثبت می‌شود
+                    if referrer and referrer != order.user:
+                        referral_bonus_usd = order.original_price_usd * Decimal('0.05')
+                        referral.earnings += referral_bonus_usd
+                        referral.save()
                 except Referral.DoesNotExist:
                     logger.info(f"No referral found for user {order.user.email}")
 
@@ -731,10 +735,10 @@ def dashboard(request):
         )
         messages.info(request, 'رفرال پیش‌فرض برای شما ایجاد شد.')
     
-    # درآمد رفرال
-    total_referral_earnings = Decimal('0.00')
-    if hasattr(request.user, 'referral_received'):
-        total_referral_earnings = request.user.referral_received.earnings or Decimal('0.00')
+    # درآمد رفرال = فقط از خریدِ کسانی که این کاربر معرفی کرده (نه خریدِ خودِ کاربر)
+    total_referral_earnings = Referral.objects.filter(referrer=request.user).exclude(
+        referred=request.user
+    ).aggregate(total=Sum('earnings'))['total'] or Decimal('0.00')
 
     # مدیریت ظرفیت اکانت رایگان
     today = timezone.now().date()
@@ -1281,15 +1285,39 @@ def analytics(request):
     trades_paginated = None
     account_status = "در انتظار انتخاب حساب"
     trading_days_count = 0
+    # درصدهای حدود ریسک (برای گیج‌ها و نمودارهای پنل)
+    daily_draw_percent = 5.0
+    total_draw_percent = 20.0
+    floating_risk_percent = 2.0
+    profit_percent_target = 0.0
+    profit_target_amount = 0.0
+    account_phase = 'phase1'
+    db_initial_balance = 0.0
+    # روزِ درخواستی برای آنالیز (پیش‌فرض امروز)
+    requested_date = timezone.now().strftime("%Y-%m-%d")
 
     if request.method == 'POST':
         account_number = request.POST.get('account_number')
         if account_number:
             try:
                 current_time = timezone.now()
-                formatted_time = current_time.strftime("%Y-%m-%dT23:59:59")
+                # روزی که کاربر می‌خواهد آنالیز شود (پیش‌فرض امروز)
+                requested_date = request.POST.get('requested_date') or current_time.strftime("%Y-%m-%d")
+                formatted_time = f"{requested_date}T23:59:59"
                 selected_account = accounts.get(account_number=account_number)
-                
+
+                # بالانسِ اولیه‌ی ثبت‌شده در دیتابیس (مبنای دراوداونِ کل)
+                db_initial_balance = float(selected_account.balance) if selected_account.balance is not None else 0.0
+
+                # تعیین مرحله‌ی حساب: ریسکِ شناور فقط برای حساب‌های ریل چک می‌شود
+                acc_level = selected_account.level
+                if acc_level == 'Real':
+                    account_phase = 'real'
+                elif acc_level == 'level2':
+                    account_phase = 'phase2'
+                else:
+                    account_phase = 'phase1'
+
                 # درخواست به API
                 api_url = 'http://91.107.144.126:80/metrics'
                 payload = {
@@ -1298,12 +1326,14 @@ def analytics(request):
                     'server': selected_account.server,
                     'from_date': '2025-06-27',
                     'to_date': formatted_time,
+                    'phase': account_phase,
                     'daily_drawdown_threshold': float(selected_account.daily_draw_percent or 5.0),
                     'overall_drawdown_threshold': float(selected_account.total_draw_percent or 20.0),
                     'floating_risk_threshold': float(selected_account.floating_risk_percent or 2.0),
                     'profit_target_percent': float(selected_account.profit_percent or 10.0)
                 }
-                response = requests.post(api_url, json=payload, timeout=60)
+                # مهلتِ بالا چون واکشیِ تیک‌به‌تیک ممکن است تا چند دقیقه طول بکشد
+                response = requests.post(api_url, json=payload, timeout=300)
                 response.raise_for_status()
                 metrics = response.json()
 
@@ -1332,6 +1362,7 @@ def analytics(request):
 
                 # محاسبه دراوداون روزانه
                 daily_draw_percent = float(selected_account.daily_draw_percent or 5.0)
+                floating_risk_percent = float(selected_account.floating_risk_percent or 2.0)
                 if metrics.get('daily_metrics'):
                     last_metric = metrics['daily_metrics'][-1]
                     day_balance = float(last_metric['start_balance'])
@@ -1374,6 +1405,9 @@ def analytics(request):
                 # محاسبه مقدار تارگت سود
                 profit_target_value = initial_balance * (profit_percent / 100) + initial_balance if profit_percent > 0 else 0.0
                 profit_target_progress = (current_profit_percent / profit_percent) * 100 if profit_percent > 0 and current_profit_percent >= 0 else 0.0
+                profit_percent_target = profit_percent
+                # مبلغِ دلاریِ تارگت سود (برای قانون ۸۰٪ و سقفِ اسکالپ)
+                profit_target_amount = initial_balance * (profit_percent / 100) if profit_percent > 0 else 0.0
 
                 # تعیین وضعیت حساب
                 is_violated = metrics.get('daily_drawdown_violated', False) or \
@@ -1421,6 +1455,22 @@ def analytics(request):
         'trades_paginated': trades_paginated,
         'account_status': account_status,
         'trading_days_count': trading_days_count,
+        # پیکربندیِ حدود ریسک برای گیج‌ها/نمودارهای سمتِ کلاینت
+        'requested_date': requested_date,
+        'analysis_config': {
+            'daily_draw_percent': daily_draw_percent,
+            'total_draw_percent': total_draw_percent,
+            'floating_risk_percent': floating_risk_percent,
+            'profit_percent_target': profit_percent_target,
+            'profit_target_amount': profit_target_amount,
+            'daily_drawdown_limit_value': daily_drawdown_value,
+            'total_drawdown_limit_value': total_drawdown_value,
+            'profit_target_value': profit_target_value,
+            'account_status': account_status,
+            'requested_date': requested_date,
+            'db_initial_balance': db_initial_balance,
+            'phase': account_phase,
+        },
     })
 
 def user_register(request):
@@ -2099,27 +2149,89 @@ def personal_analytics(request):
     
 
 @login_required
+def transfer_referral_to_wallet(request):
+    """کلِ موجودیِ درآمدِ رفرال را به کیف‌پول منتقل و درآمدِ رفرال را صفر می‌کند."""
+    if request.method != 'POST':
+        return redirect('affiliate_panel')
+
+    user = request.user
+    import json as _json
+    from django.db import transaction as _dbtx
+
+    try:
+        with _dbtx.atomic():
+            referrals = Referral.objects.select_for_update().filter(referrer=user).exclude(referred=user)
+            breakdown = []
+            total = Decimal('0.00')
+            for r in referrals:
+                amt = r.earnings or Decimal('0.00')
+                if amt > 0:
+                    breakdown.append({'referred_email': r.referred.email, 'amount': str(amt)})
+                    total += amt
+
+            if total <= 0:
+                messages.error(request, 'موجودی درآمد رفرالی برای انتقال وجود ندارد.')
+                return redirect('affiliate_panel')
+
+            wallet, _ = Wallet.objects.select_for_update().get_or_create(user=user)
+            wallet_before = wallet.balance_usd or Decimal('0.00')
+            wallet.balance_usd = wallet_before + total
+            wallet.save()
+
+            # صفر کردن درآمدِ همه‌ی رفرال‌ها پس از انتقال
+            referrals.update(earnings=Decimal('0.00'))
+
+            # ثبتِ رکوردِ انتقال (برای بازبینیِ ادمین)
+            ReferralTransfer.objects.create(
+                user=user,
+                amount_usd=total,
+                breakdown=_json.dumps(breakdown, ensure_ascii=False),
+                wallet_before=wallet_before,
+                wallet_after=wallet.balance_usd,
+            )
+
+        # ثبتِ تراکنشِ کیف‌پول برای شفافیت (خارج از اتمیک؛ اختیاری)
+        try:
+            WalletTransaction.objects.create(
+                user=user, transaction_type='deposit', amount_toman=0, amount_usd=total,
+                status='completed',
+                transaction_id=f"REF-{user.id}-{int(timezone.now().timestamp() * 1000)}",
+                payment_gateway='referral',
+            )
+        except Exception:
+            pass
+
+        messages.success(request, f'مبلغ {total}$ از درآمد رفرال با موفقیت به کیف پول شما منتقل شد.')
+    except Exception as e:
+        logger.error(f"Referral transfer error for {user.email}: {e}")
+        messages.error(request, 'خطا در انتقال درآمد رفرال. لطفاً دوباره تلاش کنید.')
+
+    return redirect('affiliate_panel')
+
+
+@login_required
 def affiliate_panel(request):
     user = request.user
     # دریافت رفرال‌های کاربر
-    referrals = Referral.objects.filter(referrer=user)
+    referrals = Referral.objects.filter(referrer=user).exclude(referred=user).select_related('referred')
     referral_count = referrals.count()
     
     # دریافت سفارش‌های موفق رفرال‌ها
     referred_users = [referral.referred for referral in referrals]
-    successful_orders = PropOrder.objects.filter(user__in=referred_users, status='completed')
+    successful_orders = PropOrder.objects.filter(
+        user__in=referred_users, status='completed'
+    ).exclude(user=user).select_related('user', 'plan').order_by('-purchase_date')
     order_count = successful_orders.count()
-    
-    # محاسبه درآمد رفرال
-    total_earnings = Decimal('0.00')
+
     orders_with_earnings = []
     for order in successful_orders:
-        earnings = order.final_price_usd * (Decimal(user.affiliate_percentage) / Decimal(100))
-        total_earnings += earnings
+        earnings = (order.final_price_usd or Decimal('0.00')) * Decimal('0.05')
         orders_with_earnings.append({
             'order': order,
             'earnings': earnings
         })
+    # درآمد کل = مجموع درآمد ثبت‌شده روی رکوردهای رفرال (منبع دقیق و واقعی)
+    total_earnings = referrals.aggregate(t=Sum('earnings'))['t'] or Decimal('0.00')
     
     # محاسبه تعداد خریدهای موفق برای هر رفرال
     referrals_with_counts = []
@@ -2127,26 +2239,30 @@ def affiliate_panel(request):
         successful_order_count = PropOrder.objects.filter(user=referral.referred, status='completed').count()
         referrals_with_counts.append({
             'referral': referral,
-            'successful_order_count': successful_order_count
+            'successful_order_count': successful_order_count,
+            'earnings': referral.earnings or Decimal('0.00')
         })
     
     # دریافت موجودی کیف پول
     wallet, created = Wallet.objects.get_or_create(user=user)
-    
+    total_transferred = ReferralTransfer.objects.filter(user=user).aggregate(t=Sum('amount_usd'))['t'] or Decimal('0.00')
+
     # لینک رفرال
-    referral_link = f"{request.build_absolute_uri('/')[:-1]}?referral_code={user.id}"
-    
+    referral_link = f"{request.scheme}://{request.get_host()}{reverse('register')}?referral_code={user.id}"
+
     return render(request, 'affiliate_panel.html', {
         'referral_count': referral_count,
         'order_count': order_count,
         'total_earnings': total_earnings,
+        'total_transferred': total_transferred,
         'wallet_balance': wallet.balance_usd,
         'referral_code': user.id,
         'affiliate_percentage': user.affiliate_percentage,
+        'referral_rate_percent': 5,
         'referrals': referrals_with_counts,
         'successful_orders': orders_with_earnings,
         'referral_link': referral_link,
-        'home_url': '/',  # لینک دستی برای بازگشت به صفحه اصلی (لطفاً لینک دقیق را ارائه دهید)
+        'home_url': '/',
     })
     
     

@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.db.models import Q
-from trading.models import CustomUser,BlogPost,FreeAccountQuota, PropAccount,Wallet, WalletTransaction,Referral, PropOrder, Ticket, Employee, IdentityVerification, PropPlan, PlanStage, Rule, DiscountCode
+from trading.models import CustomUser,BlogPost,FreeAccountQuota, PropAccount,Wallet, WalletTransaction,Referral, PropOrder, Ticket, Employee, IdentityVerification, PropPlan, PlanStage, Rule, DiscountCode, ReferralTransfer
+from django.db.models import Sum
 from django.contrib import messages
 from .models import UserSubmission
 import random
@@ -2106,6 +2107,38 @@ def admin_action_log_list(request):
     })
 
 
+@admin_required('can_manage_orders')
+def referral_transfer_list(request):
+    """لیستِ انتقال‌های درآمدِ رفرال به کیف‌پول، همراه با ریزِ درآمد (برای بازبینی و جلوگیری از تقلب)."""
+    transfers = ReferralTransfer.objects.select_related('user').all()
+
+    f_email = request.GET.get('email', '').strip()
+    if f_email:
+        transfers = transfers.filter(user__email__icontains=f_email)
+
+    total_all = transfers.aggregate(s=Sum('amount_usd'))['s'] or 0
+
+    paginator = Paginator(transfers, 30)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # پارسِ ریزِ درآمد برای هر انتقال
+    items = []
+    for t in page_obj:
+        try:
+            bd = json.loads(t.breakdown) if t.breakdown else []
+        except Exception:
+            bd = []
+        items.append({'t': t, 'breakdown': bd})
+
+    return render(request, 'admin_panel/referral_transfer_list.html', {
+        'items': items,
+        'page_obj': page_obj,
+        'total_all': total_all,
+        'total_count': paginator.count,
+        'email': f_email,
+    })
+
+
 @superuser_required
 def admin_action_log_detail(request, pk):
     log = get_object_or_404(AdminActionLog, pk=pk)
@@ -2115,7 +2148,15 @@ def admin_action_log_detail(request, pk):
             pretty_post = json.dumps(json.loads(log.post_data), ensure_ascii=False, indent=2)
     except Exception:
         pass
+    # پارسِ جزئیاتِ تغییرات (قبل/بعد)
+    parsed_changes = []
+    try:
+        if log.changes:
+            parsed_changes = json.loads(log.changes)
+    except Exception:
+        parsed_changes = []
     return render(request, 'admin_panel/admin_action_log_detail.html', {
         'log': log,
         'pretty_post': pretty_post,
+        'changes': parsed_changes,
     })
